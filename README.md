@@ -6,12 +6,6 @@
 
 ### Before Starting
 
-Need to set gradle properties:
-```
-triplea.github.username
-triplea.github.access.token
-```
-
 Create file (or append to):  `~/.gradle/gradle.properties`, the following:
 
 ```
