@@ -12,18 +12,12 @@ triplea.github.username
 triplea.github.access.token
 ```
 
-Use the script below to create (or append to) the file: `~/.gradle/gradle.properties`
+Create file (or append to):  `~/.gradle/gradle.properties`, the following:
 
 ```
-GITHUB_USER=[change-me]
-ACCESS_TOKEN=[change-me]
-
-
-mkdir -p ~/.gradle
-echo "triplea.github.username=$GITHUB_USER
-triplea.github.access.token=$ACCESS_TOKEN" >> ~/.gradle/gradle.properties
+triplea.github.username=CHANGE_ME
+triplea.github.access.token=CHANGE_ME
 ```
-
 
 
 ## Building
@@ -35,5 +29,14 @@ triplea.github.access.token=$ACCESS_TOKEN" >> ~/.gradle/gradle.properties
 ## Running 
 
 TODO
+
+
+## CI / CD  - What happens when master is updated
+
+- code compilation checks
+- docker image of the lobby published to github docker registry
+
+
+
 
 
