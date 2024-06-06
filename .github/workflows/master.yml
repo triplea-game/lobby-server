@@ -1,0 +1,38 @@
+# Runs when master branch is updated.
+# Does all the builds things & creates a new latest build.
+# Then updates production to be running this new latest build.
+
+name: Build latest and update PROD
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Run Build Checks
+        # We skip 'spotlessApply' such that only 'spotlessCheck' will run to validate formatting.
+        # This is a good setup for a CI server, meanwhile if a developer runs 'verify', they
+        # will have the 'spotlessApply' task run to automatically format the code.
+        run: ./verify --exclude-task spotlessApply
+
+#      - name: Load SSH private key into ssh-agent
+#        uses: webfactory/ssh-agent@v0.9.0
+#        with:
+#          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+#      - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
+#        run: |
+#          pip install ansible==2.9.13
+#          cd infrastructure
+#          echo "$ANSIBLE_VAULT_PASSWORD" > vault_password
+#          ./run_ansible --environment production
+#        env:
+#          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
