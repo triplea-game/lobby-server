@@ -17,7 +17,7 @@ repositories {
 }
 
 dependencies {
-    implementation("triplea:lobby-client:0.14713")
+    implementation("triplea:lobby-client:2.6.14756")
 }
 
 tasks.withType(JavaCompile).configureEach {
