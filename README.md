@@ -25,12 +25,3 @@ triplea.github.access.token=CHANGE_ME
 TODO
 
 
-## CI / CD  - What happens when master is updated
-
-- code compilation checks
-- docker image of the lobby published to github docker registry
-
-
-
-
-
