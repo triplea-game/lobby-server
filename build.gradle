@@ -5,6 +5,12 @@ plugins {
     id "com.avast.gradle.docker-compose" version "0.17.6"
 }
 
+apply plugin: "com.diffplug.spotless"
+
+dependencies {
+    implementation("triplea:lobby-client:2.6.14756")
+}
+
 repositories {
     mavenCentral()
     maven {
@@ -14,10 +20,6 @@ repositories {
             password = project.property("triplea.github.access.token")
         }
     }
-}
-
-dependencies {
-    implementation("triplea:lobby-client:2.6.14756")
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -32,3 +34,9 @@ tasks.withType(Test).configureEach {
     }
 }
 
+spotless {
+    java {
+        googleJavaFormat()
+        removeUnusedImports()
+    }
+}
