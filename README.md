@@ -17,7 +17,7 @@ triplea.github.access.token=CHANGE_ME
 ## Building
 
 ```
-./gradlew check
+./verify.sh
 ```
 
 ## Running 
