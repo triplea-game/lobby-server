@@ -23,7 +23,8 @@ jobs:
         # This is a good setup for a CI server, meanwhile if a developer runs 'verify', they
         # will have the 'spotlessApply' task run to automatically format the code.
         run: ./verify.sh --exclude-task spotlessApply
-
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 #      - name: Load SSH private key into ssh-agent
 #        uses: webfactory/ssh-agent@v0.9.0
 #        with:
