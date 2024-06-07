@@ -16,8 +16,8 @@ repositories {
     maven {
         url "https://maven.pkg.github.com/triplea-game/triplea"
         credentials {
-            username = project.property("triplea.github.username")
-            password = project.property("triplea.github.access.token")
+            username = project.property("triplea.github.username") ?: ""
+            password = project.property("triplea.github.access.token") ?: ""
         }
     }
 }
