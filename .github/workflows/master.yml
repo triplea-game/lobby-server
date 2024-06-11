@@ -27,7 +27,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: build docker container
         run:
-          docker build . -t lobby
+          docker build . --tag ghcr.io/triplea-game/lobby:latest
+          docker push ghcr.io/triplea-game/lobby:latest
+
 #      - name: Load SSH private key into ssh-agent
 #        uses: webfactory/ssh-agent@v0.9.0
 #        with:
