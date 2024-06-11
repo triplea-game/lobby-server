@@ -32,8 +32,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: build docker container
-        run:
-          docker build . --tag ghcr.io/triplea-game/lobby:latest
+        run: |
+          docker build . --tag ghcr.io/triplea-game/lobby:latest;
           docker push ghcr.io/triplea-game/lobby:latest
 
 #      - name: Load SSH private key into ssh-agent
