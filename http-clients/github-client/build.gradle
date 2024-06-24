@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation "io.github.openfeign:feign-core:13.2.1"
+    implementation "io.github.openfeign:feign-core:13.3"
     implementation "io.github.openfeign:feign-gson:13.2.1"
 //    implementation project(":lib:feign-common")
 //    implementation project(":lib:java-extras")
