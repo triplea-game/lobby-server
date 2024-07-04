@@ -26,7 +26,9 @@ triplea.github.access.token=CHANGE_ME
 docker compose up
 ```
 
-Lobby will be running on localhost:8080
+Lobby will be running on localhost with a random port number
+
+(TODO: add env variable so we can do something like: `LOBBY_PORT=8080 docker compose up`)
 
 
 
