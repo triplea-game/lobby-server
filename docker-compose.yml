@@ -46,7 +46,7 @@ services:
     ports:
       - "8080"
     depends_on:
-      - database
+      - flyway
 #
 #  nginx:
 #    image: nginx:stable-alpine-perl
