@@ -22,6 +22,11 @@ triplea.github.access.token=CHANGE_ME
 
 ## Running 
 
-TODO
+```
+docker compose up
+```
+
+Lobby will be running on localhost:8080
+
 
 
