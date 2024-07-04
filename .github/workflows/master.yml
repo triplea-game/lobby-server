@@ -2,7 +2,7 @@
 # Does all the builds things & creates a new latest build.
 # Then updates production to be running this new latest build.
 
-name: Build latest and update PROD
+name: Master Branch Build - Build Docker Container
 on:
   pull_request:
   push:
