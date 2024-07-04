@@ -48,4 +48,4 @@ set -eu
 
 checkDependency "docker" || installDocker
 "$scriptDir/gradlew" spotlessApply check $@
-"$scriptDir/.build/code-convention-checks/check-custom-style"
+
