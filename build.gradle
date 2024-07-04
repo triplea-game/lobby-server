@@ -81,7 +81,7 @@ ext {
     junitPlatformLauncherVersion = "1.10.2"
     logbackClassicVersion = "1.2.11"
     mockitoVersion = "5.11.0"
-    openFeignVersion = "13.2.1"
+    openFeignVersion = "13.3"
     postgresqlVersion = "42.7.3"
     snakeYamlVersion = "2.7"
     sonatypeGoodiesPrefsVersion = "2.3.9"
