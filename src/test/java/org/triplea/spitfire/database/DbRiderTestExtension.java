@@ -32,10 +32,6 @@ public abstract class DbRiderTestExtension
 
   private static Jdbi jdbi;
 
-  protected abstract String getDatabaseUser();
-
-  protected abstract String getDatabasePassword();
-
   protected abstract String getDatabaseUrl();
 
   /** Return all row mappers that should be registered with JDBI. */
@@ -44,7 +40,7 @@ public abstract class DbRiderTestExtension
   @Override
   public void beforeAll(final ExtensionContext context) {
     if (jdbi == null) {
-      jdbi = Jdbi.create(getDatabaseUrl(), getDatabaseUser(), getDatabasePassword());
+      jdbi = Jdbi.create(getDatabaseUrl(), "lobby_flyway", "lobby_flyway");
       jdbi.installPlugin(new SqlObjectPlugin());
       rowMappers().forEach(jdbi::registerRowMapper);
     }

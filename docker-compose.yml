@@ -35,19 +35,18 @@ services:
       - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
     depends_on:
       - database
-
-#  lobby:
-#    build:
+  lobby:
+    build:
 #      context: spitfire-server/dropwizard-server/
-#      dockerfile: Dockerfile
-#    environment:
-#      - DATABASE_USER=lobby_user
-#      - DATABASE_PASSWORD=lobby
-#      - DB_URL=database:5432/lobby_db
-#    ports:
-#      - "8080"
-#    depends_on:
-#      - database
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_USER=lobby_user
+      - DATABASE_PASSWORD=lobby
+      - DB_URL=database:5432/lobby_db
+    ports:
+      - "8080"
+    depends_on:
+      - database
 #
 #  nginx:
 #    image: nginx:stable-alpine-perl

@@ -3,9 +3,30 @@ plugins {
     id "io.freefair.lombok" version "8.6"
     id "com.diffplug.spotless" version "6.25.0"
     id "com.avast.gradle.docker-compose" version "0.17.6"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
 }
 
+//apply plugin: java
 apply plugin: "com.diffplug.spotless"
+//apply plugin: "com.github.johnrengelman.shadow"
+
+
+//archivesBaseName = "$group-$name"
+//mainClassName =
+
+jar {
+    manifest {
+        attributes "Main-Class": "org.triplea.spitfire.server.SpitfireServerApplication"
+    }
+}
+
+shadowJar {
+    archiveClassifier.set ""
+    // mergeServiceFiles is needed by dropwizard
+    // Without this configuration parsing breaks and is unable to find connector type "http" for
+    // the following YAML snippet:  server: {applicationConnectors: [{type: http, port: 8080}]
+    mergeServiceFiles()
+}
 
 
 repositories {
@@ -110,6 +131,7 @@ dependencies {
     implementation "org.jdbi:jdbi3-core:$jdbiVersion"
     implementation "org.jdbi:jdbi3-sqlobject:$jdbiVersion"
     implementation "triplea:lobby-client:2.6.14759"
+    runtimeOnly "org.postgresql:postgresql:$postgresqlVersion"
 
     testImplementation "com.github.database-rider:rider-junit5:$databaseRiderVersion"
     testImplementation "com.github.npathai:hamcrest-optional:2.0.0"
