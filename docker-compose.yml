@@ -21,49 +21,41 @@ services:
       interval: 3s
       retries: 10
       timeout: 3s
-
-  lobby:
-    build:
-      context: spitfire-server/dropwizard-server/
-      dockerfile: Dockerfile
-    environment:
-      - DATABASE_USER=lobby_user
-      - DATABASE_PASSWORD=lobby
-      - DB_URL=database:5432/lobby_db
-    ports:
-      - "8080"
-    depends_on:
-      - database
-
-  game-support-server:
-    build:
-      context: servers/game-support/server/
-      dockerfile: Dockerfile
-    environment:
-      - DB_URL=database:5432/lobby_db
-    ports:
-      - "8080"
-    depends_on:
-      - database
-
-  maps-server:
-    build:
-      context: servers/maps/server/
-      dockerfile: Dockerfile
-    environment:
-      - DB_URL=database:5432/lobby_db
-    ports:
-      - "8080"
-    depends_on:
-      - database
-
-  nginx:
-    image: nginx:stable-alpine-perl
+  flyway:
+    image: flyway/flyway
+    command: >
+      -locations=filesystem:/flyway/sql
+      -connectRetries=60
+      -user=lobby_flyway
+      -password=lobby_flyway
+      -url=jdbc:postgresql://database:5432/lobby_db
+      migrate
     volumes:
-      - ./.docker-compose/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "80:80"
-    links:
-      - game-support-server
-      - maps-server
-      - lobby
+      - ${PWD}/database/sql/migrations:/flyway/sql
+      - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
+    depends_on:
+      - database
+
+#  lobby:
+#    build:
+#      context: spitfire-server/dropwizard-server/
+#      dockerfile: Dockerfile
+#    environment:
+#      - DATABASE_USER=lobby_user
+#      - DATABASE_PASSWORD=lobby
+#      - DB_URL=database:5432/lobby_db
+#    ports:
+#      - "8080"
+#    depends_on:
+#      - database
+#
+#  nginx:
+#    image: nginx:stable-alpine-perl
+#    volumes:
+#      - ./.docker-compose/nginx/default.conf:/etc/nginx/conf.d/default.conf
+#    ports:
+#      - "80:80"
+#    links:
+#      - game-support-server
+#      - maps-server
+#      - lobby
