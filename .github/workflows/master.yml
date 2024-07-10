@@ -31,10 +31,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: build docker container
+      - name: build database docker container
         run: |
-          docker build . --tag ghcr.io/triplea-game/lobby:latest
-          docker push ghcr.io/triplea-game/lobby:latest
+          docker build database/sql --tag ghcr.io/triplea-game/lobby/flyway:latest
+          docker push ghcr.io/triplea-game/lobby/flyway:latest
+      - name: build server docker container
+        run: |
+          docker build . --tag ghcr.io/triplea-game/lobby/server:latest
+          docker push ghcr.io/triplea-game/lobby/server:latest
 
 #      - name: Load SSH private key into ssh-agent
 #        uses: webfactory/ssh-agent@v0.9.0
