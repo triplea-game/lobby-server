@@ -108,3 +108,18 @@ docker run \
     -url=jdbc:postgresql://localhost:5432/lobby_db \
     migrate
 ```
+
+## Prod - useful commands
+
+
+```
+sudo systemctl status lobby-2.6.service
+sudo systemctl restart lobby-2.6.service
+
+tail -f /var/log/lobby-2.6.log
+
+docker container ls
+docker logs [lobby container name]
+```
+
+
