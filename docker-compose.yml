@@ -26,8 +26,8 @@ services:
     command: >
       -locations=filesystem:/flyway/sql
       -connectRetries=60
-      -user=lobby_flyway
-      -password=lobby_flyway
+      -user=lobby_user
+      -password=lobby_user
       -url=jdbc:postgresql://database:5432/lobby_db
       migrate
     volumes:
@@ -41,10 +41,10 @@ services:
       dockerfile: Dockerfile
     environment:
       - DATABASE_USER=lobby_user
-      - DATABASE_PASSWORD=lobby
+      - DATABASE_PASSWORD=lobby_user
       - DB_URL=database:5432/lobby_db
     ports:
-      - "8080"
+      - "${LOBBY_PORT}:8080"
     depends_on:
       - flyway
 #

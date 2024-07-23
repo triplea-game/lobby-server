@@ -37,14 +37,12 @@ Building from source and running locally:
 
 ```
 ./gradlew shadowJar
-docker compose up
-
-(TODO: add env variable so we can do something like: `LOBBY_PORT=8080 docker compose up`)
+./docker-compose-up.sh
 ```
 
-After the compose up, a database will be started, flyway migrations on the local
-development environment will be run against that database. Finally, the lobby server
-application is started and will use that same database.
+After the compose up, lobby will be running on port 3000, database will be started
+as well and latests flyway migrations run.
+
 
 ### Checking running environment
 
@@ -52,7 +50,7 @@ application is started and will use that same database.
 $ docker container ls
 
 CONTAINER ID   IMAGE                COMMAND                  CREATED      STATUS                   PORTS                                         NAMES
-2eb8f441511f   lobby-server-lobby   "/bin/sh -c 'java -j…"   5 days ago   Up 9 seconds             0.0.0.0:32769->8080/tcp, :::32769->8080/tcp   lobby-server-lobby-1
+2eb8f441511f   lobby-server-lobby   "/bin/sh -c 'java -j…"   5 days ago   Up 9 seconds             :::3000->8080/tcp, :::32769->8080/tcp   lobby-server-lobby-1
 a395fabccd4e   postgres:10          "docker-entrypoint.s…"   5 days ago   Up 9 seconds (healthy)   0.0.0.0:5432->5432/tcp, :::5432->5432/tcp     lobby-server-database-1
 ```
 
@@ -63,6 +61,12 @@ a395fabccd4e   postgres:10          "docker-entrypoint.s…"   5 days ago   Up 9
 docker exec -it --user postgres lobby-server-database-1 psql
 ```
 
+### Rebuild from clean
+
+```
+docker compose rm -f
+./docker-compose-up.sh
+```
 
 ## Running (prod environment with docker)
 
