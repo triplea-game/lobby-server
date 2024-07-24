@@ -40,7 +40,7 @@ public abstract class DbRiderTestExtension
   @Override
   public void beforeAll(final ExtensionContext context) {
     if (jdbi == null) {
-      jdbi = Jdbi.create(getDatabaseUrl(), "lobby_flyway", "lobby_flyway");
+      jdbi = Jdbi.create(getDatabaseUrl(), "lobby_user", "lobby_user");
       jdbi.installPlugin(new SqlObjectPlugin());
       rowMappers().forEach(jdbi::registerRowMapper);
     }
