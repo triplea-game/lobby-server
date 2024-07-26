@@ -65,8 +65,8 @@ dependencies {
     implementation project(":server:lobby-module")
     testImplementation "com.github.database-rider:rider-junit5:$databaseRiderVersion"
     testImplementation "io.dropwizard:dropwizard-testing:$dropwizardVersion"
-    testImplementation "io.github.openfeign:feign-core:$feignCoreVersion"
-    testImplementation "io.github.openfeign:feign-gson:$feignGsonVersion"
+    testImplementation "io.github.openfeign:feign-core:$feignVersion"
+    testImplementation "io.github.openfeign:feign-gson:$feignVersion"
     testImplementation "org.awaitility:awaitility:$awaitilityVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
 //    testImplementation project(":lib:test-common")
