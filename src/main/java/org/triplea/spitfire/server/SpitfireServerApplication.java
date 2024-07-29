@@ -29,6 +29,7 @@ import org.triplea.spitfire.server.controllers.lobby.PlayersInGameController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.AccessLogController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.BadWordsController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.DisconnectUserController;
+import org.triplea.spitfire.server.controllers.lobby.moderation.GameChatHistoryController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.ModeratorAuditHistoryController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.ModeratorsController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.MuteUserController;
@@ -126,6 +127,7 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
             CreateAccountController.build(jdbi),
             DisconnectUserController.build(jdbi, chatters, playerConnectionMessagingBus),
             ForgotPasswordController.build(configuration, jdbi),
+            GameChatHistoryController.build(jdbi),
             GameHostingController.build(jdbi),
             GameListingController.build(gameListing),
             LobbyWatcherController.build(configuration, jdbi, gameListing),
