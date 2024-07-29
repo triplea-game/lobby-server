@@ -10,6 +10,7 @@ import org.triplea.db.dao.api.key.PlayerApiKeyLookupRecord;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryRecord;
 import org.triplea.db.dao.moderator.ModeratorUserDaoData;
+import org.triplea.db.dao.moderator.chat.history.ChatHistoryRecord;
 import org.triplea.db.dao.moderator.player.info.PlayerAliasRecord;
 import org.triplea.db.dao.moderator.player.info.PlayerBanRecord;
 import org.triplea.db.dao.user.ban.BanLookupRecord;
@@ -30,6 +31,7 @@ public final class LobbyModuleRowMappers {
     return List.of(
         ConstructorMapper.factory(AccessLogRecord.class),
         ConstructorMapper.factory(BanLookupRecord.class),
+        ConstructorMapper.factory(ChatHistoryRecord.class),
         ConstructorMapper.factory(ModeratorAuditHistoryRecord.class),
         ConstructorMapper.factory(ModeratorUserDaoData.class),
         ConstructorMapper.factory(PlayerAliasRecord.class),
