@@ -8,6 +8,11 @@ plugins {
 
 apply plugin: "com.diffplug.spotless"
 
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+
 jar {
     manifest {
         attributes "Main-Class": "org.triplea.spitfire.server.SpitfireServerApplication"
