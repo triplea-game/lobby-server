@@ -11,7 +11,7 @@ import lombok.experimental.UtilityClass;
 public class InetExtractor {
 
   @VisibleForTesting
-  public static final String IP_ADDRESS_KEY = "javax.websocket.endpoint.remoteAddress";
+  public static final String IP_ADDRESS_KEY = "jakarta.websocket.endpoint.remoteAddress";
 
   /**
    * Returns the IP address of the session from the provided 'userSession' map. It is expected that
