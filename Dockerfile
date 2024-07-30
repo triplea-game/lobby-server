@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim-buster
+FROM openjdk:17-jdk-slim
 
 EXPOSE 8080
 ADD configuration.yml /

@@ -1,6 +1,7 @@
 githubApiToken: ${GITHUB_API_TOKEN:-}
 githubWebServiceUrl: https://api.github.com
 githubGameOrg: triplea-game
+githubGameRepo: triplea
 
 latestVersionFetcherEnabled: ${LATEST_VERSION_FETCHER_ENABLED:-true}
 

@@ -17,6 +17,7 @@ import org.triplea.dropwizard.common.ServerConfiguration;
 import org.triplea.modules.chat.ChatMessagingService;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.game.listing.GameListing;
+import org.triplea.server.error.reporting.ErrorReportController;
 import org.triplea.spitfire.server.access.authentication.ApiKeyAuthenticator;
 import org.triplea.spitfire.server.access.authentication.AuthenticatedUser;
 import org.triplea.spitfire.server.access.authorization.BannedPlayerFilter;
@@ -128,6 +129,7 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
             ForgotPasswordController.build(configuration, jdbi),
             GameHostingController.build(jdbi),
             GameListingController.build(gameListing),
+            ErrorReportController.build(configuration.createGamesRepoGithubApiClient(), jdbi),
             LobbyWatcherController.build(configuration, gameListing),
             LoginController.build(jdbi, chatters),
             UsernameBanController.build(jdbi),

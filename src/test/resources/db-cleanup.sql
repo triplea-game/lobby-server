@@ -14,3 +14,6 @@ delete from temp_password_request;
 delete from temp_password_request_history;
 delete from lobby_user;
 delete from user_role;
+
+delete from error_report_history;
+

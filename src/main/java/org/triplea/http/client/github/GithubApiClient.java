@@ -50,9 +50,9 @@ public class GithubApiClient {
   @Builder
   public GithubApiClient(
       @Nonnull URI uri,
-      @Nonnull String authToken,
+      String authToken,
       @Nonnull String org,
-      String repo,
+      @Nonnull String repo,
       final boolean stubbingModeEnabled) {
     githubApiFeignClient =
         HttpClient.newClient(

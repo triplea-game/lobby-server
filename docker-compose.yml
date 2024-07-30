@@ -22,7 +22,9 @@ services:
       retries: 10
       timeout: 3s
   flyway:
-    image: flyway/flyway
+    build:
+      context: database/sql/
+      dockerfile: Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
       -connectRetries=60
@@ -31,7 +33,6 @@ services:
       -url=jdbc:postgresql://database:5432/lobby_db
       migrate
     volumes:
-      - ${PWD}/database/sql/migrations:/flyway/sql
       - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
     depends_on:
       - database
