@@ -1,20 +1,14 @@
 package org.triplea.dropwizard.common;
 
-import be.tomcools.dropwizard.websocket.WebsocketBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Configuration;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
-import jakarta.websocket.server.ServerEndpointConfig;
 import jakarta.ws.rs.container.ContainerRequestFilter;
-import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.triplea.http.client.web.socket.WebsocketPaths;
-import org.triplea.web.socket.GameConnectionWebSocket;
-import org.triplea.web.socket.PlayerConnectionWebSocket;
 
 /**
  * Facilitates configuration for a dropwizard server Application class.
@@ -33,7 +27,6 @@ public class ServerConfiguration<T extends Configuration> {
 
   private ServerConfiguration(final Bootstrap<T> bootstrap) {
     this.bootstrap = bootstrap;
-
   }
 
   public static <T extends Configuration> ServerConfiguration<T> build(

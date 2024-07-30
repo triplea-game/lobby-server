@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.triplea.TestData;
 import org.triplea.db.LobbyModuleDatabaseTestSupport;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.http.client.lobby.game.lobby.watcher.ChatMessageUpload;
 import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGameListing;
 
 @RequiredArgsConstructor
@@ -27,20 +26,6 @@ class LobbyGameDaoTest {
         LobbyGameListing.builder() //
             .gameId("game-id")
             .lobbyGame(TestData.LOBBY_GAME)
-            .build());
-  }
-
-  @Test
-  @DataSet(
-      value = "lobby_games/game_hosting_api_key.yml, lobby_games/lobby_game.yml",
-      useSequenceFiltering = false)
-  @ExpectedDataSet("lobby_games/game_chat_history_post_insert.yml")
-  void insertChatMessage() {
-    lobbyGameDao.recordChat(
-        ChatMessageUpload.builder()
-            .gameId("gameid-100")
-            .fromPlayer("gameplayer")
-            .chatMessage("example message")
             .build());
   }
 }

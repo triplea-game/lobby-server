@@ -33,8 +33,7 @@ public class SpitfireServerConfig extends Configuration implements LobbyModuleCo
   @Setter(onMethod_ = {@JsonProperty})
   private boolean logSqlStatements;
 
-  @Valid @JsonProperty @Getter
-  private final DataSourceFactory database = new DataSourceFactory();
+  @Valid @JsonProperty @Getter private final DataSourceFactory database = new DataSourceFactory();
 
   @Getter(onMethod_ = {@JsonProperty})
   @Setter(onMethod_ = {@JsonProperty})

@@ -23,8 +23,6 @@ public class CreateIssueRequest {
   }
 
   public String getBody() {
-    return body == null
-        ? null
-        : StringUtils.truncate(body, 65536);
+    return body == null ? null : StringUtils.truncate(body, 65536);
   }
 }
