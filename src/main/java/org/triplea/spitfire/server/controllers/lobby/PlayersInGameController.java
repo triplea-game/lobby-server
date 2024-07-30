@@ -2,10 +2,10 @@ package org.triplea.spitfire.server.controllers.lobby;
 
 import com.google.common.base.Preconditions;
 import io.dropwizard.auth.Auth;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import java.util.Collection;
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import lombok.AllArgsConstructor;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.http.client.lobby.player.PlayerLobbyActionsClient;

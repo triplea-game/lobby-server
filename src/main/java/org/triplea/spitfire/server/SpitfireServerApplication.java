@@ -1,10 +1,11 @@
 package org.triplea.spitfire.server;
 
+import be.tomcools.dropwizard.websocket.WebsocketBundle;
 import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
@@ -13,8 +14,6 @@ import org.triplea.dropwizard.common.AuthenticationConfiguration;
 import org.triplea.dropwizard.common.IllegalArgumentMapper;
 import org.triplea.dropwizard.common.JdbiLogging;
 import org.triplea.dropwizard.common.ServerConfiguration;
-import org.triplea.dropwizard.common.ServerConfiguration.WebsocketConfig;
-import org.triplea.http.client.web.socket.WebsocketPaths;
 import org.triplea.modules.chat.ChatMessagingService;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.game.listing.GameListing;
@@ -29,7 +28,6 @@ import org.triplea.spitfire.server.controllers.lobby.PlayersInGameController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.AccessLogController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.BadWordsController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.DisconnectUserController;
-import org.triplea.spitfire.server.controllers.lobby.moderation.GameChatHistoryController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.ModeratorAuditHistoryController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.ModeratorsController;
 import org.triplea.spitfire.server.controllers.lobby.moderation.MuteUserController;
@@ -58,6 +56,7 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
   private static final String[] DEFAULT_ARGS = new String[] {"server", "configuration.yml"};
 
   private ServerConfiguration<SpitfireServerConfig> serverConfiguration;
+  private final WebsocketBundle websocketBundle = new WebsocketBundle();
 
   /**
    * Main entry-point method, launches the drop-wizard http server. If no args are passed then will
@@ -72,13 +71,10 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
   @Override
   public void initialize(final Bootstrap<SpitfireServerConfig> bootstrap) {
     serverConfiguration =
-        ServerConfiguration.build(
-                bootstrap,
-                new WebsocketConfig(GameConnectionWebSocket.class, WebsocketPaths.GAME_CONNECTIONS),
-                new WebsocketConfig(
-                    PlayerConnectionWebSocket.class, WebsocketPaths.PLAYER_CONNECTIONS))
+        ServerConfiguration.build(bootstrap)
             .enableEnvironmentVariablesInConfig()
             .enableBetterJdbiExceptions();
+    bootstrap.addBundle(websocketBundle);
   }
 
   @Override
@@ -92,6 +88,9 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
     if (configuration.isLogSqlStatements()) {
       JdbiLogging.registerSqlLogger(jdbi);
     }
+
+    websocketBundle.addEndpoint(GameConnectionWebSocket.class);
+    websocketBundle.addEndpoint(PlayerConnectionWebSocket.class);
 
     serverConfiguration.registerRequestFilter(
         environment, BannedPlayerFilter.newBannedPlayerFilter(jdbi));
@@ -127,10 +126,9 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
             CreateAccountController.build(jdbi),
             DisconnectUserController.build(jdbi, chatters, playerConnectionMessagingBus),
             ForgotPasswordController.build(configuration, jdbi),
-            GameChatHistoryController.build(jdbi),
             GameHostingController.build(jdbi),
             GameListingController.build(gameListing),
-            LobbyWatcherController.build(configuration, jdbi, gameListing),
+            LobbyWatcherController.build(configuration, gameListing),
             LoginController.build(jdbi, chatters),
             UsernameBanController.build(jdbi),
             UserBanController.build(

@@ -1,8 +1,7 @@
 package org.triplea.spitfire.server;
 
+import jakarta.ws.rs.core.Response;
 import javax.annotation.Nonnull;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,8 +19,8 @@ public class ResponseStatus implements Response.StatusType {
   @Nonnull private final Integer statusCode;
 
   @Override
-  public Family getFamily() {
-    return Family.familyOf(getStatusCode());
+  public Response.Status.Family getFamily() {
+    return Response.Status.Family.familyOf(getStatusCode());
   }
 
   @Override

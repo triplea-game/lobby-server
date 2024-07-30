@@ -1,11 +1,11 @@
 package org.triplea.web.socket;
 
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.Session;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
 import lombok.experimental.UtilityClass;
 import org.java_websocket.WebSocket;
 import org.slf4j.LoggerFactory;

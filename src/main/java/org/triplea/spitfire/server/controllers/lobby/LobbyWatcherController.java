@@ -3,23 +3,18 @@ package org.triplea.spitfire.server.controllers.lobby;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.dropwizard.auth.Auth;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
 import javax.annotation.Nonnull;
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jetty.http.HttpStatus;
-import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.domain.data.LobbyConstants;
 import org.triplea.domain.data.UserName;
-import org.triplea.http.client.lobby.game.lobby.watcher.ChatMessageUpload;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingResponse;
 import org.triplea.http.client.lobby.game.lobby.watcher.LobbyWatcherClient;
@@ -28,7 +23,6 @@ import org.triplea.http.client.lobby.game.lobby.watcher.PlayerLeftNotification;
 import org.triplea.http.client.lobby.game.lobby.watcher.UpdateGameRequest;
 import org.triplea.modules.LobbyModuleConfig;
 import org.triplea.modules.game.listing.GameListing;
-import org.triplea.modules.game.lobby.watcher.ChatUploadModule;
 import org.triplea.modules.game.lobby.watcher.GamePostingModule;
 import org.triplea.spitfire.server.HttpController;
 import org.triplea.spitfire.server.access.authentication.AuthenticatedUser;
@@ -46,15 +40,13 @@ public class LobbyWatcherController extends HttpController {
 
   @Nonnull private final Boolean gameHostConnectivityCheckEnabled;
   @Nonnull private final GameListing gameListing;
-  @Nonnull private final ChatUploadModule chatUploadModule;
   @Nonnull private final GamePostingModule gamePostingModule;
 
   public static LobbyWatcherController build(
-      final LobbyModuleConfig lobbyModuleConfig, final Jdbi jdbi, final GameListing gameListing) {
+      final LobbyModuleConfig lobbyModuleConfig, final GameListing gameListing) {
     return LobbyWatcherController.builder()
         .gameHostConnectivityCheckEnabled(lobbyModuleConfig.isGameHostConnectivityCheckEnabled())
         .gameListing(gameListing)
-        .chatUploadModule(ChatUploadModule.build(jdbi, gameListing))
         .gamePostingModule(GamePostingModule.build(gameListing))
         .build();
   }
@@ -126,35 +118,6 @@ public class LobbyWatcherController extends HttpController {
         authenticatedUser.getApiKey(),
         updateGameRequest.getGameId(),
         updateGameRequest.getGameData());
-    return Response.ok().build();
-  }
-
-  /** Endpoint used to consume and persist chat messages to database. */
-  @POST
-  @Path(LobbyWatcherClient.UPLOAD_CHAT_PATH)
-  @RolesAllowed(UserRole.HOST)
-  public Response uploadChatMessage(
-      @Context final HttpServletRequest request, final ChatMessageUpload chatMessageUpload) {
-    Preconditions.checkArgument(chatMessageUpload != null);
-    Preconditions.checkArgument(chatMessageUpload.getChatMessage() != null);
-    Preconditions.checkArgument(chatMessageUpload.getFromPlayer() != null);
-    Preconditions.checkArgument(chatMessageUpload.getGameId() != null);
-
-    Preconditions.checkArgument(
-        chatMessageUpload.getFromPlayer().length() <= LobbyConstants.USERNAME_MAX_LENGTH);
-
-    String authHeader = request.getHeader("Authorization");
-
-    if (!chatUploadModule.upload(
-        // truncate 'Bearer ' from the auth token if present
-        authHeader.startsWith("Bearer ") ? authHeader.substring("Bearer ".length()) : authHeader,
-        chatMessageUpload)) {
-      log.warn(
-          "Chat upload request from {} was rejected, "
-              + "gameID and API-key pair did not match any existing games.",
-          request.getRemoteHost());
-    }
-
     return Response.ok().build();
   }
 

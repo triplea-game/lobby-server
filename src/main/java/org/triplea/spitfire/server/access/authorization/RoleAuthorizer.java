@@ -1,6 +1,8 @@
 package org.triplea.spitfire.server.access.authorization;
 
 import io.dropwizard.auth.Authorizer;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.spitfire.server.access.authentication.AuthenticatedUser;
 
@@ -10,9 +12,12 @@ import org.triplea.spitfire.server.access.authentication.AuthenticatedUser;
  */
 public class RoleAuthorizer implements Authorizer<AuthenticatedUser> {
 
-  /** Verifies a user is authorized to assume a requestedRole. <br> */
+  /** Verifies a user is authorized to assume a requestedRole. */
   @Override
-  public boolean authorize(final AuthenticatedUser user, final String requestedRole) {
+  public boolean authorize(
+      AuthenticatedUser user,
+      String requestedRole,
+      @Nullable ContainerRequestContext containerRequestContext) {
     switch (user.getUserRole()) {
       case UserRole.ADMIN:
         return adminAuthorizedFor(requestedRole);

@@ -1,7 +1,7 @@
 package org.triplea.dropwizard.common;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 
 /**
  * This class is used to convert IllegalArgumentExceptions thrown by http endpoint controllers to

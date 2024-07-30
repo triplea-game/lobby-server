@@ -1,11 +1,10 @@
 package org.triplea.spitfire.server;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.db.DataSourceFactory;
+import jakarta.validation.Valid;
 import java.net.URI;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.triplea.http.client.github.GithubApiClient;
@@ -34,8 +33,7 @@ public class SpitfireServerConfig extends Configuration implements LobbyModuleCo
   @Setter(onMethod_ = {@JsonProperty})
   private boolean logSqlStatements;
 
-  @Valid @NotNull @JsonProperty @Getter
-  private final DataSourceFactory database = new DataSourceFactory();
+  @Valid @JsonProperty @Getter private final DataSourceFactory database = new DataSourceFactory();
 
   @Getter(onMethod_ = {@JsonProperty})
   @Setter(onMethod_ = {@JsonProperty})

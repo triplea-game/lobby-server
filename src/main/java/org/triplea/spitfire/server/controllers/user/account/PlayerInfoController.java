@@ -2,9 +2,9 @@ package org.triplea.spitfire.server.controllers.user.account;
 
 import com.google.common.base.Preconditions;
 import io.dropwizard.auth.Auth;
-import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;

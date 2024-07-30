@@ -1,10 +1,10 @@
 package org.triplea.spitfire.server.controllers.user.account;
 
 import com.google.common.base.Preconditions;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.domain.data.LobbyConstants;
