@@ -68,7 +68,15 @@ docker compose rm -f
 ./docker-compose-up.sh
 ```
 
-## Running (prod environment with docker)
+## Updating Prod Lobby
+
+Simply: ```sudo systemctl restart lobby-2.6```
+
+That will shutdown the currenet lobby, pull the latest docker container and start it up.
+
+
+
+## Running (prod-like environment with docker)
 
 ```
 set +o history
