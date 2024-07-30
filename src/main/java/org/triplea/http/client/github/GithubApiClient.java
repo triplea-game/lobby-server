@@ -2,6 +2,7 @@ package org.triplea.http.client.github;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import feign.FeignException;
 import java.net.URI;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import org.slf4j.LoggerFactory;
+import org.triplea.http.client.HttpClient;
 
 // import org.triplea.http.client.HttpClient;
 
@@ -52,17 +54,16 @@ public class GithubApiClient {
       @Nonnull String org,
       String repo,
       final boolean stubbingModeEnabled) {
-    throw new UnsupportedOperationException("TODO");
-    //    githubApiFeignClient =
-    //        HttpClient.newClient(
-    //            GithubApiFeignClient.class,
-    //            uri,
-    //            Strings.isNullOrEmpty(authToken)
-    //                ? Map.of()
-    //                : Map.of("Authorization", "token " + authToken));
-    //    this.stubbingModeEnabled = stubbingModeEnabled;
-    //    this.org = org;
-    //    this.repo = repo;
+    githubApiFeignClient =
+        HttpClient.newClient(
+            GithubApiFeignClient.class,
+            uri,
+            Strings.isNullOrEmpty(authToken)
+                ? Map.of()
+                : Map.of("Authorization", "token " + authToken));
+    this.stubbingModeEnabled = stubbingModeEnabled;
+    this.org = org;
+    this.repo = repo;
   }
 
   /**
