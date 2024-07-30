@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import java.net.URI;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.triplea.http.client.github.GithubApiClient;
 import org.triplea.modules.LobbyModuleConfig;
 
@@ -16,6 +17,7 @@ import org.triplea.modules.LobbyModuleConfig;
  * class. Values can be injected into the application by using environment variables in the server
  * YML configuration file.
  */
+@ToString(exclude = {"database", "githubApiToken"})
 public class SpitfireServerConfig extends Configuration implements LobbyModuleConfig {
 
   /**

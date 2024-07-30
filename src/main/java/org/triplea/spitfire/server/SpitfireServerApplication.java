@@ -143,5 +143,11 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
             RemoteActionsController.build(jdbi, gameConnectionMessagingBus),
             UpdateAccountController.build(jdbi))
         .forEach(controller -> environment.jersey().register(controller));
+
+    log.info(
+        "STARTUP CONFIG -- DB connection: {}, user: {}, parameters: {}",
+        configuration.getDatabase().getUrl(),
+        configuration.getDatabase().getUser(),
+        configuration);
   }
 }
