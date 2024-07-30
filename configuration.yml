@@ -2,7 +2,7 @@ githubApiToken: ${GITHUB_API_TOKEN:-}
 githubWebServiceUrl: https://api.github.com
 githubGameOrg: triplea-game
 githubGameRepo: triplea
-
+errorReportToGithubEnabled: ${ERROR_REPORTING_ENABLED:-false}
 latestVersionFetcherEnabled: ${LATEST_VERSION_FETCHER_ENABLED:-true}
 
 # this is to help guarantee that we do not accidentally use test configuration in prod.
