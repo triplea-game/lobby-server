@@ -1,6 +1,7 @@
 package org.triplea.modules.chat;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.websocket.CloseReason;
 import java.net.InetAddress;
 import java.time.Clock;
 import java.time.Instant;
@@ -12,7 +13,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import javax.websocket.CloseReason;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

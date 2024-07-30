@@ -1,7 +1,7 @@
 package org.triplea.web.socket;
 
+import jakarta.websocket.CloseReason;
 import java.net.InetSocketAddress;
-import javax.websocket.CloseReason;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;

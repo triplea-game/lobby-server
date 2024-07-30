@@ -1,7 +1,7 @@
 package org.triplea.web.socket;
 
+import jakarta.websocket.CloseReason;
 import java.net.InetAddress;
-import javax.websocket.CloseReason;
 
 public interface WebSocketSession {
   boolean isOpen();

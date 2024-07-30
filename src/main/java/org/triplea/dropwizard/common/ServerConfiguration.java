@@ -1,17 +1,20 @@
 package org.triplea.dropwizard.common;
 
-import io.dropwizard.Configuration;
+import be.tomcools.dropwizard.websocket.WebsocketBundle;
 import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
 import io.dropwizard.configuration.SubstitutingSourceProvider;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
-import io.dropwizard.websockets.WebsocketBundle;
+import jakarta.websocket.server.ServerEndpointConfig;
+import jakarta.ws.rs.container.ContainerRequestFilter;
 import java.util.Arrays;
 import java.util.List;
-import javax.websocket.server.ServerEndpointConfig;
-import javax.ws.rs.container.ContainerRequestFilter;
 import lombok.AllArgsConstructor;
+import org.triplea.http.client.web.socket.WebsocketPaths;
+import org.triplea.web.socket.GameConnectionWebSocket;
+import org.triplea.web.socket.PlayerConnectionWebSocket;
 
 /**
  * Facilitates configuration for a dropwizard server Application class.
@@ -28,27 +31,14 @@ public class ServerConfiguration<T extends Configuration> {
     private final String path;
   }
 
-  private ServerConfiguration(
-      final Bootstrap<T> bootstrap, final WebsocketConfig... websocketConfigs) {
+  private ServerConfiguration(final Bootstrap<T> bootstrap) {
     this.bootstrap = bootstrap;
 
-    final ServerEndpointConfig[] websockets = addWebsockets(websocketConfigs);
-    bootstrap.addBundle(new WebsocketBundle(websockets));
-  }
-
-  private ServerEndpointConfig[] addWebsockets(final WebsocketConfig... websocketConfigs) {
-    return Arrays.stream(websocketConfigs)
-        .map(
-            websocketConfig ->
-                ServerEndpointConfig.Builder.create(
-                        websocketConfig.websocketClass, websocketConfig.path)
-                    .build())
-        .toArray(ServerEndpointConfig[]::new);
   }
 
   public static <T extends Configuration> ServerConfiguration<T> build(
-      final Bootstrap<T> bootstrap, final WebsocketConfig... websocketConfigs) {
-    return new ServerConfiguration<>(bootstrap, websocketConfigs);
+      final Bootstrap<T> bootstrap) {
+    return new ServerConfiguration<>(bootstrap);
   }
 
   /**

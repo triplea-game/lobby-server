@@ -14,7 +14,7 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Getter;
 import org.slf4j.LoggerFactory;
-import org.triplea.http.client.HttpClient;
+//import org.triplea.http.client.HttpClient;
 
 /** Can be used to interact with github's webservice API. */
 public class GithubApiClient {
@@ -52,16 +52,17 @@ public class GithubApiClient {
       @Nonnull String org,
       String repo,
       final boolean stubbingModeEnabled) {
-    githubApiFeignClient =
-        HttpClient.newClient(
-            GithubApiFeignClient.class,
-            uri,
-            Strings.isNullOrEmpty(authToken)
-                ? Map.of()
-                : Map.of("Authorization", "token " + authToken));
-    this.stubbingModeEnabled = stubbingModeEnabled;
-    this.org = org;
-    this.repo = repo;
+    throw new UnsupportedOperationException("TODO");
+//    githubApiFeignClient =
+//        HttpClient.newClient(
+//            GithubApiFeignClient.class,
+//            uri,
+//            Strings.isNullOrEmpty(authToken)
+//                ? Map.of()
+//                : Map.of("Authorization", "token " + authToken));
+//    this.stubbingModeEnabled = stubbingModeEnabled;
+//    this.org = org;
+//    this.repo = repo;
   }
 
   /**

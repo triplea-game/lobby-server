@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.lobby.games.LobbyGameDao;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.http.client.lobby.game.lobby.watcher.ChatMessageUpload;
 import org.triplea.modules.game.listing.GameListing;
 
 /**
@@ -27,16 +26,5 @@ public class ChatUploadModule {
   public static ChatUploadModule build(final Jdbi jdbi, final GameListing gameListing) {
     return new ChatUploadModule(
         jdbi.onDemand(LobbyGameDao.class), gameListing::isValidApiKeyAndGameId);
-  }
-
-  public boolean upload(final String apiKey, final ChatMessageUpload chatMessageUpload) {
-    if (gameIdValidator.test(
-        // truncate 'Bearer ' from the apiKey if
-        ApiKey.of(apiKey.startsWith("Bearer ") ? apiKey.substring("Bearer ".length()) : apiKey),
-        chatMessageUpload.getGameId())) {
-      lobbyGameDao.recordChat(chatMessageUpload);
-      return true;
-    }
-    return false;
   }
 }
