@@ -127,7 +127,7 @@ spotless {
 }
 
 ext {
-    awaitilityVersion = "4.2.1"
+    awaitilityVersion = "4.3.0"
     bcryptVersion = "0.10.2"
     databaseRiderVersion = "1.43.0"
     dropwizardVersion = "4.0.7"
