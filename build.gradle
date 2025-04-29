@@ -143,7 +143,7 @@ ext {
     jdbiVersion = "3.49.2"
     junitJupiterVersion = "5.10.2"
     junitPlatformLauncherVersion = "1.12.2"
-    mockitoVersion = "5.11.0"
+    mockitoVersion = "5.17.0"
     openFeignVersion = "13.6"
     postgresqlVersion = "42.7.3"
     tripleaClient = "2.7.14846"
