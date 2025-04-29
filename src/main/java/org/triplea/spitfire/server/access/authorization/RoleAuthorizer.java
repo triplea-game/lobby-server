@@ -34,6 +34,10 @@ public class RoleAuthorizer implements Authorizer<AuthenticatedUser> {
     }
   }
 
+  public boolean authorize(AuthenticatedUser user, String requestedRole) {
+    return authorize(user, requestedRole, null);
+  }
+
   private static boolean adminAuthorizedFor(final String requestedRole) {
     return requestedRole.equals(UserRole.ADMIN) || moderatorAuthorizedFor(requestedRole);
   }
