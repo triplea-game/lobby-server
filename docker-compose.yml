@@ -15,7 +15,7 @@ services:
     volumes:
       - ./.docker-compose/database/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     healthcheck:
       test: echo 'select 1' | psql -h localhost -U postgres  | grep -q '1 row'
       interval: 3s
@@ -40,6 +40,9 @@ services:
     build:
 #      context: spitfire-server/dropwizard-server/
       dockerfile: Dockerfile
+    volumes:
+      - ./build/libs/lobby-server.jar:/lobby-server.jar
+      - ./configuration.yml:/configuration.yml
     environment:
       - DATABASE_USER=lobby_user
       - DATABASE_PASSWORD=lobby_user
