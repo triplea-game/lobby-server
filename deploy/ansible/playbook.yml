@@ -12,7 +12,8 @@
 - hosts: lobby
   tags: lobby
   roles:
+    - nginx
+    - postfix
 #    - { name: lobby/reverse_proxy, tags: [ nginx, reverse_proxy ] }
-    #    - lobby/database
-    - system/postfix
+    - database/postgres
     - lobby/server

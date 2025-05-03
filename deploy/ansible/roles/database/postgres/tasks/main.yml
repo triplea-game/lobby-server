@@ -1,12 +1,6 @@
-- name: check required variables
-  assert:
-    that:
-      - database_name != ""
-      - database_user != ""
-      - database_password != ""
-
-- name: Create postgres user account for the new database
+- name: Create application user account for the new database
   become_user: postgres
+  become: true
   postgresql_user:
     name: "{{ database_user }}"
     password: "{{ database_password }}"
@@ -16,12 +10,14 @@
 
 - name: Create new database
   become_user: postgres
+  become: true
   postgresql_db:
     name: "{{ database_name }}"
     owner: "{{ database_user }}"
 
 - name: Grant application user access to database
   become_user: postgres
+  become: true
   postgresql_privs:
     database: "{{ database_name }}"
     state: present

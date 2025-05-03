@@ -1,0 +1,16 @@
+- name: deploy reverse proxy config for lobby
+  become: true
+  notify: reload_nginx
+  template:
+    src: etc_nginx_sites_enabled_lobby.conf
+    dest: /etc/nginx/sites-enabled/lobby.conf
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: ensure nginx is started
+  become: true
+  systemd:
+    name: nginx
+    state: started
+    enabled: true

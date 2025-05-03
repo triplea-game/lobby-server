@@ -1,4 +1,4 @@
-- name: reload_lobby_nginx
+- name: reload_nginx
   become: true
   service:
     name: nginx

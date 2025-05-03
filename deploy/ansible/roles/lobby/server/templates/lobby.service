@@ -13,10 +13,10 @@ StandardError=append:/var/log/lobby-{{ lobby_version }}.log
 ExecStart=docker run \
   --rm \
   --network host \
-  -e HTTP_PORT="8026" \
+  -e HTTP_PORT="{{ lobby_port }}" \
   -e DB_URL="localhost:5432/lobby_db" \
   -e DATABASE_USER="lobby_user" \
-  -e DATABASE_PASSWORD="{{ lobby_db_pass }}" \
+  -e DATABASE_PASSWORD="{{ lobby_db_password }}" \
   -e ERROR_REPORTING_ENABLED=true \
   -e GITHUB_API_TOKEN="{{ github_api_token }}" \
   -e MAP_INDEXING_ENABLED=false \
