@@ -4,4 +4,4 @@
     - postfix
     - database/postgres
     - database/flyway
-    - lobby/server
+    - lobby
