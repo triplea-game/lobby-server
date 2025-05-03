@@ -1,19 +1,7 @@
-- hosts: all
-  tags: system
-  roles:
-    # because hostname role may reboot the system, it is executed last. On reboot, any major package updates
-    # will take effect & the system will be in a clean/ready state for further host-specific deployments.
-#    - { name: system/logging_config, tags: logging }
-
-#- hosts: reverse_proxy
-#  roles:
-#    - {name: nginx/install, tags: nginx}
-
 - hosts: lobby
-  tags: lobby
   roles:
     - nginx
     - postfix
-#    - { name: lobby/reverse_proxy, tags: [ nginx, reverse_proxy ] }
     - database/postgres
+    - database/flyway
     - lobby/server
