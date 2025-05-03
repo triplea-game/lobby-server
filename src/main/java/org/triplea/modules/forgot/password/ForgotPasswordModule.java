@@ -1,10 +1,12 @@
 package org.triplea.modules.forgot.password;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Properties;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import javax.annotation.Nonnull;
@@ -37,9 +39,14 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
   @Nonnull private final TempPasswordHistory tempPasswordHistory;
 
   public static BiFunction<String, ForgotPasswordRequest, String> build(
-      final boolean isProd, final Jdbi jdbi) {
+      final boolean sendEmailsEnabled, final Jdbi jdbi, final String smtpHost, final int smtpPort) {
+    final Properties props = new Properties();
+    props.put("mail.smtp.host", smtpHost);
+    props.put("mail.smtp.port", smtpPort);
+
     return ForgotPasswordModule.builder()
-        .passwordEmailSender(PasswordEmailSender.builder().isProd(isProd).build())
+        .passwordEmailSender(
+            PasswordEmailSender.builder().sendEmailsEnabled(sendEmailsEnabled).smtpProperties(props).build())
         .passwordGenerator(new PasswordGenerator())
         .tempPasswordPersistence(TempPasswordPersistence.newInstance(jdbi))
         .tempPasswordHistory(new TempPasswordHistory(jdbi.onDemand(TempPasswordHistoryDao.class)))
@@ -48,7 +55,16 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
 
   @Override
   public String apply(final String inetAddress, final ForgotPasswordRequest forgotPasswordRequest) {
-    checkArgs(inetAddress, forgotPasswordRequest);
+    checkArgument(!StringUtils.isNullOrBlank(inetAddress));
+    try {
+      //noinspection ResultOfMethodCallIgnored
+      InetAddress.getAllByName(inetAddress);
+    } catch (final UnknownHostException e) {
+      throw new IllegalArgumentException("Invalid IP address: " + inetAddress);
+    }
+    checkNotNull(forgotPasswordRequest);
+    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getUsername()));
+    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getEmail()));
 
     if (!tempPasswordHistory.allowRequestFromAddress(inetAddress)) {
       return ERROR_TOO_MANY_REQUESTS;
@@ -62,18 +78,5 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
     passwordEmailSender.accept(forgotPasswordRequest.getEmail(), generatedPassword);
 
     return SUCCESS_MESSAGE;
-  }
-
-  private static void checkArgs(
-      final String inetAddress, final ForgotPasswordRequest forgotPasswordRequest) {
-    checkArgument(!StringUtils.isNullOrBlank(inetAddress));
-    try {
-      //noinspection ResultOfMethodCallIgnored
-      InetAddress.getAllByName(inetAddress);
-    } catch (final UnknownHostException e) {
-      throw new IllegalArgumentException("Invalid IP address: " + inetAddress);
-    }
-    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getEmail()));
-    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getUsername()));
   }
 }

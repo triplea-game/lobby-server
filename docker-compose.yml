@@ -62,6 +62,8 @@ services:
       - DATABASE_USER=lobby_user
       - DATABASE_PASSWORD=lobby_user
       - DB_URL=database:5432/lobby_db
+      - SMTP_PORT=25
+      -
     ports:
       - "${LOBBY_PORT}:8080"
     depends_on:

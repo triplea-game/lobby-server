@@ -62,6 +62,14 @@ public class SpitfireServerConfig extends Configuration implements LobbyModuleCo
   @Setter(onMethod_ = {@JsonProperty})
   private boolean latestVersionFetcherEnabled;
 
+  @Getter(onMethod_ = {@JsonProperty})
+  @Setter(onMethod_ = {@JsonProperty})
+  private String smtpHost;
+
+  @Getter(onMethod_ = {@JsonProperty})
+  @Setter(onMethod_ = {@JsonProperty})
+  private int smtpPort;
+
   @Override
   public GithubApiClient createGamesRepoGithubApiClient() {
     return GithubApiClient.builder()
