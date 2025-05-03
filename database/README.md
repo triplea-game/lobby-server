@@ -1,8 +1,10 @@
 # Database
 
-Hosts database migrations and docker to run a database locally.
+Hosts database migrations. Migration files are raw SQL, they are packaged onto
+a 'flyway' docker, flyway is a tool to run those SQL files.
 
-Stores:
+
+Lobby DB Stores Data on:
   - users
   - lobby chat history
   - user ban information
@@ -15,10 +17,11 @@ For more information see: [database documentation](/docs/development/database/)
 ## Working with database locally
 
 - install docker
-- run: `./spitfire-server/database/start_docker_db`
-- connect to DB with: `./spitfire-server/database/connect_to_docker_db`
+- run: `./run.sh`, this:
+  -  launches database
+  -  runs flyway migrations
+  -  runs a second set of migrations to insert sample data
+    - EG: adds an admin user with username "test" and password "test"
+  -  launches lobby
+- connect to DB with: `./database/connect_to_docker_db.sh`
 
-## Example data
-
-The example data inserted into a local docker will create an admin user
-named "test" with password "test".

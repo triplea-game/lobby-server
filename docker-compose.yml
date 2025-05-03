@@ -36,6 +36,21 @@ services:
       - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
     depends_on:
       - database
+  sample-data:
+    build:
+      context: database/sql/sample_data/
+      dockerfile: Dockerfile
+    command: >
+      -locations=filesystem:/flyway/sql
+      -connectRetries=60
+      -user=lobby_user
+      -password=lobby_user
+      -url=jdbc:postgresql://database:5432/lobby_db
+      migrate
+    volumes:
+      - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
+    depends_on:
+      - flyway
   lobby:
     build:
 #      context: spitfire-server/dropwizard-server/
@@ -52,14 +67,3 @@ services:
     depends_on:
       flyway:
          condition: service_completed_successfully
-#
-#  nginx:
-#    image: nginx:stable-alpine-perl
-#    volumes:
-#      - ./.docker-compose/nginx/default.conf:/etc/nginx/conf.d/default.conf
-#    ports:
-#      - "80:80"
-#    links:
-#      - game-support-server
-#      - maps-server
-#      - lobby

@@ -33,12 +33,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: build database docker container
+      - name: docker for database (flyway) migrations
         if: ${{ env.IS_MASTER_BUILD }}
         run: |
           docker build database/sql --tag ghcr.io/triplea-game/lobby/flyway:latest
           docker push ghcr.io/triplea-game/lobby/flyway:latest
-      - name: build server docker container
+      - name: docker for optional database migrations with example seed data
+        if: ${{ env.IS_MASTER_BUILD }}
+        run: |
+          docker build database/sql/sample_data --tag ghcr.io/triplea-game/lobby/sample_data:latest
+          docker push ghcr.io/triplea-game/lobby/sample_data:latest
+      - name: docker for the java lobby server
         if: ${{ env.IS_MASTER_BUILD }}
         run: |
           docker build . --tag ghcr.io/triplea-game/lobby/server:latest

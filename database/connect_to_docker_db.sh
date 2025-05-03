@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Simple helper script to connect to a DB running locally on docker.
-export PGPASSWORD=postgres
-psql -h localhost -U postgres
+docker compose exec database psql -U postgres
 
 # after connecting, use "\l" to print the list of database
 # Use "\c <database_name>" to connect to a database
