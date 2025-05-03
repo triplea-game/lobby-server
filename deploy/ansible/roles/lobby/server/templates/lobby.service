@@ -1,0 +1,29 @@
+[Unit]
+Description=Lobby {{ lobby_version }}
+Documentation=
+
+[Service]
+User=lobby
+Group=lobby
+Restart=always
+RestartSec=3
+StandardOutput=append:/var/log/lobby-{{ lobby_version }}.log
+StandardError=append:/var/log/lobby-{{ lobby_version }}.log
+
+ExecStart=docker run \
+  --rm \
+  --network host \
+  -e HTTP_PORT="8026" \
+  -e DB_URL="localhost:5432/lobby_db" \
+  -e DATABASE_USER="lobby_user" \
+  -e DATABASE_PASSWORD="{{ lobby_db_pass }}" \
+  -e ERROR_REPORTING_ENABLED=true \
+  -e GITHUB_API_TOKEN="{{ github_api_token }}" \
+  -e MAP_INDEXING_ENABLED=false \
+  -e GAME_HOST_CONNECTIVITY_CHECK_ENABLED=true \
+  --name lobby \
+  ghcr.io/triplea-game/lobby/server:latest
+ExecStop=docker stop lobby
+
+[Install]
+WantedBy=multi-user.target

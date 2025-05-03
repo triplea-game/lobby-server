@@ -1,0 +1,28 @@
+- name: create lobby user
+  become: true
+  user:
+    name: "lobby"
+    groups: "lobby,docker"
+    create_home: no
+    system: yes
+
+- name: deploy systemctl service file to run lobby
+  become: true
+  template:
+    src: lobby.service
+    dest: /etc/systemd/system/lobby-2.6.service
+    owner: root
+    group: "{{ admin_group }}"
+    mode: 0644
+
+- name: pull latest lobby
+  become: true
+  shell: |
+    docker pull ghcr.io/triplea-game/lobby/server:latest
+
+- name: restart lobby running
+  become: true
+  service:
+    name: lobby-2.6
+    state: restarted
+    enabled: true

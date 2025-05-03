@@ -1,0 +1,17 @@
+# These variables are used across multiple roles.
+# Other than these variables, roles should be fully self-contained.
+
+ansible_connection: ssh
+admin_group: admin
+ansible_python_interpreter: /usr/bin/python3
+
+lobby_restart_on_new_deployment: false
+lobby_uri: "https://prod.triplea-game.org"
+
+lobby_cert_folder: /etc/letsencrypt/live/{{ inventory_hostname }}
+lobby_public_cert_file: "{{ lobby_cert_folder }}/fullchain.pem"
+lobby_private_key_file: "{{ lobby_cert_folder }}/privkey.pem"
+
+nginx_generate_dhparam: true
+nginx_generate_self_signed_cert: false
+

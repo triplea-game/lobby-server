@@ -1,0 +1,9 @@
+lobby_ports:
+  - version: "default"
+    port: "8080"
+  - version: "2.5"
+    port: "8080"
+  - version: "2.6"
+    port: "8026"
+  - version: "2.7"
+    port: "8026"
