@@ -46,7 +46,10 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
 
     return ForgotPasswordModule.builder()
         .passwordEmailSender(
-            PasswordEmailSender.builder().sendEmailsEnabled(sendEmailsEnabled).smtpProperties(props).build())
+            PasswordEmailSender.builder()
+                .sendEmailsEnabled(sendEmailsEnabled)
+                .smtpProperties(props)
+                .build())
         .passwordGenerator(new PasswordGenerator())
         .tempPasswordPersistence(TempPasswordPersistence.newInstance(jdbi))
         .tempPasswordHistory(new TempPasswordHistory(jdbi.onDemand(TempPasswordHistoryDao.class)))
