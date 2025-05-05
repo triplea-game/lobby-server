@@ -1,6 +1,5 @@
 - hosts: lobby
   roles:
-    - nginx
     - postfix
     - database/postgres
     - database/flyway

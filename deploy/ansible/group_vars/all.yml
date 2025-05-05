@@ -5,24 +5,11 @@ ansible_connection: ssh
 admin_group: admin
 ansible_python_interpreter: /usr/bin/python3
 
-lobby_restart_on_new_deployment: false
 lobby_uri: "https://prod.triplea-game.org"
 
 lobby_cert_folder: /etc/letsencrypt/live/{{ inventory_hostname }}
 lobby_public_cert_file: "{{ lobby_cert_folder }}/fullchain.pem"
 lobby_private_key_file: "{{ lobby_cert_folder }}/privkey.pem"
-
-lobby_ports:
-  - version: "default"
-    port: "8080"
-  - version: "2.5"
-    port: "8080"
-  - version: "2.6"
-    port: "8026"
-  - version: "2.7"
-    port: "8026"
-lobby_version: "2.6"
-lobby_port: "8026"
 
 
 nginx_generate_dhparam: true
