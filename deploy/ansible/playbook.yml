@@ -1,0 +1,6 @@
+- hosts: lobby
+  roles:
+    - postfix
+    - database/postgres
+    - database/flyway
+    - lobby

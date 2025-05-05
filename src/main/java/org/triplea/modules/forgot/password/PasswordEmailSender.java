@@ -21,11 +21,12 @@ import org.triplea.db.dao.temp.password.TempPasswordDao;
 class PasswordEmailSender implements BiConsumer<String, String> {
   private static final String FROM = "no-reply@triplea-game.org";
 
-  private final boolean isProd;
+  private final boolean sendEmailsEnabled;
+  private final Properties smtpProperties;
 
   @Override
   public void accept(final String email, final String generatedPassword) {
-    if (!isProd) {
+    if (!sendEmailsEnabled) {
       // do not send emails if not on prod
       log.info(
           String.format(
@@ -34,8 +35,7 @@ class PasswordEmailSender implements BiConsumer<String, String> {
       return;
     }
 
-    final Properties props = new Properties();
-    final Session session = Session.getDefaultInstance(props, null);
+    final Session session = Session.getDefaultInstance(smtpProperties, null);
 
     try {
       final Message message = new MimeMessage(session);

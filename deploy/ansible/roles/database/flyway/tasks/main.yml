@@ -1,0 +1,14 @@
+- name: pull latest flyway
+  command: |
+    docker pull ghcr.io/triplea-game/lobby/flyway:latest
+
+- name: run flyway
+  command: |
+    docker container run --network host ghcr.io/triplea-game/lobby/flyway:latest \
+        -locations=filesystem:/flyway/sql \
+        -connectRetries=60 \
+        -user=lobby_user \
+        -password="{{ lobby_db_password }}" \
+        -url=jdbc:postgresql://localhost:5432/lobby_db \
+        -ignoreMigrationPatterns=repeatable:missing \
+        migrate

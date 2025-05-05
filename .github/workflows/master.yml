@@ -48,16 +48,14 @@ jobs:
         run: |
           docker build . --tag ghcr.io/triplea-game/lobby/server:latest
           docker push ghcr.io/triplea-game/lobby/server:latest
-
-#      - name: Load SSH private key into ssh-agent
-#        uses: webfactory/ssh-agent@v0.9.0
-#        with:
-#          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
-#      - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
-#        run: |
-#          pip install ansible==2.9.13
-#          cd infrastructure
-#          echo "$ANSIBLE_VAULT_PASSWORD" > vault_password
-#          ./run_ansible --environment production
-#        env:
-#          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+      - name: Load SSH private key into ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+      - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
+        run: |
+          pip install ansible==2.9.13
+          cd deploy/
+          ANSIBLE_REMOTE_USER=deploy-lobby APPLY=1 ./run.sh
+        env:
+          TRIPLEA_ANSIBLE_VAULT_PASSWORD: ${{ secrets.TRIPLEA_ANSIBLE_VAULT_PASSWORD }}

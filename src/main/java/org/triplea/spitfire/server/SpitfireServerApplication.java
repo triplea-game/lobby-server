@@ -126,7 +126,8 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
             BadWordsController.build(jdbi),
             CreateAccountController.build(jdbi),
             DisconnectUserController.build(jdbi, chatters, playerConnectionMessagingBus),
-            ForgotPasswordController.build(configuration, jdbi),
+            ForgotPasswordController.build(
+                configuration, jdbi, configuration.getSmtpHost(), configuration.getSmtpPort()),
             GameHostingController.build(jdbi),
             GameListingController.build(gameListing),
             ErrorReportController.build(configuration.createGamesRepoGithubApiClient(), jdbi),
