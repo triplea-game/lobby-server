@@ -8,6 +8,10 @@ latestVersionFetcherEnabled: ${LATEST_VERSION_FETCHER_ENABLED:-true}
 # this is to help guarantee that we do not accidentally use test configuration in prod.
 gameHostConnectivityCheckEnabled: ${GAME_HOST_CONNECTIVITY_CHECK_ENABLED:-false}
 
+sendEmailsEnabled: ${SEND_EMAILS_ENABLED:-false}
+smtpHost: ${SMTP_HOST:-172.17.0.1}
+smtpPort: ${SMTP_PORT:-25}
+
 # Whether to print out SQL statements as executed, useful for debugging.
 logSqlStatements: false
 

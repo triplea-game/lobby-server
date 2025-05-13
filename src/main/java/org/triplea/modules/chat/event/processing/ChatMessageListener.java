@@ -8,11 +8,9 @@ import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.chat.history.LobbyChatHistoryDao;
-import org.triplea.domain.data.ChatParticipant;
 import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
 import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatReceivedMessage;
 import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatSentMessage;
-import org.triplea.java.concurrency.AsyncRunner;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessageContext;
@@ -55,20 +53,11 @@ public class ChatMessageListener implements Consumer<WebSocketMessageContext<Cha
   private void recordAndBroadcastMessageToAllPlayers(
       final ChatterSession session, final WebSocketMessageContext<ChatSentMessage> messageContext) {
     final var chatReceivedMessage =
-        convertMessage(session.getChatParticipant(), messageContext.getMessage().getChatMessage());
-    recordInHistory(chatReceivedMessage, session);
+        new ChatReceivedMessage(
+            session.getChatParticipant().getUserName(),
+            messageContext.getMessage().getChatMessage());
+
+    lobbyChatHistoryDao.recordMessage(chatReceivedMessage, session.getApiKeyId());
     messageContext.broadcastMessage(chatReceivedMessage);
-  }
-
-  private static ChatReceivedMessage convertMessage(
-      final ChatParticipant sender, final String message) {
-    return new ChatReceivedMessage(sender.getUserName(), message);
-  }
-
-  private void recordInHistory(
-      final ChatReceivedMessage chatReceivedMessage, final ChatterSession session) {
-    AsyncRunner.runAsync(
-            () -> lobbyChatHistoryDao.recordMessage(chatReceivedMessage, session.getApiKeyId()))
-        .exceptionally(e -> log.error("Error recording chat message in database history table", e));
   }
 }

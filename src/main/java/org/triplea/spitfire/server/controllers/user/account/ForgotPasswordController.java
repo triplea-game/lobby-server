@@ -28,11 +28,14 @@ public class ForgotPasswordController extends HttpController {
   @Nonnull private final BiFunction<String, ForgotPasswordRequest, String> forgotPasswordModule;
 
   public static ForgotPasswordController build(
-      final LobbyModuleConfig lobbyModuleConfig, final Jdbi jdbi) {
+      final LobbyModuleConfig lobbyModuleConfig,
+      final Jdbi jdbi,
+      final String smtpHost,
+      final int smtpPort) {
     return ForgotPasswordController.builder()
         .forgotPasswordModule(
             ForgotPasswordModule.build(
-                lobbyModuleConfig.isGameHostConnectivityCheckEnabled(), jdbi))
+                lobbyModuleConfig.isGameHostConnectivityCheckEnabled(), jdbi, smtpHost, smtpPort))
         .build();
   }
 

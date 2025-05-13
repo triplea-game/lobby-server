@@ -27,9 +27,6 @@ public class SessionSet {
   @Getter(value = AccessLevel.PACKAGE, onMethod_ = @VisibleForTesting)
   private final Collection<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
 
-  //  private final MessageSender messageSender = new MessageSender();
-  //  private final MessageBroadcaster messageBroadcaster = new MessageBroadcaster(messageSender);
-
   public void put(final WebSocketSession session) {
     sessions.add(session);
   }
