@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 EXPOSE 8080
 ADD configuration.yml /configuration.yml
