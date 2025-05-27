@@ -4,7 +4,6 @@
 # The main entrypoint to those services is NGINX which
 # is listening on localhost:80
 #
-version: '3'
 services:
   database:
     image: postgres:10
@@ -31,6 +30,7 @@ services:
       -user=lobby_user
       -password=lobby_user
       -url=jdbc:postgresql://database:5432/lobby_db
+      -ignoreMigrationPatterns="repeatable:missing"
       migrate
     volumes:
       - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config

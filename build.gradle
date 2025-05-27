@@ -60,26 +60,26 @@ check.dependsOn testInteg
 /* docker compose used to set up integ tests, starts a server and database */
 dockerCompose {
     // See: https://github.com/avast/gradle-docker-compose-plugin
-    captureContainersOutput = false // if true, prints output of all containers to Gradle output
-    //    captureContainersOutputToFile = project.file('/path/to/logFile') // sends output of all containers to a log file
-    //    captureContainersOutputToFiles = project.file('/path/to/directory') // sends output of all services to a dedicated log file in the directory specified, e.g. 'web.log' for service named 'log'
-    //    composeLogToFile = project.file('build/my-logs.txt') // redirect output of composeUp and composeDown tasks to this file; default is null (ouput is not redirected)
-    projectName = 'lobby' // allow to set custom docker-compose project name (defaults to a stable name derived from absolute path of the project and nested settings name), set to null to Docker Compose default (directory name)
+    captureContainersOutput = true // if true, prints output of all containers to Gradle output
+    projectName = 'lobby'
 
-    // Do not stop containers, we can hot redeploy
+    // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy 'docker-compose down'
     removeContainers = false
+
     database {
+        captureContainersOutput = true
         startedServices = ['database']
         projectName = 'lobby-gradle'
         isRequiredBy(project.tasks.testInteg)
-        stopContainers = false // doesn't call `docker-compose down` if set to false - see below the paragraph about reconnecting; default is true
+        stopContainers = false
     }
 
     application {
+        captureContainersOutput = true
         startedServices = ['flyway', 'lobby']
         projectName = 'lobby-gradle'
         isRequiredBy(project.tasks.testInteg)
-        stopContainers = false // doesn't call `docker-compose down` if set to false - see below the paragraph about reconnecting; default is true
+        stopContainers = false
     }
 }
 
