@@ -83,6 +83,7 @@ and skip the DB setup, and to let developers to look at the database
 state after tests.
 
 
+
 ### Running (local dev environment via docker compose)
 
 Building from source and running locally:
@@ -96,6 +97,15 @@ as well and latest flyway migrations run.
 
 After this, launch the game client, go to settings, update settings to use lobby
 running on http://localhost:3000
+
+
+#### Debugging compose up failures
+
+Run the docker compose up command directly via CLI and look for errors:
+
+```
+docker compose  -p lobby up
+```
 
 
 ### Checking running environment
@@ -119,7 +129,7 @@ docker exec -it --user postgres lobby-server-database-1 psql
 
 ```
 docker compose rm -f
-./docker-compose-up.sh
+./run.sh
 ```
 
 ### Running (prod-like environment with docker)
