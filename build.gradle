@@ -142,7 +142,7 @@ ext {
     jaxbImplVersion = "4.0.5"
     jdbiVersion = "3.49.3"
     junitJupiterVersion = "5.10.2"
-    junitPlatformLauncherVersion = "1.12.2"
+    junitPlatformLauncherVersion = "1.13.0"
     mockitoVersion = "5.17.0"
     openFeignVersion = "13.6"
     postgresqlVersion = "42.7.5"
