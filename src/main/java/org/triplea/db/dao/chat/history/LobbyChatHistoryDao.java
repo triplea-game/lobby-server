@@ -1,19 +1,28 @@
 package org.triplea.db.dao.chat.history;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.slf4j.LoggerFactory;
 import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatReceivedMessage;
 import org.triplea.java.StringUtils;
+import org.triplea.java.concurrency.AsyncRunner;
 
 /** Lobby chat history records lobby chat messages. */
 public interface LobbyChatHistoryDao {
   int MESSAGE_COLUMN_LENGTH = 240;
 
   default void recordMessage(ChatReceivedMessage chatReceivedMessage, int apiKeyId) {
-    insertMessage(
-        chatReceivedMessage.getSender().getValue(),
-        apiKeyId,
-        StringUtils.truncate(chatReceivedMessage.getMessage(), MESSAGE_COLUMN_LENGTH));
+    AsyncRunner.runAsync(
+            () ->
+                insertMessage(
+                    chatReceivedMessage.getSender().getValue(),
+                    apiKeyId,
+                    StringUtils.truncate(chatReceivedMessage.getMessage(), MESSAGE_COLUMN_LENGTH)))
+        .exceptionally(
+            e ->
+                LoggerFactory.getLogger("triplea.dao")
+                    .error("Error recording chat message in database history table", e));
   }
 
   /**
