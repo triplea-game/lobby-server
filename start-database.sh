@@ -4,6 +4,5 @@
 # database only. 'run.sh' also starts up the lobby too,
 # this script is database only.
 
-POSTGRES_PORT=5432 ./gradlew databaseComposeUp
-
+POSTGRES_PORT=5432 ./gradlew databaseComposeUp $@
 
