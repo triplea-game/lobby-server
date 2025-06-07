@@ -69,11 +69,13 @@ dockerCompose {
 
     database {
         captureContainersOutput = true
-        startedServices = ['database']
+        startedServices = ['database', 'flyway', 'sample-data' ]
         projectName = 'lobby-gradle'
         isRequiredBy(project.tasks.testInteg)
         stopContainers = false
     }
+
+
 
     application {
         captureContainersOutput = true
