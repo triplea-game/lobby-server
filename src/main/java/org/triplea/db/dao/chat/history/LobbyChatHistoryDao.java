@@ -1,6 +1,5 @@
 package org.triplea.db.dao.chat.history;
 
-import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.slf4j.LoggerFactory;
