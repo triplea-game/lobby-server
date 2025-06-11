@@ -1,6 +1,5 @@
 # Runs when master branch is updated.
-# Does all the builds things & creates a new latest build.
-# Then updates production to be running this new latest build.
+# Runs builds checks, if all passes then packages the lobby and redeploys production.
 
 name: Master Branch Build - Build Docker Container
 on:
