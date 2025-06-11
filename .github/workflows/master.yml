@@ -49,7 +49,7 @@ jobs:
       - name: Load SSH private key into ssh-agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
         run: |
           pip install ansible==2.9.13
