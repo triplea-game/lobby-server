@@ -47,7 +47,7 @@ jobs:
           docker build . --tag ghcr.io/triplea-game/lobby/server:latest
           docker push ghcr.io/triplea-game/lobby/server:latest
       - name: Load SSH private key into ssh-agent
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
