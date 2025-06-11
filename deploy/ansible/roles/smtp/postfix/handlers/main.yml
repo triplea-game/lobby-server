@@ -1,0 +1,5 @@
+- name: reload_postfix
+  become: true
+  systemd:
+    name: postfix
+    state: reloaded

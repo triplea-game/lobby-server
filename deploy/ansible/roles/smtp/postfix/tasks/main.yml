@@ -1,0 +1,21 @@
+- name: Install postfix
+  become: true
+  apt:
+    state: present
+    name: postfix
+
+- name: Ensure postfix is started
+  become: true
+  systemd:
+    name: postfix
+    state: started
+
+- name: Deploy postfix config
+  become: true
+  notify: reload_postfix
+  template:
+    src: main.cf.j2
+    dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: "0644"
