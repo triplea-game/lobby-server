@@ -11,8 +11,6 @@ from lobby_user;
 delete
 from access_log;
 delete
-from user_role;
-delete
 from map_tag_value;
 delete
 from map_index;
@@ -21,13 +19,6 @@ from map_tag_allowed_value;
 delete
 from map_tag;
 
-
-insert into user_role(id, name)
-values (1, 'ADMIN'),     -- user can add/remove admins and add/remove moderators, has boot/ban privileges
-       (2, 'MODERATOR'), -- user has boot/ban privileges
-       (3, 'PLAYER'),    -- standard registered user
-       (4, 'ANONYMOUS'), -- users that are not registered, they do not have an entry in lobby_user table
-       (5, 'HOST'); -- AKA LobbyWatcher, special connection for hosts to send game updates to lobby
 
 insert into lobby_user(id, username, email, user_role_id, bcrypt_password)
 values (1000, 'test', 'email@email.com', (select id from user_role where name = 'ADMIN'),
