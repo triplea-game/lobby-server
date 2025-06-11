@@ -52,7 +52,9 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Run Ansible to Deploy  (or do something here like invoke infrastructure, or do a quick SSH command for a service restart)
         run: |
-          pip install ansible==2.9.13
+          pip install ansible
+          # print ansible version for help debugging
+          ansible --version
           cd deploy/
           ANSIBLE_REMOTE_USER=deploy-lobby APPLY=1 ./run.sh
         env:
