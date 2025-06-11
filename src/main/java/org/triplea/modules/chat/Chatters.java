@@ -31,24 +31,11 @@ public class Chatters {
 
   private final Map<InetAddress, Instant> playerMutes = new HashMap<>();
 
-  //  PlayerApiKeyDaoWrapper daoWrapper;
-
   public static Chatters build() {
     return new Chatters();
   }
 
   public Optional<ChatterSession> lookupPlayerBySession(final WebSocketSession senderSession) {
-
-    //    senderSession.
-    /*
-        public Optional<PlayerApiKeyLookupRecord> lookupByApiKey(final ApiKey apiKey) {
-      return lobbyApiKeyDao.lookupByApiKey(keyHashingFunction.apply(apiKey));
-    }
-
-       */
-
-    //    participants.computeIfAbsent(senderSession.getId(), senderSession);
-
     return Optional.ofNullable(participants.get(senderSession.getId()));
   }
 
