@@ -148,7 +148,7 @@ ext {
     junitPlatformLauncherVersion = "1.12.2"
     mockitoVersion = "5.17.0"
     openFeignVersion = "13.6"
-    postgresqlVersion = "42.7.5"
+    postgresqlVersion = "42.7.7"
     tripleaClient = "2.7.14846"
     wireMockJunit5Version = "1.3.1"
 }
