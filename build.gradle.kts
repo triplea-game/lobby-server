@@ -105,19 +105,13 @@ applicationComposeBuild.dependsOn(shadowJar)
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
-    options.incremental = true
 }
 
-tasks.withType<Test>().configureEach {
+tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
-        exceptionFormat = "full"
-        events = ["standardOut", "standardError", "skipped", "failed"]
-    }
-
-    testLogging {
-        exceptionFormat = "full"
-        events = ["standardOut", "standardError", "skipped", "failed"]
+//        exceptionFormat = TestExceptionFormat.FULL
+        events("standardOut", "standardError", "skipped", "failed")
     }
 }
 
