@@ -36,7 +36,7 @@ shadowJar {
     mergeServiceFiles()
 }
 
-/* 'testInteg' runs tests that require a database or a server to be running */
+/* "testInteg" runs tests that require a database or a server to be running */
 sourceSets {
     testInteg {
         java.srcDir "$projectDir/src/testInteg/java"
@@ -62,15 +62,15 @@ check.dependsOn testInteg
 dockerCompose {
     // See: https://github.com/avast/gradle-docker-compose-plugin
     captureContainersOutput = true // if true, prints output of all containers to Gradle output
-    projectName = 'lobby'
+    projectName = "lobby"
 
-    // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy 'docker-compose down'
+    // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy "docker-compose down"
     removeContainers = false
 
     database {
         captureContainersOutput = true
-        startedServices = ['database', 'flyway', 'sample-data' ]
-        projectName = 'lobby-gradle'
+        startedServices = ["database", "flyway", "sample-data" ]
+        projectName = "lobby-gradle"
         isRequiredBy(project.tasks.testInteg)
         stopContainers = false
     }
@@ -79,8 +79,8 @@ dockerCompose {
 
     application {
         captureContainersOutput = true
-        startedServices = ['flyway', 'lobby']
-        projectName = 'lobby-gradle'
+        startedServices = ["flyway", "lobby"]
+        projectName = "lobby-gradle"
         isRequiredBy(project.tasks.testInteg)
         stopContainers = false
     }
@@ -88,13 +88,13 @@ dockerCompose {
 
 task restartLobbyDocker(type: Exec) {
     inputs.file("./build/libs/lobby-server.jar")
-    commandLine 'docker', 'compose', '-p', 'lobby-gradle', 'restart', 'lobby'
+    commandLine "docker", "compose", "-p", "lobby-gradle", "restart", "lobby"
     outputs.upToDateWhen { true }
     ignoreExitValue true
 }
 
 task stopDocker(type: Exec) {
-    commandLine 'docker', 'compose', '-p', 'lobby-gradle', 'down'
+    commandLine "docker", "compose", "-p", "lobby-gradle", "down"
     ignoreExitValue true
 }
 
