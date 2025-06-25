@@ -14,7 +14,7 @@ targetCompatibility = JavaVersion.VERSION_21
 repositories {
     mavenCentral()
     maven {
-        url "https://maven.pkg.github.com/triplea-game/triplea"
+        url = uri("https://maven.pkg.github.com/triplea-game/triplea")
         credentials {
             username = System.getenv("GITHUB_ACTOR") ?: project.property("triplea.github.username")
             password = System.getenv("GH_TOKEN") ?: project.property("triplea.github.access.token")
@@ -25,11 +25,12 @@ repositories {
 jar {
     manifest {
         attributes "Main-Class": "org.triplea.spitfire.server.SpitfireServerApplication"
+//        attributes["Main-Class"] = "org.triplea.spitfire.server.SpitfireServerApplication"
     }
 }
 
 shadowJar {
-    archiveClassifier.set ""
+    archiveClassifier.set("")
     // mergeServiceFiles is needed by dropwizard
     // Without this configuration parsing breaks and is unable to find connector type "http" for
     // the following YAML snippet:  server: {applicationConnectors: [{type: http, port: 8080}]
@@ -39,15 +40,15 @@ shadowJar {
 /* "testInteg" runs tests that require a database or a server to be running */
 sourceSets {
     testInteg {
-        java.srcDir "$projectDir/src/testInteg/java"
+        java.srcDir("$projectDir/src/testInteg/java")
         compileClasspath += main.output + test.output
         runtimeClasspath += main.output + test.output
     }
 }
 
 configurations {
-    testIntegImplementation.extendsFrom testImplementation
-    testIntegRuntime.extendsFrom testRuntime
+    testIntegImplementation.extendsFrom(testImplementation)
+    testIntegRuntime.extendsFrom(testRuntime)
 }
 
 task testInteg(type: Test) {
@@ -88,14 +89,14 @@ dockerCompose {
 
 task restartLobbyDocker(type: Exec) {
     inputs.file("./build/libs/lobby-server.jar")
-    commandLine "docker", "compose", "-p", "lobby-gradle", "restart", "lobby"
+    commandLine = ["docker", "compose", "-p", "lobby-gradle", "restart", "lobby"]
     outputs.upToDateWhen { true }
-    ignoreExitValue true
+    ignoreExitValue = true
 }
 
 task stopDocker(type: Exec) {
-    commandLine "docker", "compose", "-p", "lobby-gradle", "down"
-    ignoreExitValue true
+    commandLine = ["docker", "compose", "-p", "lobby-gradle", "down"]
+    ignoreExitValue = true
 }
 
 clean.dependsOn(stopDocker)
@@ -154,44 +155,44 @@ ext {
 }
 
 dependencies {
-    implementation "at.favre.lib:bcrypt:$bcryptVersion"
-    implementation "be.tomcools:dropwizard-websocket-jsr356-bundle:4.0.0"
-    implementation "com.sun.mail:jakarta.mail:$jakartaMailVersion"
-    implementation "com.sun.xml.bind:jaxb-core:$jaxbCoreVersion"
-    implementation "com.sun.xml.bind:jaxb-impl:$jaxbImplVersion"
-    implementation "io.dropwizard:dropwizard-auth:$dropwizardVersion"
-    implementation "io.dropwizard:dropwizard-core:$dropwizardVersion"
-    implementation "io.dropwizard:dropwizard-jdbi3:$dropwizardVersion"
-    implementation "io.github.openfeign:feign-core:$openFeignVersion"
-    implementation "io.github.openfeign:feign-gson:$openFeignVersion"
-    implementation "javax.activation:activation:$javaxActivationVersion"
-    implementation "javax.servlet:servlet-api:2.5"
-    implementation "javax.xml.bind:jaxb-api:$jaxbApiVersion"
-    implementation "org.java-websocket:Java-WebSocket:$javaWebSocketVersion"
-    implementation "org.jdbi:jdbi3-core:$jdbiVersion"
-    implementation "org.jdbi:jdbi3-sqlobject:$jdbiVersion"
-    implementation "triplea:domain-data:$tripleaClient"
-    implementation "triplea:feign-common:$tripleaClient"
-    implementation "triplea:java-extras:$tripleaClient"
-    implementation "triplea:lobby-client:$tripleaClient"
-    implementation "triplea:websocket-client:$tripleaClient"
-    runtimeOnly "org.postgresql:postgresql:$postgresqlVersion"
+    implementation("at.favre.lib:bcrypt:$bcryptVersion")
+    implementation("be.tomcools:dropwizard-websocket-jsr356-bundle:4.0.0")
+    implementation("com.sun.mail:jakarta.mail:$jakartaMailVersion")
+    implementation("com.sun.xml.bind:jaxb-core:$jaxbCoreVersion")
+    implementation("com.sun.xml.bind:jaxb-impl:$jaxbImplVersion")
+    implementation("io.dropwizard:dropwizard-auth:$dropwizardVersion")
+    implementation("io.dropwizard:dropwizard-core:$dropwizardVersion")
+    implementation("io.dropwizard:dropwizard-jdbi3:$dropwizardVersion")
+    implementation("io.github.openfeign:feign-core:$openFeignVersion")
+    implementation("io.github.openfeign:feign-gson:$openFeignVersion")
+    implementation("javax.activation:activation:$javaxActivationVersion")
+    implementation("javax.servlet:servlet-api:2.5")
+    implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+    implementation("org.java-websocket:Java-WebSocket:$javaWebSocketVersion")
+    implementation("org.jdbi:jdbi3-core:$jdbiVersion")
+    implementation("org.jdbi:jdbi3-sqlobject:$jdbiVersion")
+    implementation("triplea:domain-data:$tripleaClient")
+    implementation("triplea:feign-common:$tripleaClient")
+    implementation("triplea:java-extras:$tripleaClient")
+    implementation("triplea:lobby-client:$tripleaClient")
+    implementation("triplea:websocket-client:$tripleaClient")
+    runtimeOnly("org.postgresql:postgresql:$postgresqlVersion")
 
-    testImplementation "com.github.database-rider:rider-junit5:$databaseRiderVersion"
-    testImplementation "com.github.npathai:hamcrest-optional:2.0.0"
-    testImplementation "com.sun.mail:jakarta.mail:$jakartaMailVersion"
-    testImplementation "io.dropwizard:dropwizard-testing:$dropwizardVersion"
-    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
-    testImplementation "org.jdbi:jdbi3-core:$jdbiVersion"
-    testImplementation "org.jdbi:jdbi3-sqlobject:$jdbiVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
-    testImplementation "org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion"
-    testImplementation "org.mockito:mockito-core:$mockitoVersion"
-    testImplementation "org.mockito:mockito-junit-jupiter:$mockitoVersion"
-    testImplementation "org.wiremock:wiremock:3.7.0"
-    testImplementation "ru.lanwen.wiremock:wiremock-junit5:1.3.1"
-    testImplementation "uk.co.datumedge:hamcrest-json:$hamcrestJsonVersion"
+    testImplementation("com.github.database-rider:rider-junit5:$databaseRiderVersion")
+    testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
+    testImplementation("com.sun.mail:jakarta.mail:$jakartaMailVersion")
+    testImplementation("io.dropwizard:dropwizard-testing:$dropwizardVersion")
+    testImplementation("org.awaitility:awaitility:$awaitilityVersion")
+    testImplementation("org.jdbi:jdbi3-core:$jdbiVersion")
+    testImplementation("org.jdbi:jdbi3-sqlobject:$jdbiVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation("org.mockito:mockito-core:$mockitoVersion")
+    testImplementation("org.mockito:mockito-junit-jupiter:$mockitoVersion")
+    testImplementation("org.wiremock:wiremock:3.7.0")
+    testImplementation("ru.lanwen.wiremock:wiremock-junit5:1.3.1")
+    testImplementation("uk.co.datumedge:hamcrest-json:$hamcrestJsonVersion")
 
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion"
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:$junitPlatformLauncherVersion")
 }
