@@ -16,8 +16,8 @@ repositories {
     maven {
         url = uri("https://maven.pkg.github.com/triplea-game/triplea")
         credentials {
-            username = System.getenv("GITHUB_ACTOR") ?: project.property("triplea.github.username")
-            password = System.getenv("GH_TOKEN") ?: project.property("triplea.github.access.token")
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("triplea.github.username") as String?
+            password = System.getenv("GH_TOKEN") ?: project.findProperty("triplea.github.access.token") as String?
         }
     }
 }
