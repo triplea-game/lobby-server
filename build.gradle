@@ -55,8 +55,8 @@ task testInteg(type: Test) {
     classpath = sourceSets.testInteg.runtimeClasspath
 }
 
-composeBuild.dependsOn shadowJar
-check.dependsOn testInteg
+composeBuild.dependsOn(shadowJar)
+check.dependsOn(testInteg)
 
 /* docker compose used to set up integ tests, starts a server and database */
 dockerCompose {
@@ -98,9 +98,9 @@ task stopDocker(type: Exec) {
     ignoreExitValue true
 }
 
-clean.dependsOn stopDocker
-shadowJar.finalizedBy restartLobbyDocker
-applicationComposeBuild.dependsOn shadowJar
+clean.dependsOn(stopDocker)
+shadowJar.finalizedBy(restartLobbyDocker)
+applicationComposeBuild.dependsOn(shadowJar)
 
 
 tasks.withType(JavaCompile).configureEach {
