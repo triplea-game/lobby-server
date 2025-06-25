@@ -6,8 +6,6 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-apply plugin: "com.diffplug.spotless"
-
 sourceCompatibility = JavaVersion.VERSION_21
 targetCompatibility = JavaVersion.VERSION_21
 
