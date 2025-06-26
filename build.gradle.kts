@@ -95,24 +95,24 @@ tasks.check {
 
 //composeBuild.dependsOn(shadowJar)
 //
-//val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
-//    inputs.file("./build/libs/lobby-server.jar")
-//    commandLine = ["docker", "compose", "-p", "lobby-gradle", "restart", "lobby"]
-//    outputs.upToDateWhen { true }
+val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
+    inputs.file("./build/libs/lobby-server.jar")
 //    ignoreExitValue = true
-//}
+    commandLine("docker", "compose", "-p", "lobby-gradle", "restart", "lobby")
+    outputs.upToDateWhen { true }
+}
 //
-//val stopDocker = tasks.register<Exec>("stopDocker") {
-//    commandLine = ["docker", "compose", "-p", "lobby-gradle", "down"]
+val stopDocker = tasks.register<Exec>("stopDocker") {
+    commandLine("docker", "compose", "-p", "lobby-gradle", "down")
 //    ignoreExitValue = true
-//}
+}
 
-//tasks.clean {
-//    dependsOn(stopDocker)
-//}
-//tasks.shadowJar {
-//    finalizedBy(restartLobbyDocker)
-//}
+tasks.clean {
+    dependsOn(stopDocker)
+}
+tasks.shadowJar {
+    finalizedBy(restartLobbyDocker)
+}
 //tasks.applicationComposeBuild {
 //    dependsOn(shadowJar)
 //}
