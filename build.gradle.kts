@@ -40,7 +40,6 @@ tasks.shadowJar {
 val testInteg: SourceSet = sourceSets.create("testInteg") {
     java {
         java.srcDir("src/testInteg/java")
-//        resources.srcDir("src/testInteg/resources")
         compileClasspath += sourceSets.main.get().output
         runtimeClasspath += output + compileClasspath
     }
@@ -73,28 +72,8 @@ tasks.composeBuild {
     dependsOn(tasks.shadowJar)
 }
 
-val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
-    inputs.file("./build/libs/lobby-server.jar")
-    setIgnoreExitValue(true)
-    commandLine("docker", "compose", "-p", "lobby-server", "restart", "lobby")
-    outputs.upToDateWhen { true }
-}
-
-val stopDocker = tasks.register<Exec>("stopDocker") {
-    commandLine("docker", "compose", "-p", "lobby-server", "down")
-    setIgnoreExitValue(true)
-}
-
 tasks.clean {
-    dependsOn(stopDocker)
-}
-
-tasks.shadowJar {
-    finalizedBy(restartLobbyDocker)
-}
-
-tasks.withType<JavaCompile>().configureEach {
-    options.encoding = "UTF-8"
+    dependsOn(tasks.composeDownForced)
 }
 
 tasks.withType<Test> {
