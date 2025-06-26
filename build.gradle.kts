@@ -39,16 +39,10 @@ tasks.shadowJar {
 /* "testInteg" runs tests that require a database or a server to be running */
 val testInteg: SourceSet = sourceSets.create("testInteg") {
     java {
-//        + sourceSets.test.get().output
-//        runtimeClasspath += sourceSets.main.get().output
         java.srcDir("src/testInteg/java")
         resources.srcDir("src/testInteg/resources")
         compileClasspath += sourceSets.main.get().output
         runtimeClasspath += output + compileClasspath
-            //+ sourceSets["test"].runtimeClasspath
-
-//        resources.srcDir("src/testInteg/resources")
-//        exceptionFormat = TestExceptionFormat.FULL
     }
 }
 
@@ -60,10 +54,6 @@ val testIntegTask = tasks.register<Test>("testInteg") {
     useJUnitPlatform()
     testClassesDirs = sourceSets["testInteg"].output.classesDirs
     classpath = sourceSets["testInteg"].runtimeClasspath
-
-//    testClassesDirs = testInteg.output.classesDirs
-//    classpath = sourceSets["testInteg"].runtimeClasspath
-//    shouldRunAfter("test")
 }
 
 tasks.check {
@@ -102,10 +92,6 @@ tasks.shadowJar {
     finalizedBy(restartLobbyDocker)
 }
 
-//tasks.applicationComposeBuild {
-//    dependsOn(shadowJar)
-//}
-
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
 }
@@ -113,7 +99,6 @@ tasks.withType<JavaCompile>().configureEach {
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
-//        exceptionFormat = TestExceptionFormat.FULL
         events("standardOut", "standardError", "skipped", "failed")
     }
 }
