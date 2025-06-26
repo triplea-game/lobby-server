@@ -40,7 +40,7 @@ tasks.shadowJar {
 val testInteg: SourceSet = sourceSets.create("testInteg") {
     java {
         java.srcDir("src/testInteg/java")
-        resources.srcDir("src/testInteg/resources")
+//        resources.srcDir("src/testInteg/resources")
         compileClasspath += sourceSets.main.get().output
         runtimeClasspath += output + compileClasspath
     }
