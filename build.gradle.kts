@@ -119,9 +119,9 @@ dependencies {
     testImplementation("com.sun.mail:jakarta.mail:2.0.1")
     testImplementation("io.dropwizard:dropwizard-testing:4.0.7")
     testImplementation("org.awaitility:awaitility:4.3.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.13.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.2")
 
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
