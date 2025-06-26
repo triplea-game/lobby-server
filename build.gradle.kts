@@ -59,15 +59,15 @@ val testIntegTask = tasks.register<Test>("testInteg") {
 
 //    shouldRunAfter("test")
 }
-
-composeBuild.dependsOn(shadowJar)
-check.dependsOn(testInteg)
+tasks.check {
+    dependsOn(testIntegTask)
+}
 
 /* docker compose used to set up integ tests, starts a server and database */
 dockerCompose {
     // See: https://github.com/avast/gradle-docker-compose-plugin
     captureContainersOutput = true // if true, prints output of all containers to Gradle output
-    projectName = "lobby"
+//    projectName = "lobby-gradle"
 
     // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy "docker-compose down"
     removeContainers = false
@@ -80,8 +80,6 @@ dockerCompose {
         stopContainers = false
     }
 
-
-
     application {
         captureContainersOutput = true
         startedServices = ["flyway", "lobby"]
@@ -90,6 +88,8 @@ dockerCompose {
         stopContainers = false
     }
 }
+
+composeBuild.dependsOn(shadowJar)
 
 task restartLobbyDocker(type: Exec) {
     inputs.file("./build/libs/lobby-server.jar")
