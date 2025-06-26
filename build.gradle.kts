@@ -37,22 +37,27 @@ tasks.shadowJar {
 }
 
 /* "testInteg" runs tests that require a database or a server to be running */
-sourceSets {
-    testInteg {
-        java.srcDir("$projectDir/src/testInteg/java")
-        compileClasspath += main.output + test.output
-        runtimeClasspath += main.output + test.output
+val testInteg: SourceSet = sourceSets.create("testInteg") {
+    java {
+        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        srcDir("src/testInteg/java")
     }
+    resources.srcDir("src/testInteg/resources")
 }
 
-configurations {
-    testIntegImplementation.extendsFrom(testImplementation)
-    testIntegRuntime.extendsFrom(testRuntime)
-}
+configurations[testInteg.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
+configurations[testInteg.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
 
-task testInteg(type: Test) {
-    testClassesDirs = sourceSets.testInteg.output.classesDirs
-    classpath = sourceSets.testInteg.runtimeClasspath
+val testIntegTask = tasks.register<Test>("testInteg") {
+    group = "verification"
+
+    useJUnitPlatform()
+
+    testClassesDirs = testInteg.output.classesDirs
+    classpath = sourceSets["testInteg"].runtimeClasspath
+
+//    shouldRunAfter("test")
 }
 
 composeBuild.dependsOn(shadowJar)
