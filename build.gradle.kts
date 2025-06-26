@@ -64,14 +64,36 @@ tasks.check {
     dependsOn(testIntegTask)
 }
 
-//configure<ComposeExtension> {
-//
-//}
+// See: https://github.com/avast/gradle-docker-compose-plugin
+configure<com.avast.gradle.dockercompose.ComposeExtension> {
+    removeContainers = false
+    createNested("database").apply {
+        setProjectName("lobby-gradle")
+        startedServices.set(listOf("database", "flyway", "sample-data"))
+//        isRequiredBy(tasks.testInteg)
+//        startedServices("database", "flyway")
+        //        isRequiredBy(project.tasks.testInteg)
+        //        stopContainers = false
+    }
+
+    createNested("application").apply {
+        setProjectName("lobby-gradle")
+        startedServices.set(listOf("flyway", "lobby"))
+    }
+    //    application {
+//        captureContainersOutput = true
+//        startedServices = ["flyway", "lobby"]
+//        projectName = "lobby-gradle"
+//        isRequiredBy(project.tasks.testInteg)
+//        stopContainers = false
+//    }
+//    captureContainersOutput = true
+
+}
+
 ///* docker compose used to set up integ tests, starts a server and database */
 //dockerCompose {
-//    // See: https://github.com/avast/gradle-docker-compose-plugin
 //    captureContainersOutput = true // if true, prints output of all containers to Gradle output
-////    projectName = "lobby-gradle"
 //
 //    // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy "docker-compose down"
 //    removeContainers = false
