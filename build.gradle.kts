@@ -66,6 +66,7 @@ configure<com.avast.gradle.dockercompose.ComposeExtension> {
     removeContainers.set(false)
     stopContainers.set(false)
     isRequiredBy(testIntegTask)
+    setProjectName("lobby-server")
 }
 
 tasks.composeBuild {
@@ -75,12 +76,12 @@ tasks.composeBuild {
 val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
     inputs.file("./build/libs/lobby-server.jar")
     setIgnoreExitValue(true)
-    commandLine("docker", "compose", "-p", "lobby-gradle", "restart", "lobby")
+    commandLine("docker", "compose", "-p", "lobby-server", "restart", "lobby")
     outputs.upToDateWhen { true }
 }
 
 val stopDocker = tasks.register<Exec>("stopDocker") {
-    commandLine("docker", "compose", "-p", "lobby-gradle", "down")
+    commandLine("docker", "compose", "-p", "lobby-server", "down")
     setIgnoreExitValue(true)
 }
 
