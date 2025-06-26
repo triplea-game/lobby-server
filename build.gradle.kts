@@ -81,7 +81,7 @@ val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
 
 val stopDocker = tasks.register<Exec>("stopDocker") {
     commandLine("docker", "compose", "-p", "lobby-gradle", "down")
-//    ignoreExitValue = true
+    setIgnoreExitValue(true)
 }
 
 tasks.clean {
