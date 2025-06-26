@@ -69,27 +69,16 @@ tasks.check {
 configure<com.avast.gradle.dockercompose.ComposeExtension> {
     removeContainers.set(false)
     stopContainers.set(false)
+    isRequiredBy(testIntegTask)
+}
 
-    createNested("database").apply {
-        setProjectName("lobby-gradle")
-        startedServices.set(listOf("database", "flyway", "sample-data"))
-//        isRequiredBy(tasks.testInteg)
-//        startedServices("database", "flyway")
-        //        isRequiredBy(project.tasks.testInteg)
-        //        stopContainers = false
-    }
-
-    createNested("application").apply {
-        setProjectName("lobby-gradle")
-        startedServices.set(listOf("flyway", "lobby"))
-    }
-//        isRequiredBy(project.tasks.testInteg)
-//    captureContainersOutput = true
+tasks.composeBuild {
+    dependsOn(tasks.shadowJar)
 }
 
 val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
     inputs.file("./build/libs/lobby-server.jar")
-//    ignoreExitValue = true
+    setIgnoreExitValue(true)
     commandLine("docker", "compose", "-p", "lobby-gradle", "restart", "lobby")
     outputs.upToDateWhen { true }
 }
@@ -102,6 +91,7 @@ val stopDocker = tasks.register<Exec>("stopDocker") {
 tasks.clean {
     dependsOn(stopDocker)
 }
+
 tasks.shadowJar {
     finalizedBy(restartLobbyDocker)
 }
