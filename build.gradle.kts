@@ -39,11 +39,17 @@ tasks.shadowJar {
 /* "testInteg" runs tests that require a database or a server to be running */
 val testInteg: SourceSet = sourceSets.create("testInteg") {
     java {
-        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
-        srcDir("src/testInteg/java")
+//        + sourceSets.test.get().output
+//        runtimeClasspath += sourceSets.main.get().output
+        java.srcDir("src/testInteg/java")
+        resources.srcDir("src/testInteg/resources")
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += output + compileClasspath
+            //+ sourceSets["test"].runtimeClasspath
+
+//        resources.srcDir("src/testInteg/resources")
+//        exceptionFormat = TestExceptionFormat.FULL
     }
-    resources.srcDir("src/testInteg/resources")
 }
 
 configurations[testInteg.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
@@ -51,12 +57,12 @@ configurations[testInteg.runtimeOnlyConfigurationName].extendsFrom(configuration
 
 val testIntegTask = tasks.register<Test>("testInteg") {
     group = "verification"
-
     useJUnitPlatform()
-
-    testClassesDirs = testInteg.output.classesDirs
+    testClassesDirs = sourceSets["testInteg"].output.classesDirs
     classpath = sourceSets["testInteg"].runtimeClasspath
 
+//    testClassesDirs = testInteg.output.classesDirs
+//    classpath = sourceSets["testInteg"].runtimeClasspath
 //    shouldRunAfter("test")
 }
 
