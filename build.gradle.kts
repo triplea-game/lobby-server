@@ -64,9 +64,12 @@ tasks.check {
     dependsOn(testIntegTask)
 }
 
+///* docker compose used to set up integ tests, starts a server and database */
 // See: https://github.com/avast/gradle-docker-compose-plugin
 configure<com.avast.gradle.dockercompose.ComposeExtension> {
-    removeContainers = false
+    removeContainers.set(false)
+    stopContainers.set(false)
+
     createNested("database").apply {
         setProjectName("lobby-gradle")
         startedServices.set(listOf("database", "flyway", "sample-data"))
@@ -80,42 +83,8 @@ configure<com.avast.gradle.dockercompose.ComposeExtension> {
         setProjectName("lobby-gradle")
         startedServices.set(listOf("flyway", "lobby"))
     }
-    //    application {
-//        captureContainersOutput = true
-//        startedServices = ["flyway", "lobby"]
-//        projectName = "lobby-gradle"
 //        isRequiredBy(project.tasks.testInteg)
-//        stopContainers = false
-//    }
 //    captureContainersOutput = true
-
-}
-
-///* docker compose used to set up integ tests, starts a server and database */
-//dockerCompose {
-//    captureContainersOutput = true // if true, prints output of all containers to Gradle output
-//
-//    // Do not stop containers, we can hot redeploy in the running container and avoid a lengthy "docker-compose down"
-//    removeContainers = false
-//
-//    database {
-//        captureContainersOutput = true
-//        startedServices = ["database", "flyway", "sample-data" ]
-//        projectName = "lobby-gradle"
-//        isRequiredBy(project.tasks.testInteg)
-//        stopContainers = false
-//    }
-//
-//    application {
-//        captureContainersOutput = true
-//        startedServices = ["flyway", "lobby"]
-//        projectName = "lobby-gradle"
-//        isRequiredBy(project.tasks.testInteg)
-//        stopContainers = false
-//    }
-//}
-tasks.composeBuild {
-    dependsOn(tasks.shadowJar)
 }
 
 val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
@@ -124,7 +93,7 @@ val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
     commandLine("docker", "compose", "-p", "lobby-gradle", "restart", "lobby")
     outputs.upToDateWhen { true }
 }
-//
+
 val stopDocker = tasks.register<Exec>("stopDocker") {
     commandLine("docker", "compose", "-p", "lobby-gradle", "down")
 //    ignoreExitValue = true
@@ -136,10 +105,10 @@ tasks.clean {
 tasks.shadowJar {
     finalizedBy(restartLobbyDocker)
 }
+
 //tasks.applicationComposeBuild {
 //    dependsOn(shadowJar)
 //}
-
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
@@ -153,14 +122,12 @@ tasks.withType<Test> {
     }
 }
 
-
 spotless {
     java {
         googleJavaFormat()
         removeUnusedImports()
     }
 }
-
 
 dependencies {
     implementation("at.favre.lib:bcrypt:0.10.2")
