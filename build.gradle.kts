@@ -92,9 +92,10 @@ tasks.check {
 //        stopContainers = false
 //    }
 //}
+tasks.composeBuild {
+    dependsOn(tasks.shadowJar)
+}
 
-//composeBuild.dependsOn(shadowJar)
-//
 val restartLobbyDocker = tasks.register<Exec>("restartLobbyDocker") {
     inputs.file("./build/libs/lobby-server.jar")
 //    ignoreExitValue = true
