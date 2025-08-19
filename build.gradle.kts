@@ -1,6 +1,6 @@
 plugins {
     java
-    id("io.freefair.lombok") version "8.14"
+    id("io.freefair.lombok") version "8.14.2"
     id("com.diffplug.spotless") version "7.2.1"
     id("com.avast.gradle.docker-compose") version "0.17.12"
     id("com.github.johnrengelman.shadow") version "7.1.2"
