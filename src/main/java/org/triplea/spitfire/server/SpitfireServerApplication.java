@@ -2,18 +2,21 @@ package org.triplea.spitfire.server;
 
 import be.tomcools.dropwizard.websocket.WebsocketBundle;
 import com.codahale.metrics.MetricRegistry;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
 import java.util.List;
+
+import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.LobbyModuleRowMappers;
 import org.triplea.dropwizard.common.AuthenticationConfiguration;
 import org.triplea.dropwizard.common.IllegalArgumentMapper;
 import org.triplea.dropwizard.common.JdbiLogging;
-import org.triplea.dropwizard.common.ServerConfiguration;
 import org.triplea.modules.chat.ChatMessagingService;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.game.listing.GameListing;
@@ -56,7 +59,6 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
 
   private static final String[] DEFAULT_ARGS = new String[] {"server", "configuration.yml"};
 
-  private ServerConfiguration<SpitfireServerConfig> serverConfiguration;
   private final WebsocketBundle websocketBundle = new WebsocketBundle();
 
   /**
@@ -71,10 +73,12 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
 
   @Override
   public void initialize(final Bootstrap<SpitfireServerConfig> bootstrap) {
-    serverConfiguration =
-        ServerConfiguration.build(bootstrap)
-            .enableEnvironmentVariablesInConfig()
-            .enableBetterJdbiExceptions();
+    // enable environment variables in configuration.yml
+    bootstrap.setConfigurationSourceProvider(
+            new SubstitutingSourceProvider(
+                    bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+    // Better JDBI exceptions
+    bootstrap.addBundle(new JdbiExceptionsBundle());
     bootstrap.addBundle(websocketBundle);
   }
 
@@ -93,8 +97,7 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
     websocketBundle.addEndpoint(GameConnectionWebSocket.class);
     websocketBundle.addEndpoint(PlayerConnectionWebSocket.class);
 
-    serverConfiguration.registerRequestFilter(
-        environment, BannedPlayerFilter.newBannedPlayerFilter(jdbi));
+    environment.jersey().register(BannedPlayerFilter.newBannedPlayerFilter(jdbi));
 
     final MetricRegistry metrics = new MetricRegistry();
     AuthenticationConfiguration.enableAuthentication(
@@ -104,7 +107,7 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
         new RoleAuthorizer(),
         AuthenticatedUser.class);
 
-    serverConfiguration.registerExceptionMappers(environment, List.of(new IllegalArgumentMapper()));
+    environment.jersey().register(new IllegalArgumentMapper());
 
     final var sessionIsBannedCheck = SessionBannedCheck.build(jdbi);
     final var gameConnectionMessagingBus = new WebSocketMessagingBus();

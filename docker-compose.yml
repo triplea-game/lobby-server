@@ -16,14 +16,14 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     healthcheck:
-      test: echo 'select 1' | psql -h localhost -U postgres  | grep -q '1 row'
+      test: sudo -u postgres pg_isready
       interval: 3s
       retries: 10
       timeout: 3s
   flyway:
     build:
       context: database/sql/
-      dockerfile: Dockerfile
+      dockerfile: database/Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
       -connectRetries=60
@@ -38,7 +38,7 @@ services:
       - database
   sample-data:
     build:
-      context: database/sql/sample_data/
+      context: database/sample_data/
       dockerfile: Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
@@ -47,13 +47,10 @@ services:
       -password=lobby_user
       -url=jdbc:postgresql://database:5432/lobby_db
       migrate
-    volumes:
-      - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
     depends_on:
       - flyway
   lobby:
     build:
-#      context: spitfire-server/dropwizard-server/
       dockerfile: Dockerfile
     volumes:
       - ./build/libs/lobby-server.jar:/lobby-server.jar
