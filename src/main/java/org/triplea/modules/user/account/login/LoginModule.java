@@ -60,7 +60,7 @@ public class LoginModule {
     }
 
     final SystemId playerSystemId = SystemId.of(systemId);
-    final String nameValidation = UserName.validate(loginRequest.getName());
+    final String nameValidation = UserName.validate(loginRequest.getName()).orElse(null);
     if (nameValidation != null) {
       return LobbyLoginResponse.builder().failReason("Invalid name: " + nameValidation).build();
     }

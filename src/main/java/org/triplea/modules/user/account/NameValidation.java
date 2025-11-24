@@ -21,7 +21,7 @@ public class NameValidation implements Function<String, Optional<String>> {
   public static NameValidation build(final Jdbi jdbi) {
     return NameValidation.builder()
         .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
-        .syntaxValidation(name -> Optional.ofNullable(UserName.validate(name)))
+        .syntaxValidation(UserName::validate)
         .badWordsDao(jdbi.onDemand(BadWordsDao.class))
         .usernameBanDao(jdbi.onDemand(UsernameBanDao.class))
         .build();
