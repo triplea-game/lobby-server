@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine-jdk
+FROM eclipse-temurin:21-jdk-focal
 
 EXPOSE 8080
 ADD configuration.yml /configuration.yml
