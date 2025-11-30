@@ -1,0 +1,31 @@
+MAKEFLAGS += --always-make --warn-undefined-variables
+SHELL=/bin/bash -ue
+
+vaultPassword=@echo "${TRIPLEA_ANSIBLE_VAULT_PASSWORD}" > deploy/vault-password; trap 'rm -f "deploy/vault-password"' EXIT
+runAnsible=ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook --vault-password-file deploy/vault-password
+testInventory=--inventory deploy/ansible/test.inventory
+prodInventory=--inventory deploy/ansible/prod.inventory
+playbook=deploy/ansible/playbook.yml
+
+
+diff-test:
+	$(vaultPassword); \
+	$(runAnsible) \
+		--diff \
+		--check \
+		$(testInventory) \
+		$(playbook)
+
+deploy-test:
+	$(vaultPassword); \
+	$(runAnsible) \
+		--diff \
+		$(testInventory) \
+		$(playbook)
+#	echo "$(TRIPLEA_ANSIBLE_VAULT_PASSWORD)" > "$scriptDir/vault-password";
+#	trap 'rm -f "$scriptDir/vault-password"' EXIT; \
+#	ANSIBLE_CONFIG="deploy/ansible.cfg" \
+#	  ansible-playbook \
+#		--vault-password-file "deploy/vault-password" \
+#		--inventory "deploy/ansible/test.inventory" \
+#		deploy/ansible/playbook.yml

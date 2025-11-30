@@ -57,7 +57,7 @@ set -x
 ANSIBLE_CONFIG="$scriptDir/ansible.cfg" \
   ansible-playbook $@ \
     --vault-password-file "$scriptDir/vault-password" \
-    --inventory "$scriptDir/ansible/prod.inventory" \
+    --inventory "$scriptDir/ansible/test.inventory" \
     $CHECK_MODE "$scriptDir/ansible/playbook.yml"
 set +x
 
