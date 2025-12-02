@@ -22,3 +22,7 @@ deploy-test:
 		--diff \
 		$(testInventory) \
 		$(playbook)
+
+run:
+	POSTGRES_PORT=5432 LOBBY_PORT=3000 ./gradlew composeUp
+
