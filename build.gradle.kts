@@ -125,7 +125,7 @@ dependencies {
 
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
-    testImplementation("org.wiremock:wiremock:3.7.0")
+    testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("ru.lanwen.wiremock:wiremock-junit5:1.3.1")
     testImplementation("uk.co.datumedge:hamcrest-json:0.3")
 
