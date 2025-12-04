@@ -1,15 +1,15 @@
-# Runs when master branch is updated.
+# Runs when main branch is updated.
 # Runs builds checks, if all passes then packages the lobby and redeploys production.
 
-name: Master Branch Build - Build Docker Container
+name: Main Branch Build - Build Docker Container
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   build:
     env:
-      IS_MASTER_BUILD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      IS_MAIN_BUILD: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,24 +25,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to GitHub Container Registry
-        if: ${{ env.IS_MASTER_BUILD }}
+        if: ${{ env.IS_MAIN_BUILD }}
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: docker for database (flyway) migrations
-        if: ${{ env.IS_MASTER_BUILD }}
+        if: ${{ env.IS_MAIN_BUILD }}
         run: |
           docker build database/sql --tag ghcr.io/triplea-game/lobby/flyway:latest
           docker push ghcr.io/triplea-game/lobby/flyway:latest
       - name: docker for optional database migrations with example seed data
-        if: ${{ env.IS_MASTER_BUILD }}
+        if: ${{ env.IS_MAIN_BUILD }}
         run: |
           docker build database/sql/sample_data --tag ghcr.io/triplea-game/lobby/sample_data:latest
           docker push ghcr.io/triplea-game/lobby/sample_data:latest
       - name: docker for the java lobby server
-        if: ${{ env.IS_MASTER_BUILD }}
+        if: ${{ env.IS_MAIN_BUILD }}
         run: |
           docker build . --tag ghcr.io/triplea-game/lobby/server:latest
           docker push ghcr.io/triplea-game/lobby/server:latest
