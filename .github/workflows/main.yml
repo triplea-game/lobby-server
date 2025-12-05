@@ -49,7 +49,7 @@ jobs:
       - name: Load SSH private key into ssh-agent
         uses: webfactory/ssh-agent@v0.9.1
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_LOBBY_SERVER_USER_PRIVATE_SSH_KEY }}
       - name: Update production
         run: |
           pip install ansible
