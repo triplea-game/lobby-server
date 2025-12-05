@@ -65,7 +65,7 @@ tasks.check {
 dockerCompose {
     captureContainersOutput = true
     isRequiredBy(testIntegTask)
-    setProjectName("support-server")
+    setProjectName("lobby-server")
     // suppress unset variable warning, assign variables to empty string (which will result in random port numbers)
     environment = mapOf("DATABASE_PORT" to "", "SERVER_PORT" to "")
 }
