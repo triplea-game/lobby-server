@@ -59,28 +59,38 @@ tasks.check {
     dependsOn(testIntegTask)
 }
 
+
 ///* docker compose used to set up integ tests, starts a server and database */
 // See: https://github.com/avast/gradle-docker-compose-plugin
-configure<com.avast.gradle.dockercompose.ComposeExtension> {
-    removeContainers.set(false)
-    stopContainers.set(false)
+dockerCompose {
+    captureContainersOutput = true
     isRequiredBy(testIntegTask)
-    setProjectName("lobby-server")
+    setProjectName("support-server")
+    // suppress unset variable warning, assign variables to empty string (which will result in random port numbers)
+    environment = mapOf("DATABASE_PORT" to "", "SERVER_PORT" to "")
 }
 
 tasks.composeBuild {
     dependsOn(tasks.shadowJar)
 }
 
-tasks.clean {
-    dependsOn(tasks.composeDownForced)
+tasks.register<Exec>("dockerComposeClean") {
+    group = "docker"
+    description = "Docker compose stop and removes volumes"
+    commandLine("docker", "compose", "down", "--volumes")
 }
+
+tasks.clean {
+    dependsOn(tasks.findByName("dockerComposeClean"))
+}
+
 
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("standardOut", "standardError", "skipped", "failed")
     }
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
 }
 
 spotless {
@@ -89,6 +99,8 @@ spotless {
         removeUnusedImports()
     }
 }
+
+val tripleaVersion = "2.7.15281"
 
 dependencies {
     implementation("at.favre.lib:bcrypt:0.10.2")
@@ -107,11 +119,11 @@ dependencies {
     implementation("org.java-websocket:Java-WebSocket:1.6.0")
     implementation("org.jdbi:jdbi3-core:3.49.5")
     implementation("org.jdbi:jdbi3-sqlobject:3.49.5")
-    implementation("triplea:domain-data:2.7.15281")
-    implementation("triplea:feign-common:2.7.15281")
-    implementation("triplea:java-extras:2.7.15281")
-    implementation("triplea:lobby-client:2.7.15281")
-    implementation("triplea:websocket-client:2.7.15281")
+    implementation("triplea:domain-data:$tripleaVersion")
+    implementation("triplea:feign-common:$tripleaVersion")
+    implementation("triplea:java-extras:$tripleaVersion")
+    implementation("triplea:lobby-client:$tripleaVersion")
+    implementation("triplea:websocket-client:$tripleaVersion")
     runtimeOnly("org.postgresql:postgresql:42.7.7")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
