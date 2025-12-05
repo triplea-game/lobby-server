@@ -6,7 +6,7 @@
 #
 services:
   database:
-    image: postgres:10
+    image: postgres:18
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -15,11 +15,6 @@ services:
       - ./.docker-compose/database/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     ports:
       - "${POSTGRES_PORT}:5432"
-    healthcheck:
-      test: sudo -u postgres pg_isready
-      interval: 3s
-      retries: 10
-      timeout: 3s
   flyway:
     build:
       context: database/
