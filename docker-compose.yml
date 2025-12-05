@@ -22,7 +22,7 @@ services:
       timeout: 3s
   flyway:
     build:
-      context: database/sql/
+      context: database/
       dockerfile: database/Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
