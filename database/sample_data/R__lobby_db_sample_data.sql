@@ -10,14 +10,6 @@ delete
 from lobby_user;
 delete
 from access_log;
-delete
-from map_tag_value;
-delete
-from map_index;
-delete
-from map_tag_allowed_value;
-delete
-from map_tag;
 
 
 insert into lobby_user(id, username, email, user_role_id, bcrypt_password)
@@ -84,23 +76,4 @@ values (1000, 'ACTION_1', 'TARGET_1'),
        (1000, 'ACTION_48', 'TARGET_48'),
        (1000, 'ACTION_49', 'TARGET_49'),
        (1000, 'ACTION_50', 'TARGET_50');
-
-insert into map_index
-(id, map_name, last_commit_date, repo_url,
- description, download_size_bytes, download_url,
- preview_image_url)
-values (1, 'test-map', now() - interval '1 days', 'http://repo-url',
-        'map description', 1024, 'http://download-url',
-        'http://preview-image');
-
-insert into map_tag (id, name, display_order)
-values (1000, 'Rating', 1),
-       (2000, 'Category', 2);
-
-insert into map_tag_allowed_value (id, map_tag_id, value)
-values (300, 1000, '1'),
-       (301, 1000, '2'),
-       (302, 1000, '3'),
-       (400, 2000, 'Complete'),
-       (401, 2000, 'Awesome');
 
