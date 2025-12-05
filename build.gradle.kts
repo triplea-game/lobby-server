@@ -84,6 +84,12 @@ tasks.clean {
     dependsOn(tasks.findByName("dockerComposeClean"))
 }
 
+tasks.named<Test>("test") {
+    val dockerCompose = dockerCompose
+    doFirst {
+        dockerCompose.exposeAsEnvironment(this@named)
+    }
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()

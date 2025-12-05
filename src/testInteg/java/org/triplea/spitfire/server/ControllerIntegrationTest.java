@@ -55,8 +55,6 @@ public abstract class ControllerIntegrationTest {
           + "banned_username.yml,"
           + "banned_user.yml,"
           + "game_hosting_api_key.yml,"
-          + "map_index.yml,"
-          + "map_tag_value.yml,"
           + "moderator_action_history.yml,"
           + "temp_password_request.yml";
 
