@@ -15,6 +15,12 @@ services:
       - ./.docker-compose/database/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     ports:
       - "${POSTGRES_PORT}:5432"
+    healthcheck:
+      test: sudo -u postgres pg_isready -U lobby_user -d lobby_db
+      interval: 1s
+      retries: 10
+      timeout: 3s
+
   flyway:
     build:
       context: database/
