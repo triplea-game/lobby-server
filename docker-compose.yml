@@ -11,15 +11,17 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+      PGUSER: postgres
     volumes:
       - ./.docker-compose/database/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
     ports:
       - "${POSTGRES_PORT}:5432"
     healthcheck:
-      test: sudo -u postgres pg_isready -U lobby_user -d lobby_db
+      test: pg_isready -U lobby_user -d lobby_db
       interval: 1s
       retries: 10
       timeout: 3s
+      start_period: 20s
 
   flyway:
     build:
