@@ -124,7 +124,7 @@ dependencies {
     implementation("triplea:java-extras:$tripleaVersion")
     implementation("triplea:lobby-client:$tripleaVersion")
     implementation("triplea:websocket-client:$tripleaVersion")
-    runtimeOnly("org.postgresql:postgresql:42.7.7")
+    runtimeOnly("org.postgresql:postgresql:42.7.8")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
