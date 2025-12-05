@@ -23,7 +23,7 @@ services:
   flyway:
     build:
       context: database/
-      dockerfile: database/Dockerfile
+      dockerfile: Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
       -connectRetries=60
