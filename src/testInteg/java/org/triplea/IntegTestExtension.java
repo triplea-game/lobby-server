@@ -36,10 +36,7 @@ public class IntegTestExtension
     if (host == null) {
       throw new RuntimeException(
           "DB host is null, System property 'database_1.host' not found. Available properties: "
-              + System.getProperties().entrySet().stream()
-                  .map(Map.Entry::getKey)
-                  .sorted()
-                  .toList());
+              + System.getProperties().keySet().stream().sorted().toList());
     }
     var port = System.getProperty("database_1.tcp.5432");
     return String.format("jdbc:postgresql://%s:%s/lobby_db", host, port);
