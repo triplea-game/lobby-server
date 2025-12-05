@@ -1,0 +1,35 @@
+database_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  64336166636636343330663935383339363337313233333664333134346237306364386430633437
+  3236386138623863353330316436333964366335396439310a313132613436663263363832663834
+  39623766333661383435353431353763653431333563333663343563396433343135653134646333
+  3132393065333230360a363765346461636364373534373433373730666637636564363364343438
+  37353238616531613237363562386263666331316537613538373062363639633565316434373463
+  34613939313561363439326231663830613162353066326239373664383262306432636534306135
+  32643830353366353762303935363033613262616661313834636237663632636332326130623864
+  36613339633764366632326330376633363161373637313039373232643436356232626165666566
+  3238
+
+server_name: triplea_lobby_server_2_7
+database_port: 5432
+database_host: localhost
+
+database_name: "lobby_db"
+database_user: "lobby_user"
+flyway_image: "ghcr.io/triplea-game/lobby/flyway:latest"
+
+url_path: /lobby
+server_port: 8010
+docker_image: "ghcr.io/triplea-game/lobby/server:latest"
+
+service_exec_start: |
+      docker run \
+      --name {{ server_name }} \
+      --rm \
+      --network host \
+      -e HTTP_PORT="{{ server_port }}" \
+      -e DB_URL="{{ database_host }}:{{ database_port }}/{{ database_name }}" \
+      -e DATABASE_USER="{{ database_user }}" \
+      -e DATABASE_PASSWORD="{{ database_password }}" \
+      {{ docker_image }}
+service_exec_stop: docker stop {{ server_name }}

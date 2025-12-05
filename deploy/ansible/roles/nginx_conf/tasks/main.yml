@@ -1,0 +1,25 @@
+- name: assert variables are set
+  assert:
+    that:
+      - url_path is defined
+      - server_name is defined
+      - server_port is defined
+
+- name: create dir /etc/nginx/include/
+  become: true
+  file:
+    path: /etc/nginx/include/
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: install nginx config to /etc/nginx/include/
+  become: true
+  notify: reload_nginx
+  template:
+    src: server.conf
+    dest: /etc/nginx/include/server-{{ server_name }}.conf
+    mode: "0644"
+    owner: root
+    group: root

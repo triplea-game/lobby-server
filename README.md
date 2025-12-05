@@ -75,7 +75,7 @@ triplea.github.access.token=CHANGE_ME
 Runs all validations (tests/linters) and runs code auto-formatter:
 
 ```
-./verify.sh
+make verify
 ```
 
 Docker compose is used to start a database during build.
@@ -90,7 +90,7 @@ state after tests.
 Building from source and running locally:
 
 ```
-./docker-compose-up.sh
+./gradlew composeUp
 ```
 
 After the compose up, lobby will be running on port 3000, database will be started
@@ -123,14 +123,13 @@ a395fabccd4e   postgres:10          "docker-entrypoint.s…"   5 days ago   Up 9
 ### Connecting to local database
 
 ```
-docker exec -it --user postgres lobby-server-database-1 psql
+make connect-to-database
 ```
 
 ### Rebuild from clean
 
 ```
-docker compose rm -f
-./run.sh
+make clean
 ```
 
 ### Running (prod-like environment with docker)
@@ -153,13 +152,6 @@ docker run   \
 
 ## Production
 
-### Updating Prod Lobby version
-
-Restart the lobby service: ```sudo systemctl restart lobby-2.6```
-
-That will shut down the current lobby, pull the latest docker container and start it up.
-
-
 ## Prod - useful commands
 
 
@@ -172,7 +164,6 @@ tail -f /var/log/lobby-2.6.log
 docker container ls
 docker logs [lobby container name]
 ```
-
 
 
 Run flyway via docker container:
@@ -194,7 +185,6 @@ docker run \
     -url=jdbc:postgresql://localhost:5432/lobby_db \
     migrate
 ```
-
 
 
 # Design Notes
@@ -283,13 +273,4 @@ To terminate the request, just throw a IllegalArgumentException, it'l be mapped 
 
 Make sure in addition to the `@Path` annotation on the endpoint method,
 ensure the controller class has a `@Path("")` annotation on it.
-
-### Design Pattern for Transactions
-
-- Create a new interface; e.g.: `ModeratorKeyRegistrationDao.java`
-- Add a default method with the `@Transaction` annotation.
-- add a dummy select query so that JDBI sees the interface as valid
-- pass the needed DAO objects as parameters to the default method
-- use mockito mocks to test the method
-
 

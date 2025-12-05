@@ -1,0 +1,7 @@
+collections:
+# to use a local clone instead, use the following:
+#- name: [ INSERT YOUR ABSOLUTE PATH ]/triplea-project/infrastructure-ansible-collection/
+#  type: dir
+  - name: https://github.com/triplea-game/infrastructure-ansible-collection.git
+    version: 3dc64d02615c
+    type: git

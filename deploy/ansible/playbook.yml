@@ -1,5 +1,10 @@
 - hosts: lobby
+  collections:
+    - triplea.infra
+  vars_files:
+    - vars.yml
   roles:
-    - database/postgres
-    - database/flyway
-    - lobby
+    - triplea.infra.postgres_database
+    - triplea.infra.flyway
+    - triplea.infra.service_systemctl_conf
+    - nginx_conf
