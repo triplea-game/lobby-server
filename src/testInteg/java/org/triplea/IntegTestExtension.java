@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -20,15 +21,9 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.triplea.db.LobbyModuleRowMappers;
 
-/**
- *
- *
- * <pre>
- * Can inject into tests:
- * (1) a "jdbi"
- * (2) a URI that is the URI of the server.
- * </pre>
- */
+/// Can inject into tests:
+/// (1) a "jdbi"
+/// (2) a URI that is the URI of the server.
 @ExtendWith(DBUnitExtension.class)
 public class IntegTestExtension
     implements BeforeAllCallback, BeforeEachCallback, ParameterResolver {
@@ -38,6 +33,11 @@ public class IntegTestExtension
 
   protected static String getDatabaseUrl() {
     var host = System.getProperty("database_1.host");
+    if (host == null) {
+      throw new RuntimeException(
+          "DB host is null, System property 'database_1.host' not found. Available properties: "
+              + Collections.list(System.getProperties().elements()).stream().sorted().toList());
+    }
     var port = System.getProperty("database_1.tcp.5432");
     return String.format("jdbc:postgresql://%s:%s/lobby_db", host, port);
   }
