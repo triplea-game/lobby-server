@@ -8,9 +8,8 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.jdbi3.JdbiFactory;
-import java.util.List;
-
 import io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.LobbyModuleRowMappers;
@@ -75,8 +74,8 @@ public class SpitfireServerApplication extends Application<SpitfireServerConfig>
   public void initialize(final Bootstrap<SpitfireServerConfig> bootstrap) {
     // enable environment variables in configuration.yml
     bootstrap.setConfigurationSourceProvider(
-            new SubstitutingSourceProvider(
-                    bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
+        new SubstitutingSourceProvider(
+            bootstrap.getConfigurationSourceProvider(), new EnvironmentVariableSubstitutor(false)));
     // Better JDBI exceptions
     bootstrap.addBundle(new JdbiExceptionsBundle());
     bootstrap.addBundle(websocketBundle);
