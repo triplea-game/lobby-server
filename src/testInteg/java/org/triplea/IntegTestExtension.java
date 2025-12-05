@@ -9,7 +9,7 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
+import java.util.Map;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -36,7 +36,10 @@ public class IntegTestExtension
     if (host == null) {
       throw new RuntimeException(
           "DB host is null, System property 'database_1.host' not found. Available properties: "
-              + Collections.list(System.getProperties().elements()).stream().sorted().toList());
+              + System.getProperties().entrySet().stream()
+                  .map(Map.Entry::getKey)
+                  .sorted()
+                  .toList());
     }
     var port = System.getProperty("database_1.tcp.5432");
     return String.format("jdbc:postgresql://%s:%s/lobby_db", host, port);
