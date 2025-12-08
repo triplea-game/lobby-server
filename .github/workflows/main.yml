@@ -55,6 +55,6 @@ jobs:
           cat .github/workflows/host-keys/test.triplea-game.org >> ~/.ssh/known_hosts
           pip install ansible
           ansible --version
-          make deploy-test
+          make deploy-test SSH_USER=deploy-lobby-server
         env:
           TRIPLEA_ANSIBLE_VAULT_PASSWORD: ${{ secrets.TRIPLEA_ANSIBLE_VAULT_PASSWORD }}
