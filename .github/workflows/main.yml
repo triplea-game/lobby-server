@@ -1,7 +1,7 @@
 # Runs when main branch is updated.
-# Runs builds checks, if all passes then packages the lobby and redeploys production.
+# Runs builds checks, if all passes then packages the lobby and redeploys
 
-name: Main Branch Build - Build Docker Container
+name: Main Branch Build and Deploy
 on:
   push:
     branches:
@@ -50,12 +50,11 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_LOBBY_SERVER_USER_PRIVATE_SSH_KEY }}
-      - name: Update production
+      - name: Update test
         run: |
+          cat .github/workflows/host-keys/test.triplea-game.org >> ~/.ssh/known_hosts
           pip install ansible
-          # print ansible version for help debugging
           ansible --version
-          cd deploy/
-          ANSIBLE_REMOTE_USER=deploy-lobby APPLY=1 ./run.sh
+          make deploy-test
         env:
           TRIPLEA_ANSIBLE_VAULT_PASSWORD: ${{ secrets.TRIPLEA_ANSIBLE_VAULT_PASSWORD }}
