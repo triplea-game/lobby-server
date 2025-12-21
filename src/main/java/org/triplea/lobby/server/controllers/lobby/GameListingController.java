@@ -1,0 +1,53 @@
+package org.triplea.lobby.server.controllers.lobby;
+
+import com.google.common.annotations.VisibleForTesting;
+import io.dropwizard.auth.Auth;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.core.Response;
+import java.util.Collection;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import org.triplea.db.dao.user.role.UserRole;
+import org.triplea.http.client.lobby.game.lobby.watcher.GameListingClient;
+import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGameListing;
+import org.triplea.lobby.server.HttpController;
+import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
+import org.triplea.modules.game.listing.GameListing;
+
+/** Controller with endpoints for posting, getting and removing games. */
+@Builder
+@AllArgsConstructor(
+    access = AccessLevel.PACKAGE,
+    onConstructor_ = {@VisibleForTesting})
+@RolesAllowed(UserRole.HOST)
+public class GameListingController extends HttpController {
+
+  private final GameListing gameListing;
+
+  public static GameListingController build(final GameListing gameListing) {
+    return GameListingController.builder() //
+        .gameListing(gameListing)
+        .build();
+  }
+
+  /** Returns a listing of the current games. */
+  @GET
+  @Path(GameListingClient.FETCH_GAMES_PATH)
+  @RolesAllowed(UserRole.ANONYMOUS)
+  public Collection<LobbyGameListing> fetchGames() {
+    return gameListing.getGames();
+  }
+
+  /** Moderator action to remove a game. */
+  @POST
+  @Path(GameListingClient.BOOT_GAME_PATH)
+  @RolesAllowed(UserRole.MODERATOR)
+  public Response bootGame(@Auth final AuthenticatedUser authenticatedUser, final String gameId) {
+    gameListing.bootGame(authenticatedUser.getUserIdOrThrow(), gameId);
+    return Response.ok().build();
+  }
+}

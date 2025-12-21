@@ -7,7 +7,7 @@ clean:
 	./gradlew composeDown clean
 	docker compose rm -f
 
-check: ## run branch verification
+test check: ## run branch verification
 	./gradlew check
 
 verify: ## useful for developers, automatically format

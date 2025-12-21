@@ -48,11 +48,8 @@ When master branch is updated:
 - update prod to latest version, zero downtime deployment, run ansible:
     - ensure postgres is running on docker
     - fetch docker flyway image and run it against postgres
-    - deploy a 'blue' environment lobby server
-    - switch NGINX to 'blue' environment
-    - stop & update 'green' environment
-    - switch back to 'green' environment
-    - turn off the 'blue' environment
+    - pull latest docker image for lobby
+    - restart lobby (latest image takes effect)
 
 
 ## Development
@@ -75,7 +72,7 @@ triplea.github.access.token=CHANGE_ME
 Runs all validations (tests/linters) and runs code auto-formatter:
 
 ```
-make verify
+make check
 ```
 
 Docker compose is used to start a database during build.

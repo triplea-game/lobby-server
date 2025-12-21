@@ -24,7 +24,7 @@ repositories {
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "org.triplea.spitfire.server.SpitfireServerApplication"
+        attributes["Main-Class"] = "org.triplea.lobby.server.LobbyServerApplication"
     }
 }
 
