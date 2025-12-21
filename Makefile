@@ -1,6 +1,8 @@
 MAKEFLAGS += --always-make --warn-undefined-variables
 SHELL=/bin/bash -ue
 
+SSH_USER ?= $${USER}
+
 clean:
 	./gradlew composeDown clean
 	docker compose rm -f
@@ -16,7 +18,7 @@ ansible-galaxy-install: ## install ansible collections from TripleA
 	ansible-galaxy collection install -r deploy/ansible/requirements.yml --force
 
 vaultPassword=@echo "${TRIPLEA_ANSIBLE_VAULT_PASSWORD}" > deploy/vault-password; trap 'rm -f "deploy/vault-password"' EXIT
-runAnsible=ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook --vault-password-file deploy/vault-password
+runAnsible=ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook --vault-password-file deploy/vault-password  -e ansible_user=$(SSH_USER)
 testInventory=--inventory deploy/ansible/test.inventory
 prodInventory=--inventory deploy/ansible/prod.inventory
 playbook=deploy/ansible/playbook.yml

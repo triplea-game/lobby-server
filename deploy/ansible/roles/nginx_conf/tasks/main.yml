@@ -18,8 +18,15 @@
   become: true
   notify: reload_nginx
   template:
-    src: server.conf
-    dest: /etc/nginx/include/server-{{ server_name }}.conf
+    src: "{{ item.src }}"
+    dest: /etc/nginx/include/{{ item.target }}.conf
     mode: "0644"
     owner: root
     group: root
+  with_items:
+    - src: pre-server.conf
+      target: pre-server-{{server_name }}.conf
+    - src: server-2-5.conf
+      target: server-2-5-{{ server_name }}.conf
+    - src: server-2-7.conf
+      target: server-2-7-{{ server_name }}.conf
