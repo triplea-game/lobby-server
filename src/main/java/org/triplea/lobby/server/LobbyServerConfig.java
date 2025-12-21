@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.triplea.modules.LobbyModuleConfig;
 
 /**
  * This configuration class represents the configuration values in the server YML configuration. An
@@ -16,7 +15,7 @@ import org.triplea.modules.LobbyModuleConfig;
  * YML configuration file.
  */
 @ToString(exclude = {"database"})
-public class LobbyServerConfig extends Configuration implements LobbyModuleConfig {
+public class LobbyServerConfig extends Configuration {
 
   /**
    * Flag that indicates if we are running in production. This can be used to verify we do not have
@@ -25,7 +24,7 @@ public class LobbyServerConfig extends Configuration implements LobbyModuleConfi
    * prod-only cases where we perhaps have something misconfigured, hence the risk we are trying to
    * defend against.
    */
-  @Getter(onMethod_ = {@JsonProperty, @Override})
+  @Getter(onMethod_ = {@JsonProperty})
   @Setter(onMethod_ = {@JsonProperty})
   private boolean gameHostConnectivityCheckEnabled;
 

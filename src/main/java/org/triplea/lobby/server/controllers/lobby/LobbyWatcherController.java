@@ -22,8 +22,8 @@ import org.triplea.http.client.lobby.game.lobby.watcher.PlayerJoinedNotification
 import org.triplea.http.client.lobby.game.lobby.watcher.PlayerLeftNotification;
 import org.triplea.http.client.lobby.game.lobby.watcher.UpdateGameRequest;
 import org.triplea.lobby.server.HttpController;
+import org.triplea.lobby.server.LobbyServerConfig;
 import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
-import org.triplea.modules.LobbyModuleConfig;
 import org.triplea.modules.game.listing.GameListing;
 import org.triplea.modules.game.lobby.watcher.GamePostingModule;
 
@@ -43,9 +43,9 @@ public class LobbyWatcherController extends HttpController {
   @Nonnull private final GamePostingModule gamePostingModule;
 
   public static LobbyWatcherController build(
-      final LobbyModuleConfig lobbyModuleConfig, final GameListing gameListing) {
+      final LobbyServerConfig lobbyServerConfig, final GameListing gameListing) {
     return LobbyWatcherController.builder()
-        .gameHostConnectivityCheckEnabled(lobbyModuleConfig.isGameHostConnectivityCheckEnabled())
+        .gameHostConnectivityCheckEnabled(lobbyServerConfig.isGameHostConnectivityCheckEnabled())
         .gameListing(gameListing)
         .gamePostingModule(GamePostingModule.build(gameListing))
         .build();

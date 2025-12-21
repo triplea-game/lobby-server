@@ -119,7 +119,6 @@ public class LobbyServerApplication extends Application<LobbyServerConfig> {
 
     final GameListing gameListing = GameListing.build(jdbi, playerConnectionMessagingBus);
     List.of(
-            // lobby module controllers
             AccessLogController.build(jdbi),
             BadWordsController.build(jdbi),
             CreateAccountController.build(jdbi),

@@ -16,7 +16,7 @@ import org.triplea.http.client.forgot.password.ForgotPasswordRequest;
 import org.triplea.http.client.forgot.password.ForgotPasswordResponse;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.lobby.server.IpAddressExtractor;
-import org.triplea.modules.LobbyModuleConfig;
+import org.triplea.lobby.server.LobbyServerConfig;
 import org.triplea.modules.forgot.password.ForgotPasswordModule;
 
 /** Http controller that binds the error upload endpoint with the error report upload handler. */
@@ -28,14 +28,14 @@ public class ForgotPasswordController extends HttpController {
   @Nonnull private final BiFunction<String, ForgotPasswordRequest, String> forgotPasswordModule;
 
   public static ForgotPasswordController build(
-      final LobbyModuleConfig lobbyModuleConfig,
+      final LobbyServerConfig lobbyServerConfig,
       final Jdbi jdbi,
       final String smtpHost,
       final int smtpPort) {
     return ForgotPasswordController.builder()
         .forgotPasswordModule(
             ForgotPasswordModule.build(
-                lobbyModuleConfig.isGameHostConnectivityCheckEnabled(), jdbi, smtpHost, smtpPort))
+                lobbyServerConfig.isGameHostConnectivityCheckEnabled(), jdbi, smtpHost, smtpPort))
         .build();
   }
 
