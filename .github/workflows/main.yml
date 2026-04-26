@@ -49,12 +49,10 @@ jobs:
       - name: Load SSH private key into ssh-agent
         uses: webfactory/ssh-agent@v0.9.1
         with:
-          ssh-private-key: ${{ secrets.DEPLOY_LOBBY_SERVER_USER_PRIVATE_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       - name: Update test
         run: |
           cat .github/workflows/host-keys/test.triplea-game.org >> ~/.ssh/known_hosts
           pip install ansible
           ansible --version
-          make deploy-test SSH_USER=deploy-lobby-server
-        env:
-          TRIPLEA_ANSIBLE_VAULT_PASSWORD: ${{ secrets.TRIPLEA_ANSIBLE_VAULT_PASSWORD }}
+          SSH_USER=deploy make deploy-prod

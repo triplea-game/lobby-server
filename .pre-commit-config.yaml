@@ -1,4 +1,20 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+        stages: [pre-push]
+      - id: check-yaml
+        stages: [pre-push]
+      - id: end-of-file-fixer
+        stages: [pre-push]
+        exclude: ^database/migrations/.*\.sql
+      - id: trailing-whitespace
+        stages: [pre-push]
+        exclude: ^database/migrations/.*\.sql
+      - id: check-case-conflict
+        stages: [pre-push]
+
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.3
     hooks:
@@ -13,4 +29,3 @@ repos:
         entry: make format
         pass_filenames: false
         stages: [pre-push]
-

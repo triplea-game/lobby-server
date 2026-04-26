@@ -1,10 +1,9 @@
 - hosts: lobby
-  collections:
-    - triplea.infra
-  vars_files:
-    - vars.yml
-  roles:
-    - triplea.infra.postgres_database
-    - triplea.infra.flyway
-    - triplea.infra.service_systemctl_conf
-    - nginx_conf
+  tasks:
+    - name: Migrate Database
+      become: true
+      command: /usr/local/bin/run-flyway-migrate.sh
+
+    - name: Pull Latest Lobby and Restart
+      become: true
+      command: /usr/local/bin/deploy-service.sh

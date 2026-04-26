@@ -11,6 +11,9 @@ setup: ## Installs pre-commit as a pre-push git hook (requires pre-commit to be 
 	uv tool install pre-commit
 	pre-commit install --hook-type pre-push
 
+format: ## Runs formatting
+	./gradlew spotlessApply
+
 clean:
 	./gradlew composeDown clean
 	docker compose rm -f
@@ -20,34 +23,6 @@ test check: ## run branch verification
 
 verify: ## useful for developers, automatically format
 	./gradlew spotlessApply check
-
-format: ## Runs formatting
-	./gradlew spotlessApply
-
-ansible-galaxy-install: ## install ansible collections from TripleA
-	ansible-galaxy collection install -r deploy/ansible/requirements.yml --force
-
-# TODO: the ansible related stuff needs cleanup
-vaultPassword=@echo "${TRIPLEA_ANSIBLE_VAULT_PASSWORD}" > deploy/vault-password; trap 'rm -f "deploy/vault-password"' EXIT
-runAnsible=ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook --vault-password-file deploy/vault-password  -e ansible_user=$(SSH_USER)
-testInventory=--inventory deploy/ansible/test.inventory
-prodInventory=--inventory deploy/ansible/prod.inventory
-playbook=deploy/ansible/playbook.yml
-
-diff-test: ansible-galaxy-install ## Does a deployment "diff" against test, does not make changes
-	$(vaultPassword); \
-	$(runAnsible) \
-		--diff \
-		--check \
-		$(testInventory) \
-		$(playbook)
-
-deploy-test: ansible-galaxy-install ## deploys to 'test'
-	$(vaultPassword); \
-	$(runAnsible) \
-		--diff \
-		$(testInventory) \
-		$(playbook)
 
 connect-to-database: ## Dev utility command to connect to a local database
 	# Look for any containers publishing port 5432, the port we expect postgres to be using
@@ -60,3 +35,10 @@ build-with-libs: ## Build with local 'triplea' client
 
 run: ## Runs a local lobby (with database)
 	POSTGRES_PORT=5432 LOBBY_PORT=3000 ./gradlew composeUp
+
+deploy-prod: ## Triggers prod to pull latest docker, run flyway and restart services
+	ANSIBLE_CONFIG="deploy/ansible.cfg" \
+	  ansible-playbook \
+	    -e ansible_user=$(SSH_USER) \
+	    --inventory deploy/ansible/linode.inventory.yml \
+	    deploy/ansible/playbook.yml
