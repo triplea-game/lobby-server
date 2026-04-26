@@ -1,0 +1,16 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.24.3
+    hooks:
+      - id: gitleaks
+        stages: [pre-push]
+
+  - repo: local
+    hooks:
+      - id: make-format
+        name: Format (make format)
+        language: system
+        entry: make format
+        pass_filenames: false
+        stages: [pre-push]
+

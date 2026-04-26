@@ -3,6 +3,14 @@ SHELL=/bin/bash -ue
 
 SSH_USER ?= $${USER}
 
+help: ## Show this help text
+	grep -h -E '^[a-z]+.*:' $(MAKEFILE_LIST) | \
+		awk -F ":|#+" '{printf "\033[31m%s $(nc) \n   %s $(nc)\n    \033[3;37mDepends On: $(nc) [ %s ]\n", $$1, $$3, $$2}'
+
+setup: ## Installs pre-commit as a pre-push git hook (requires pre-commit to be installed)
+	uv tool install pre-commit
+	pre-commit install --hook-type pre-push
+
 clean:
 	./gradlew composeDown clean
 	docker compose rm -f
@@ -13,10 +21,13 @@ test check: ## run branch verification
 verify: ## useful for developers, automatically format
 	./gradlew spotlessApply check
 
+format: ## Runs formatting
+	./gradlew spotlessApply
 
 ansible-galaxy-install: ## install ansible collections from TripleA
 	ansible-galaxy collection install -r deploy/ansible/requirements.yml --force
 
+# TODO: the ansible related stuff needs cleanup
 vaultPassword=@echo "${TRIPLEA_ANSIBLE_VAULT_PASSWORD}" > deploy/vault-password; trap 'rm -f "deploy/vault-password"' EXIT
 runAnsible=ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook --vault-password-file deploy/vault-password  -e ansible_user=$(SSH_USER)
 testInventory=--inventory deploy/ansible/test.inventory
