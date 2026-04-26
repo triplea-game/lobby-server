@@ -3,12 +3,15 @@ package org.triplea.lobby.server.controllers;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import feign.Headers;
-import feign.RequestLine;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -17,8 +20,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.domain.data.LobbyGame;
-import org.triplea.http.client.HttpClient;
-import org.triplea.http.client.HttpConstants;
 import org.triplea.http.client.lobby.AuthenticationHeaders;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingResponse;
@@ -50,6 +51,7 @@ GameListingWebsocketIntegrationTest > Post a game, verify listener is notified F
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
 class GameListingWebsocketIntegrationTest extends ControllerIntegrationTest {
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final GamePostingRequest GAME_POSTING_REQUEST =
       GamePostingRequest.builder().playerNames(List.of()).lobbyGame(TestData.LOBBY_GAME).build();
 
@@ -60,27 +62,8 @@ class GameListingWebsocketIntegrationTest extends ControllerIntegrationTest {
 
   private LobbyWatcherClient lobbyWatcherClient;
 
-  private GamePostingTestOverrideClient gamePostingTestOverrideClient;
-
-  /**
-   * A special test-only HTTP client that can post games to lobby without a reverse connectivity
-   * check. This allows us to post games without actually hosting a game.
-   */
-  @Headers({HttpConstants.CONTENT_TYPE_JSON, HttpConstants.ACCEPT_JSON})
-  private interface GamePostingTestOverrideClient {
-    /** Posts a game, for test-only, returns a game-id from server. */
-    @RequestLine("POST " + LobbyWatcherController.TEST_ONLY_GAME_POSTING_PATH)
-    GamePostingResponse postGame(GamePostingRequest gamePostingRequest);
-  }
-
   @BeforeEach
   void setUp() {
-    gamePostingTestOverrideClient =
-        HttpClient.newClient(
-            GamePostingTestOverrideClient.class,
-            localhost,
-            new AuthenticationHeaders(HOST).createHeaders());
-
     lobbyWatcherClient = LobbyWatcherClient.newClient(localhost, HOST);
 
     final var playerToLobbyConnection =
@@ -111,8 +94,29 @@ class GameListingWebsocketIntegrationTest extends ControllerIntegrationTest {
                 .build());
   }
 
+  /**
+   * Posts a game to the test-only endpoint that bypasses reverse connectivity checks, allowing
+   * tests to post games without actually hosting one.
+   */
+  @SneakyThrows
   private String postGame() {
-    return gamePostingTestOverrideClient.postGame(GAME_POSTING_REQUEST).getGameId();
+    final String requestBody = OBJECT_MAPPER.writeValueAsString(GAME_POSTING_REQUEST);
+    final URI postUri = localhost.resolve(LobbyWatcherController.TEST_ONLY_GAME_POSTING_PATH);
+
+    final HttpRequest.Builder requestBuilder =
+        HttpRequest.newBuilder()
+            .uri(postUri)
+            .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(requestBody));
+
+    new AuthenticationHeaders(HOST).createHeaders().forEach(requestBuilder::header);
+
+    final HttpResponse<String> response =
+        HttpClient.newHttpClient()
+            .send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+
+    return OBJECT_MAPPER.readValue(response.body(), GamePostingResponse.class).getGameId();
   }
 
   @Test

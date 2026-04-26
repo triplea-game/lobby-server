@@ -33,6 +33,9 @@ import org.triplea.java.IpAddressParser;
 @ExtendWith(MockitoExtension.class)
 class GenericWebSocketTest {
 
+  @SuppressWarnings("unused")
+  private static final Gson GSON = new Gson();
+
   @Mock private WebSocketSession session;
 
   @Mock private MessageSender messageSender;

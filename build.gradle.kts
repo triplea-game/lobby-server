@@ -117,8 +117,8 @@ dependencies {
     implementation("io.dropwizard:dropwizard-auth:4.0.7")
     implementation("io.dropwizard:dropwizard-core:4.0.7")
     implementation("io.dropwizard:dropwizard-jdbi3:4.0.7")
-    implementation("io.github.openfeign:feign-core:13.6")
-    implementation("io.github.openfeign:feign-gson:13.6")
+//    implementation("io.github.openfeign:feign-core:13.6")
+//    implementation("io.github.openfeign:feign-gson:13.6")
     implementation("javax.activation:activation:1.1.1")
     implementation("javax.servlet:servlet-api:2.5")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
@@ -130,7 +130,19 @@ dependencies {
     implementation("triplea:java-extras:$tripleaVersion")
     implementation("triplea:lobby-client:$tripleaVersion")
     implementation("triplea:websocket-client:$tripleaVersion")
+    // feign-core and feign-gson are still required at runtime because triplea:feign-common and
+    // triplea:lobby-client were compiled against feign and load feign classes at runtime.
+    // They are excluded from implementation so that production code in this project cannot
+    // import feign directly.
+    runtimeOnly("io.github.openfeign:feign-core:13.6")
+    runtimeOnly("io.github.openfeign:feign-gson:13.6")
+    // gson is required because triplea:websocket-client's MessageEnvelope uses it for JSON
+    // serialization. It was previously provided transitively by feign-gson.
+    implementation("com.google.code.gson:gson:2.11.0")
     runtimeOnly("org.postgresql:postgresql:42.7.7")
+    // feign-core on the test compile classpath allows integration tests to assert on FeignException
+    // thrown by triplea clients, which still use feign internally.
+    testImplementation("io.github.openfeign:feign-core:13.6")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
