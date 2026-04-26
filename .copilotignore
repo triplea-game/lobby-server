@@ -1,0 +1,49 @@
+# IDE & OS artifacts
+.classpath
+.gradle
+.idea/
+.project
+.settings
+.DS_Store
+.vscode/
+*.iml
+*.backup
+*.swp
+*.attach_pid*
+
+# Binary & media
+*.png
+*.gif
+*.mp3
+*.jar
+
+# Generated output
+bin/
+build/
+out/
+
+# Gradle wrapper (not useful as context)
+.gradle/
+gradle/
+gradlew
+gradlew.bat
+
+# Infra & deployment (not relevant to Java code)
+Dockerfile
+docker-compose.yml
+.docker-compose/
+deploy/
+
+# Database: keep migrations/ for schema reasoning; ignore everything else
+database/sample_data/
+database/init/
+database/connect_to_docker_db.sh
+database/README.md
+database/Dockerfile
+
+# Docs & meta
+LICENSE
+README.md
+.docs/
+.github/
+Makefile
