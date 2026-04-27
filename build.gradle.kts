@@ -117,8 +117,6 @@ dependencies {
     implementation("io.dropwizard:dropwizard-auth:4.0.7")
     implementation("io.dropwizard:dropwizard-core:4.0.7")
     implementation("io.dropwizard:dropwizard-jdbi3:4.0.7")
-//    implementation("io.github.openfeign:feign-core:13.6")
-//    implementation("io.github.openfeign:feign-gson:13.6")
     implementation("javax.activation:activation:1.1.1")
     implementation("javax.servlet:servlet-api:2.5")
     implementation("javax.xml.bind:jaxb-api:2.3.1")
