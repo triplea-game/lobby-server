@@ -18,7 +18,7 @@ public class TempPasswordLogin implements Predicate<LoginRequest> {
 
   public static TempPasswordLogin build(final Jdbi jdbi) {
     return TempPasswordLogin.builder()
-        .tempPasswordDao(jdbi.onDemand(TempPasswordDao.class))
+        .tempPasswordDao(new TempPasswordDao(jdbi))
         .passwordChecker(PasswordBCrypter::verifyHash)
         .build();
   }

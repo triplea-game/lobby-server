@@ -20,8 +20,8 @@ public class RemoteActionsModule {
   public static RemoteActionsModule build(
       final Jdbi jdbi, final WebSocketMessagingBus gameMessagingBus) {
     return RemoteActionsModule.builder()
-        .auditHistoryDao(jdbi.onDemand(ModeratorAuditHistoryDao.class))
-        .userBanDao(jdbi.onDemand(UserBanDao.class))
+        .auditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
+        .userBanDao(new UserBanDao(jdbi))
         .gameMessagingBus(gameMessagingBus)
         .build();
   }

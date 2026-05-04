@@ -1,4 +1,4 @@
-package org.triplea.modules.player.info;
+package org.triplea.db.dao.moderator.player.info;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -27,9 +27,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
-import org.triplea.db.dao.moderator.player.info.PlayerAliasRecord;
-import org.triplea.db.dao.moderator.player.info.PlayerBanRecord;
-import org.triplea.db.dao.moderator.player.info.PlayerInfoForModeratorDao;
 import org.triplea.db.dao.user.history.PlayerHistoryDao;
 import org.triplea.db.dao.user.history.PlayerHistoryRecord;
 import org.triplea.domain.data.ChatParticipant;

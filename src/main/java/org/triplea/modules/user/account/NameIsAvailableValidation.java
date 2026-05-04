@@ -15,7 +15,7 @@ public class NameIsAvailableValidation implements Function<String, Optional<Stri
   @Nonnull private final UserJdbiDao userJdbiDao;
 
   public static NameIsAvailableValidation build(final Jdbi jdbi) {
-    return new NameIsAvailableValidation(jdbi.onDemand(UserJdbiDao.class));
+    return new NameIsAvailableValidation(new UserJdbiDao(jdbi));
   }
 
   @Override

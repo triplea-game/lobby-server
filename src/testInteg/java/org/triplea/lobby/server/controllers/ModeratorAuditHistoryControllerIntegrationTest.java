@@ -5,20 +5,21 @@ import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
 import org.triplea.http.client.lobby.moderator.toolbox.log.ModeratorEvent;
 import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxEventLogClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class ModeratorAuditHistoryControllerIntegrationTest extends ControllerIntegrationTest {
-  private final URI localhost;
-  private final ToolboxEventLogClient client;
+@QuarkusTest
+public class ModeratorAuditHistoryControllerIntegrationTest extends ControllerIntegrationTest {
+  ToolboxEventLogClient client;
 
-  ModeratorAuditHistoryControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     this.client = ToolboxEventLogClient.newClient(localhost, MODERATOR);
   }
 

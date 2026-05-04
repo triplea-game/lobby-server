@@ -3,6 +3,7 @@ package org.triplea.lobby.server.controllers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import io.quarkus.test.junit.QuarkusTest;
 import java.net.URI;
 import java.time.Duration;
 import lombok.AllArgsConstructor;
@@ -48,9 +49,9 @@ import org.triplea.lobby.server.ControllerIntegrationTest;
    INFO  [2020-09-06 01:52:03,521] org.triplea.dropwizard.test.DropwizardServerExtension:
        Running database cleanup..
 */
+@QuarkusTest
 @AllArgsConstructor
-class LobbyWebsocketClientIntegrationTest extends ControllerIntegrationTest {
-  private final URI localhost;
+public class LobbyWebsocketClientIntegrationTest extends ControllerIntegrationTest {
 
   @Test
   @DisplayName("Verify basic websocket operations: open, send, close")

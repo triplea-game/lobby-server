@@ -1,13 +1,38 @@
 package org.triplea.db.dao.api.key;
 
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
 
-interface GameHostingApiKeyDao {
-  @SqlUpdate("insert into game_hosting_api_key(key, ip) values(:key, :ip::inet)")
-  int insertKey(@Bind("key") String key, @Bind("ip") String ip);
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class GameHostingApiKeyDao {
+  @Inject private final Jdbi jdbi;
 
-  @SqlQuery("select exists (select * from game_hosting_api_key where key = :apiKey)")
-  boolean keyExists(@Bind("apiKey") String apiKey);
+  public int insertKey(String key, String ip) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into game_hosting_api_key(key, ip) values(:key, :ip::inet)
+                    """)
+                .bind("key", key)
+                .bind("ip", ip)
+                .execute());
+  }
+
+  boolean keyExists(String apiKey) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select exists (select * from game_hosting_api_key where key = :apiKey)
+                    """)
+                .bind("apiKey", apiKey)
+                .mapTo(Boolean.class)
+                .one());
+  }
 }

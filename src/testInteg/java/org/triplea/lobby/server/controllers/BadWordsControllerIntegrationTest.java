@@ -6,18 +6,20 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNot.not;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.words.ToolboxBadWordsClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class BadWordsControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class BadWordsControllerIntegrationTest extends ControllerIntegrationTest {
+  private ToolboxBadWordsClient client;
 
-  private final ToolboxBadWordsClient client;
-
-  BadWordsControllerIntegrationTest(final URI localhost) {
-    this.client = ToolboxBadWordsClient.newClient(localhost, MODERATOR);
+  @BeforeEach
+  void setUp() {
+    client = ToolboxBadWordsClient.newClient(localhost, MODERATOR);
   }
 
   @Test

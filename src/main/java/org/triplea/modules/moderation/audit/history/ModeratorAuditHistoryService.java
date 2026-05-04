@@ -12,7 +12,7 @@ public class ModeratorAuditHistoryService {
   private final ModeratorAuditHistoryDao moderatorAuditHistoryDao;
 
   public static ModeratorAuditHistoryService build(final Jdbi jdbi) {
-    return new ModeratorAuditHistoryService(jdbi.onDemand(ModeratorAuditHistoryDao.class));
+    return new ModeratorAuditHistoryService(new ModeratorAuditHistoryDao(jdbi));
   }
 
   public List<ModeratorEvent> lookupHistory(final int rowNumber, final int rowCount) {

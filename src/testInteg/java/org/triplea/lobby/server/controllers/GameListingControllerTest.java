@@ -1,14 +1,17 @@
 package org.triplea.lobby.server.controllers;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.game.lobby.watcher.GameListingClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class GameListingControllerTest extends ControllerIntegrationTest {
-  private final GameListingClient client;
+@QuarkusTest
+public class GameListingControllerTest extends ControllerIntegrationTest {
+  GameListingClient client;
 
-  GameListingControllerTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     client = GameListingClient.newClient(localhost, MODERATOR);
   }
 

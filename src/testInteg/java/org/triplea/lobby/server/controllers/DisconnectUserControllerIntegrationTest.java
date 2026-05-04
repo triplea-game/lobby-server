@@ -1,19 +1,20 @@
 package org.triplea.lobby.server.controllers;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.triplea.domain.data.PlayerChatId;
 import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class DisconnectUserControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class DisconnectUserControllerIntegrationTest extends ControllerIntegrationTest {
   private static final PlayerChatId CHAT_ID = PlayerChatId.of("chat-id");
-  private final URI localhost;
-  private final ModeratorLobbyClient client;
+  ModeratorLobbyClient client;
 
-  DisconnectUserControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     this.client = ModeratorLobbyClient.newClient(localhost, MODERATOR);
   }
 

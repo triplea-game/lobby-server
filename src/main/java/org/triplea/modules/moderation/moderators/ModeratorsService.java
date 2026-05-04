@@ -24,9 +24,9 @@ public class ModeratorsService {
 
   public static ModeratorsService build(final Jdbi jdbi) {
     return ModeratorsService.builder()
-        .moderatorsDao(jdbi.onDemand(ModeratorsDao.class))
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
-        .moderatorAuditHistoryDao(jdbi.onDemand(ModeratorAuditHistoryDao.class))
+        .moderatorsDao(new ModeratorsDao(jdbi))
+        .userJdbiDao(new UserJdbiDao(jdbi))
+        .moderatorAuditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
         .build();
   }
 

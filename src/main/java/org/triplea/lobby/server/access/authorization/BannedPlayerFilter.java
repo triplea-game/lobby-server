@@ -2,7 +2,10 @@ package org.triplea.lobby.server.access.authorization;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
-import jakarta.servlet.http.HttpServletRequest;
+import io.vertx.ext.web.RoutingContext;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.PreMatching;
@@ -11,9 +14,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
 import java.time.Clock;
 import java.time.Duration;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.ban.BanLookupRecord;
 import org.triplea.db.dao.user.ban.UserBanDao;
@@ -23,38 +23,51 @@ import org.triplea.lobby.server.IpAddressExtractor;
 
 @Provider
 @PreMatching
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @VisibleForTesting)
+@ApplicationScoped
 public class BannedPlayerFilter implements ContainerRequestFilter {
 
-  private final UserBanDao userBanDao;
-  private final Clock clock;
+  @Inject Jdbi jdbi;
 
-  @Context private HttpServletRequest request;
+  @Context private RoutingContext routingContext;
 
-  public static BannedPlayerFilter newBannedPlayerFilter(final Jdbi jdbi) {
-    return new BannedPlayerFilter(jdbi.onDemand(UserBanDao.class), Clock.systemUTC());
+  private UserBanDao userBanDao;
+  private Clock clock;
+
+  /** CDI no-arg constructor. */
+  public BannedPlayerFilter() {
+    this.clock = Clock.systemUTC();
+  }
+
+  /** Test constructor — bypasses CDI; supplies all dependencies directly. */
+  @VisibleForTesting
+  BannedPlayerFilter(
+      final UserBanDao userBanDao, final Clock clock, final RoutingContext routingContext) {
+    this.userBanDao = userBanDao;
+    this.clock = clock;
+    this.routingContext = routingContext;
+  }
+
+  @PostConstruct
+  void init() {
+    userBanDao = new UserBanDao(jdbi);
   }
 
   @Override
   public void filter(final ContainerRequestContext requestContext) {
-    if (Strings.emptyToNull(request.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER)) == null) {
-      // missing system id header, abort the request
+    final String systemId =
+        Strings.emptyToNull(
+            routingContext.request().getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER));
+    if (systemId == null) {
       requestContext.abortWith(
           Response.status(Response.Status.UNAUTHORIZED).entity("Invalid request").build());
-
     } else {
-      // check if user is banned, if so abort the request
       userBanDao
-          .lookupBan(
-              IpAddressExtractor.extractIpAddress(request),
-              request.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER))
+          .lookupBan(IpAddressExtractor.extractIpAddress(routingContext), systemId)
           .map(this::formatBanMessage)
           .ifPresent(
               banMessage ->
                   requestContext.abortWith(
-                      Response.status(Response.Status.UNAUTHORIZED.getStatusCode(), banMessage)
-                          .build()));
+                      Response.status(Response.Status.UNAUTHORIZED).entity(banMessage).build()));
     }
   }
 
@@ -62,7 +75,6 @@ public class BannedPlayerFilter implements ContainerRequestFilter {
     final long banMinutes =
         Duration.between(clock.instant(), banLookupRecord.getBanExpiry()).toMinutes();
     final String banDuration = BanDurationFormatter.formatBanMinutes(banMinutes);
-
     return String.format("Banned %s,  Ban-ID: %s", banDuration, banLookupRecord.getPublicBanId());
   }
 }

@@ -3,8 +3,9 @@ package org.triplea.lobby.server.controllers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
@@ -12,19 +13,15 @@ import org.triplea.http.client.lobby.game.lobby.watcher.LobbyWatcherClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 import org.triplea.lobby.server.TestData;
 
-// @DBRider
-//// @ExtendWith(DbRi)
-// @ExtendWith(DBUnitExtension.class)
-// @DBUnit(url = System.getProperty("123"))
-class LobbyWatcherControllerTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class LobbyWatcherControllerTest extends ControllerIntegrationTest {
   private static final GamePostingRequest GAME_POSTING_REQUEST =
       GamePostingRequest.builder().playerNames(List.of()).lobbyGame(TestData.LOBBY_GAME).build();
 
-  private final URI localhost;
-  private final LobbyWatcherClient client;
+  LobbyWatcherClient client;
 
-  LobbyWatcherControllerTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     client = LobbyWatcherClient.newClient(localhost, HOST);
   }
 

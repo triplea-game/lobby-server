@@ -25,7 +25,7 @@ public class DisconnectUserAction {
         .apiKeyDaoWrapper(PlayerApiKeyDaoWrapper.build(jdbi))
         .chatters(chatters)
         .playerConnections(playerConnections)
-        .moderatorAuditHistoryDao(jdbi.onDemand(ModeratorAuditHistoryDao.class))
+        .moderatorAuditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
         .build();
   }
 

@@ -18,8 +18,8 @@ public class UsernameBanService {
 
   public static UsernameBanService build(final Jdbi jdbi) {
     return UsernameBanService.builder()
-        .bannedUserNamesDao(jdbi.onDemand(UsernameBanDao.class))
-        .moderatorAuditHistoryDao(jdbi.onDemand(ModeratorAuditHistoryDao.class))
+        .bannedUserNamesDao(new UsernameBanDao(jdbi))
+        .moderatorAuditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
         .build();
   }
 

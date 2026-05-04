@@ -25,7 +25,7 @@ class TempPasswordPersistence {
 
   static TempPasswordPersistence newInstance(final Jdbi jdbi) {
     return new TempPasswordPersistence(
-        jdbi.onDemand(TempPasswordDao.class),
+        new TempPasswordDao(jdbi),
         Sha512Hasher::hashPasswordWithSalt,
         PasswordBCrypter::hashPassword);
   }

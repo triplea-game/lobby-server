@@ -25,7 +25,7 @@ public class ChatMessageListener implements Consumer<WebSocketMessageContext<Cha
   public static ChatMessageListener build(final Chatters chatters, final Jdbi jdbi) {
     return ChatMessageListener.builder()
         .chatters(chatters)
-        .lobbyChatHistoryDao(jdbi.onDemand(LobbyChatHistoryDao.class))
+        .lobbyChatHistoryDao(new LobbyChatHistoryDao(jdbi))
         .build();
   }
 

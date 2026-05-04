@@ -52,7 +52,7 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
                 .build())
         .passwordGenerator(new PasswordGenerator())
         .tempPasswordPersistence(TempPasswordPersistence.newInstance(jdbi))
-        .tempPasswordHistory(new TempPasswordHistory(jdbi.onDemand(TempPasswordHistoryDao.class)))
+        .tempPasswordHistory(new TempPasswordHistory(new TempPasswordHistoryDao(jdbi)))
         .build();
   }
 

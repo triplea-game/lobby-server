@@ -1,7 +1,6 @@
 package org.triplea.lobby.server.access.authentication;
 
 import com.google.common.annotations.VisibleForTesting;
-import io.dropwizard.auth.Authenticator;
 import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,12 +11,12 @@ import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.domain.data.ApiKey;
 
 /**
- * Verifies a 'bearer' token API key is valid. This means checking if the key is in database, if so
- * we return an {@code AuthenticatedUser} otherwise optional. Anonymous users will have a null
- * user-id and role of 'ANONYMOUS'.
+ * Validates a bearer-token API key. Returns an {@link AuthenticatedUser} when the key is found in
+ * the database, or empty when the key is unknown. Anonymous users carry a null user-id and the
+ * {@code ANONYMOUS} role.
  */
 @AllArgsConstructor(access = AccessLevel.PACKAGE, onConstructor_ = @VisibleForTesting)
-public class ApiKeyAuthenticator implements Authenticator<String, AuthenticatedUser> {
+public class ApiKeyAuthenticator {
 
   private final PlayerApiKeyDaoWrapper apiKeyDaoWrapper;
   private final GameHostingApiKeyDaoWrapper gameHostingApiKeyDaoWrapper;
@@ -27,7 +26,6 @@ public class ApiKeyAuthenticator implements Authenticator<String, AuthenticatedU
         PlayerApiKeyDaoWrapper.build(jdbi), GameHostingApiKeyDaoWrapper.build(jdbi));
   }
 
-  @Override
   public Optional<AuthenticatedUser> authenticate(final String apiKey) {
     final ApiKey key = ApiKey.of(apiKey);
     return apiKeyDaoWrapper
@@ -44,10 +42,7 @@ public class ApiKeyAuthenticator implements Authenticator<String, AuthenticatedU
             () ->
                 gameHostingApiKeyDaoWrapper.isKeyValid(key)
                     ? Optional.of(
-                        AuthenticatedUser.builder() //
-                            .userRole(UserRole.HOST)
-                            .apiKey(key)
-                            .build())
+                        AuthenticatedUser.builder().userRole(UserRole.HOST).apiKey(key).build())
                     : Optional.empty());
   }
 }

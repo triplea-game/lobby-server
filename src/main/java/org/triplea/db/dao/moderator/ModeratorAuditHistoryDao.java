@@ -1,23 +1,29 @@
 package org.triplea.db.dao.moderator;
 
 import com.google.common.base.Preconditions;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
 /**
  * Interface for adding new moderator audit records to database. These records keep track of which
  * actions moderators have taken, who the target was and which moderator took the action.
  */
-public interface ModeratorAuditHistoryDao {
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class ModeratorAuditHistoryDao {
+  private final Jdbi jdbi;
+
   /** The set of moderator actions. */
-  enum AuditAction {
+  public enum AuditAction {
     BAN_MAC,
     BAN_USERNAME,
     REMOVE_USERNAME_BAN,
@@ -42,39 +48,55 @@ public interface ModeratorAuditHistoryDao {
   @Builder
   @ToString
   @EqualsAndHashCode
-  final class AuditArgs {
+  public static final class AuditArgs {
     @Nonnull private final Integer moderatorUserId;
     @Nonnull private final AuditAction actionName;
     @Nonnull private final String actionTarget;
   }
 
-  default void addAuditRecord(AuditArgs auditArgs) {
+  public void addAuditRecord(AuditArgs auditArgs) {
     final int rowsInserted =
         insertAuditRecord(
             auditArgs.moderatorUserId, auditArgs.actionName.toString(), auditArgs.actionTarget);
     Preconditions.checkState(rowsInserted == 1);
   }
 
-  @SqlUpdate(
-      "insert into moderator_action_history "
-          + "  (lobby_user_id, action_name, action_target) "
-          + "values (:moderatorId, :actionName, :actionTarget)")
-  int insertAuditRecord(
-      @Bind("moderatorId") int moderatorId,
-      @Bind("actionName") String actionName,
-      @Bind("actionTarget") String actionTarget);
+  public int insertAuditRecord(int moderatorId, String actionName, String actionTarget) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into moderator_action_history
+                      (lobby_user_id, action_name, action_target)
+                    values (:moderatorId, :actionName, :actionTarget)
+                    """)
+                .bind("moderatorId", moderatorId)
+                .bind("actionName", actionName)
+                .bind("actionTarget", actionTarget)
+                .execute());
+  }
 
-  @SqlQuery(
-      "select"
-          + "    h.date_created,"
-          + "    u.username,"
-          + "    h.action_name,"
-          + "    h.action_target"
-          + "  from moderator_action_history h"
-          + "  join lobby_user u on u.id = h.lobby_user_id"
-          + "  order by h.date_created desc"
-          + "  offset :rowOffset rows"
-          + "  fetch next :rowCount rows only")
-  List<ModeratorAuditHistoryRecord> lookupHistoryItems(
-      @Bind("rowOffset") int rowOffset, @Bind("rowCount") int rowCount);
+  public List<ModeratorAuditHistoryRecord> lookupHistoryItems(int rowOffset, int rowCount) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select
+                        h.date_created,
+                        u.username,
+                        h.action_name,
+                        h.action_target
+                      from moderator_action_history h
+                      join lobby_user u on u.id = h.lobby_user_id
+                      order by h.date_created desc
+                      offset :rowOffset rows
+                      fetch next :rowCount rows only
+                    """)
+                .bind("rowOffset", rowOffset)
+                .bind("rowCount", rowCount)
+                .map(ConstructorMapper.of(ModeratorAuditHistoryRecord.class))
+                .list());
+  }
 }

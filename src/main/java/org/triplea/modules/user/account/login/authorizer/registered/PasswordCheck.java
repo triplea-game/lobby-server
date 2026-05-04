@@ -20,7 +20,7 @@ public class PasswordCheck implements Predicate<LoginRequest> {
   public static PasswordCheck build(final Jdbi jdbi) {
     return PasswordCheck.builder()
         .passwordVerifier(PasswordBCrypter::verifyHash)
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
+        .userJdbiDao(new UserJdbiDao(jdbi))
         .build();
   }
 

@@ -1,34 +1,73 @@
 package org.triplea.db.dao.username.ban;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
 /** Interface with the banned_names table, these are exact match names not allowed in the lobby. */
-public interface UsernameBanDao {
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class UsernameBanDao {
+  private final Jdbi jdbi;
 
-  @SqlQuery(
-      "select"
-          + "    username,"
-          + "    date_created"
-          + "  from banned_username"
-          + "  order by username asc")
-  List<UsernameBanRecord> getBannedUserNames();
+  public List<UsernameBanRecord> getBannedUserNames() {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select
+                        username,
+                        date_created
+                      from banned_username
+                      order by username asc
+                    """)
+                .map(ConstructorMapper.of(UsernameBanRecord.class))
+                .list());
+  }
 
-  @SqlUpdate(
-      "insert into banned_username(username)\n"
-          + "values(:nameToBan)\n"
-          + "on conflict(username) do nothing")
-  int addBannedUserName(@Bind("nameToBan") String nameToBan);
+  public int addBannedUserName(String nameToBan) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into banned_username(username)
+                    values(:nameToBan)
+                    on conflict(username) do nothing
+                    """)
+                .bind("nameToBan", nameToBan)
+                .execute());
+  }
 
-  @SqlUpdate("delete from banned_username where username = :nameToRemove")
-  int removeBannedUserName(@Bind("nameToRemove") String nameToRemove);
+  public int removeBannedUserName(String nameToRemove) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    delete from banned_username where username = :nameToRemove
+                    """)
+                .bind("nameToRemove", nameToRemove)
+                .execute());
+  }
 
-  @SqlQuery(
-      "select exists ( "
-          + "select * "
-          + "from banned_username "
-          + "where username = upper(:playerName))")
-  boolean nameIsBanned(@Bind("playerName") String playerName);
+  public boolean nameIsBanned(String playerName) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select exists (
+                    select *
+                    from banned_username
+                    where username = upper(:playerName))
+                    """)
+                .bind("playerName", playerName)
+                .mapTo(Boolean.class)
+                .one());
+  }
 }

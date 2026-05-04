@@ -32,9 +32,9 @@ public class PlayerApiKeyDaoWrapper {
 
   public static PlayerApiKeyDaoWrapper build(final Jdbi jdbi) {
     return PlayerApiKeyDaoWrapper.builder()
-        .lobbyApiKeyDao(jdbi.onDemand(PlayerApiKeyDao.class))
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
-        .userRoleDao(jdbi.onDemand(UserRoleDao.class))
+        .lobbyApiKeyDao(new PlayerApiKeyDao(jdbi))
+        .userJdbiDao(new UserJdbiDao(jdbi))
+        .userRoleDao(new UserRoleDao(jdbi))
         .keyMaker(ApiKey::newKey)
         .keyHashingFunction(new ApiKeyHasher())
         .build();

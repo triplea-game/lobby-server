@@ -1,15 +1,18 @@
 package org.triplea.lobby.server.controllers;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.forgot.password.ForgotPasswordClient;
 import org.triplea.http.client.forgot.password.ForgotPasswordRequest;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class ForgotPasswordControllerIntegrationTest extends ControllerIntegrationTest {
-  private final ForgotPasswordClient client;
+@QuarkusTest
+public class ForgotPasswordControllerIntegrationTest extends ControllerIntegrationTest {
+  ForgotPasswordClient client;
 
-  ForgotPasswordControllerIntegrationTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     this.client = ForgotPasswordClient.newClient(localhost);
   }
 

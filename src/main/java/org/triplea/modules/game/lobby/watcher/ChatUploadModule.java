@@ -24,7 +24,6 @@ public class ChatUploadModule {
   private final BiPredicate<ApiKey, String> gameIdValidator;
 
   public static ChatUploadModule build(final Jdbi jdbi, final GameListing gameListing) {
-    return new ChatUploadModule(
-        jdbi.onDemand(LobbyGameDao.class), gameListing::isValidApiKeyAndGameId);
+    return new ChatUploadModule(new LobbyGameDao(jdbi), gameListing::isValidApiKeyAndGameId);
   }
 }

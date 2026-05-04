@@ -1,62 +1,120 @@
 package org.triplea.db.dao.user.ban;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.Optional;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 
 /** DAO for managing user bans (CRUD operations). */
-public interface UserBanDao {
-  @SqlQuery(
-      "select "
-          + "    public_id,"
-          + "    username,"
-          + "    system_id,"
-          + "    ip,"
-          + "    ban_expiry,"
-          + "    date_created"
-          + "  from banned_user"
-          + "  where ban_expiry > now()"
-          + "  order by date_created desc")
-  List<UserBanRecord> lookupBans();
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class UserBanDao {
+  private final Jdbi jdbi;
 
-  @SqlQuery(
-      "select "
-          + "    public_id,"
-          + "    ban_expiry"
-          + "  from banned_user"
-          + "  where (ip = :ip::inet or system_id = :systemId)"
-          + "    and ban_expiry > now()"
-          + "  order by ban_expiry desc "
-          + "  limit 1")
-  Optional<BanLookupRecord> lookupBan(@Bind("ip") String ip, @Bind("systemId") String systemId);
+  public List<UserBanRecord> lookupBans() {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select
+                        public_id,
+                        username,
+                        system_id,
+                        ip,
+                        ban_expiry,
+                        date_created
+                      from banned_user
+                      where ban_expiry > now()
+                      order by date_created desc
+                    """)
+                .map(ConstructorMapper.of(UserBanRecord.class))
+                .list());
+  }
 
-  @SqlQuery(
-      "select exists ("
-          + "  select * "
-          + "  from banned_user "
-          + "  where ip = :ip::inet and ban_expiry > now()"
-          + ")")
-  boolean isBannedByIp(@Bind("ip") String ip);
+  public Optional<BanLookupRecord> lookupBan(String ip, String systemId) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select
+                        public_id,
+                        ban_expiry
+                      from banned_user
+                      where (ip = :ip::inet or system_id = :systemId)
+                        and ban_expiry > now()
+                      order by ban_expiry desc
+                      limit 1
+                    """)
+                .bind("ip", ip)
+                .bind("systemId", systemId)
+                .map(ConstructorMapper.of(BanLookupRecord.class))
+                .findOne());
+  }
 
-  @SqlQuery(
-      "select username" //
-          + "  from banned_user"
-          + "  where public_id = :banId")
-  Optional<String> lookupUsernameByBanId(@Bind("banId") String banId);
+  public boolean isBannedByIp(String ip) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select exists (
+                      select *
+                      from banned_user
+                      where ip = :ip::inet and ban_expiry > now()
+                    )
+                    """)
+                .bind("ip", ip)
+                .mapTo(Boolean.class)
+                .one());
+  }
 
-  @SqlUpdate("delete from banned_user where public_id = :banId")
-  int removeBan(@Bind("banId") String banId);
+  public Optional<String> lookupUsernameByBanId(String banId) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select username
+                      from banned_user
+                      where public_id = :banId
+                    """)
+                .bind("banId", banId)
+                .mapTo(String.class)
+                .findOne());
+  }
 
-  @SqlUpdate(
-      "insert into banned_user"
-          + "(public_id, username, system_id, ip, ban_expiry) values\n"
-          + "(:banId, :username, :systemId, :ip::inet, now() + :banMinutes * '1 minute'::interval)")
-  int addBan(
-      @Bind("banId") String banId,
-      @Bind("username") String username,
-      @Bind("systemId") String systemId,
-      @Bind("ip") String ip,
-      @Bind("banMinutes") long banMinutes);
+  public int removeBan(String banId) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    delete from banned_user where public_id = :banId
+                    """)
+                .bind("banId", banId)
+                .execute());
+  }
+
+  public int addBan(String banId, String username, String systemId, String ip, long banMinutes) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into banned_user
+                    (public_id, username, system_id, ip, ban_expiry) values
+                    (:banId, :username, :systemId, :ip::inet, now() + :banMinutes * '1 minute'::interval)
+                    """)
+                .bind("banId", banId)
+                .bind("username", username)
+                .bind("systemId", systemId)
+                .bind("ip", ip)
+                .bind("banMinutes", banMinutes)
+                .execute());
+  }
 }

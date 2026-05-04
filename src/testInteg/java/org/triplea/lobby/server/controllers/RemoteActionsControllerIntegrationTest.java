@@ -3,20 +3,21 @@ package org.triplea.lobby.server.controllers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.remote.actions.RemoteActionsClient;
 import org.triplea.java.IpAddressParser;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class RemoteActionsControllerIntegrationTest extends ControllerIntegrationTest {
-  final URI localhost;
-  final RemoteActionsClient client;
-  final RemoteActionsClient hostClient;
+@QuarkusTest
+public class RemoteActionsControllerIntegrationTest extends ControllerIntegrationTest {
+  RemoteActionsClient client;
+  RemoteActionsClient hostClient;
 
-  RemoteActionsControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     client = RemoteActionsClient.newClient(localhost, MODERATOR);
     hostClient = RemoteActionsClient.newClient(localhost, HOST);
   }
