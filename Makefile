@@ -7,18 +7,19 @@ help: ## Show this help text
 	grep -h -E '^[a-z]+.*:' $(MAKEFILE_LIST) | \
 		awk -F ":|#+" '{printf "\033[31m%s $(nc) \n   %s $(nc)\n    \033[3;37mDepends On: $(nc) [ %s ]\n", $$1, $$3, $$2}'
 
+
 setup: ## Installs pre-commit as a pre-push git hook (requires pre-commit to be installed)
 	uv tool install pre-commit
 	pre-commit install --hook-type pre-push
+
+check test: ## run branch verification
+	./gradlew check
 
 format: ## Runs formatting
 	./gradlew spotlessApply
 
 clean:
 	./gradlew clean
-
-test check: ## run branch verification
-	./gradlew check
 
 verify: ## useful for developers, automatically format
 	./gradlew spotlessApply check
