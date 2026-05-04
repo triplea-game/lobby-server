@@ -20,10 +20,10 @@ public class NameValidation implements Function<String, Optional<String>> {
 
   public static NameValidation build(final Jdbi jdbi) {
     return NameValidation.builder()
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
+        .userJdbiDao(new UserJdbiDao(jdbi))
         .syntaxValidation(UserName::validate)
-        .badWordsDao(jdbi.onDemand(BadWordsDao.class))
-        .usernameBanDao(jdbi.onDemand(UsernameBanDao.class))
+        .badWordsDao(new BadWordsDao(jdbi))
+        .usernameBanDao(new UsernameBanDao(jdbi))
         .build();
   }
 

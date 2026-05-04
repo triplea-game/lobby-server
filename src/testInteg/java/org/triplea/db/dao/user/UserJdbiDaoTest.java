@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.core.api.dataset.ExpectedDataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
+import io.quarkus.test.junit.QuarkusTest;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.triplea.IntegTestExtension;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.db.dao.user.role.UserRoleLookup;
 
+@QuarkusTest
 @DataSet(value = "user/user_role.yml,user/lobby_user.yml", useSequenceFiltering = false)
 @RequiredArgsConstructor
 @ExtendWith(IntegTestExtension.class)

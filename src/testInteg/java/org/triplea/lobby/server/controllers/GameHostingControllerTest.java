@@ -3,16 +3,19 @@ package org.triplea.lobby.server.controllers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import org.hamcrest.core.IsNull;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.game.hosting.request.GameHostingClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class GameHostingControllerTest extends ControllerIntegrationTest {
-  private final GameHostingClient client;
+@QuarkusTest
+public class GameHostingControllerTest extends ControllerIntegrationTest {
+  GameHostingClient client;
 
-  GameHostingControllerTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     client = GameHostingClient.newClient(localhost);
   }
 

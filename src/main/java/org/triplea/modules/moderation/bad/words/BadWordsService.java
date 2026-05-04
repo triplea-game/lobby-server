@@ -12,8 +12,7 @@ public class BadWordsService {
   private final ModeratorAuditHistoryDao moderatorAuditHistoryDao;
 
   public static BadWordsService build(final Jdbi jdbi) {
-    return new BadWordsService(
-        jdbi.onDemand(BadWordsDao.class), jdbi.onDemand(ModeratorAuditHistoryDao.class));
+    return new BadWordsService(new BadWordsDao(jdbi), new ModeratorAuditHistoryDao(jdbi));
   }
 
   /**

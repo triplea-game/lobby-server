@@ -1,23 +1,16 @@
 package org.triplea.lobby.server.access.authorization;
 
-import io.dropwizard.auth.Authorizer;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
 
 /**
- * Performs authorization. Authorization happens after authentication and answers the question of:
- * given an authenticated user, do they have permissions for a given role?
+ * Answers whether an authenticated user is authorised to assume a requested role. The role
+ * hierarchy is: ADMIN &gt; MODERATOR &gt; PLAYER &gt; ANONYMOUS. HOST is a peer role used only for
+ * game-hosting connections.
  */
-public class RoleAuthorizer implements Authorizer<AuthenticatedUser> {
+public class RoleAuthorizer {
 
-  /** Verifies a user is authorized to assume a requestedRole. */
-  @Override
-  public boolean authorize(
-      AuthenticatedUser user,
-      String requestedRole,
-      @Nullable ContainerRequestContext containerRequestContext) {
+  public boolean authorize(final AuthenticatedUser user, final String requestedRole) {
     switch (user.getUserRole()) {
       case UserRole.ADMIN:
         return adminAuthorizedFor(requestedRole);
@@ -32,10 +25,6 @@ public class RoleAuthorizer implements Authorizer<AuthenticatedUser> {
       default:
         throw new AssertionError("Unrecognized user role: " + user.getUserRole());
     }
-  }
-
-  public boolean authorize(AuthenticatedUser user, String requestedRole) {
-    return authorize(user, requestedRole, null);
   }
 
   private static boolean adminAuthorizedFor(final String requestedRole) {

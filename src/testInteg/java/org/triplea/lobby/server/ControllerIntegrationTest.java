@@ -8,6 +8,8 @@ import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
 import com.google.common.base.Preconditions;
 import feign.FeignException;
+import io.quarkus.test.common.http.TestHTTPResource;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,6 +26,7 @@ import org.triplea.http.client.LobbyHttpClientConfig;
 @ExtendWith(DBUnitExtension.class)
 @DataSet(value = ControllerIntegrationTest.DATA_SETS, useSequenceFiltering = false)
 public abstract class ControllerIntegrationTest {
+  @TestHTTPResource protected URI localhost;
 
   @BeforeAll
   static void setup() {

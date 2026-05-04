@@ -5,23 +5,26 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.login.LobbyLoginClient;
 import org.triplea.http.client.lobby.login.LobbyLoginResponse;
 import org.triplea.java.Sha512Hasher;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class LoginControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class LoginControllerIntegrationTest extends ControllerIntegrationTest {
   private static final String USERNAME = "player";
   private static final String PASSWORD = Sha512Hasher.hashPasswordWithSalt("password");
   private static final String TEMP_PASSWORD = Sha512Hasher.hashPasswordWithSalt("temp-password");
   private static final String INVALID_PASSWORD = "invalid";
 
-  private final LobbyLoginClient client;
+  LobbyLoginClient client;
 
-  LoginControllerIntegrationTest(final URI localhost) {
-    client = LobbyLoginClient.newClient(localhost);
+  @BeforeEach
+  void setup() {
+    client = LobbyLoginClient.newClient(super.localhost);
   }
 
   @Test

@@ -15,8 +15,7 @@ format: ## Runs formatting
 	./gradlew spotlessApply
 
 clean:
-	./gradlew composeDown clean
-	docker compose rm -f
+	./gradlew clean
 
 test check: ## run branch verification
 	./gradlew check
@@ -33,8 +32,8 @@ connect-to-database: ## Dev utility command to connect to a local database
 build-with-libs: ## Build with local 'triplea' client
 	./gradlew --include-build ../triplea compileJava
 
-run: ## Runs a local lobby (with database)
-	POSTGRES_PORT=5432 LOBBY_PORT=3000 ./gradlew composeUp
+run: ## Runs a local lobby (with database) — Quarkus Dev Services starts Postgres automatically
+	./gradlew quarkusDev
 
 deploy-prod: ## Triggers prod to pull latest docker, run flyway and restart services
 	ANSIBLE_CONFIG="deploy/ansible.cfg" \

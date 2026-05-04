@@ -16,7 +16,7 @@ public class UpdateAccountService {
 
   public static UpdateAccountService build(final Jdbi jdbi) {
     return UpdateAccountService.builder()
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
+        .userJdbiDao(new UserJdbiDao(jdbi))
         .passwordEncrpter(PasswordBCrypter::hashPassword)
         .build();
   }

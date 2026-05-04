@@ -7,19 +7,20 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
 import org.triplea.http.client.lobby.moderator.toolbox.log.AccessLogSearchRequest;
 import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxAccessLogClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class AccessLogControllerIntegrationTest extends ControllerIntegrationTest {
-  private final URI localhost;
-  private final ToolboxAccessLogClient client;
+@QuarkusTest
+public class AccessLogControllerIntegrationTest extends ControllerIntegrationTest {
+  ToolboxAccessLogClient client;
 
-  AccessLogControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     this.client = ToolboxAccessLogClient.newClient(localhost, MODERATOR);
   }
 

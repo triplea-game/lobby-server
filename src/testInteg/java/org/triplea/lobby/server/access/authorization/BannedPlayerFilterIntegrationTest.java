@@ -4,9 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import feign.FeignException;
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.LobbyHttpClientConfig;
@@ -20,11 +19,9 @@ import org.triplea.lobby.server.ControllerIntegrationTest;
  * login endpoint as that will be a common first endpoint for banned users to attempt to access
  * after being booted and banned.
  */
-@AllArgsConstructor
-class BannedPlayerFilterIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class BannedPlayerFilterIntegrationTest extends ControllerIntegrationTest {
   private static final String BANNED_SYSTEM_ID = "system-id";
-
-  private final URI localhost;
 
   @Test
   void banned() {

@@ -1,4 +1,4 @@
-package org.triplea.modules.player.info;
+package org.triplea.db.dao.moderator.player.info;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -7,9 +7,6 @@ import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
-import org.triplea.db.dao.moderator.player.info.PlayerAliasRecord;
-import org.triplea.db.dao.moderator.player.info.PlayerBanRecord;
-import org.triplea.db.dao.moderator.player.info.PlayerInfoForModeratorDao;
 import org.triplea.db.dao.user.history.PlayerHistoryDao;
 import org.triplea.db.dao.user.history.PlayerHistoryRecord;
 import org.triplea.domain.data.PlayerChatId;
@@ -32,8 +29,8 @@ public class FetchPlayerInfoModule {
       final Jdbi jdbi, final Chatters chatters, final GameListing gameListing) {
     return new FetchPlayerInfoModule(
         PlayerApiKeyDaoWrapper.build(jdbi),
-        jdbi.onDemand(PlayerInfoForModeratorDao.class),
-        jdbi.onDemand(PlayerHistoryDao.class),
+        new PlayerInfoForModeratorDao(jdbi),
+        new PlayerHistoryDao(jdbi),
         chatters,
         gameListing);
   }

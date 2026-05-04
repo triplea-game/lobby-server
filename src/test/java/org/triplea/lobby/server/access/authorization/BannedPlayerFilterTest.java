@@ -8,7 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.servlet.http.HttpServletRequest;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.core.Response;
 import java.time.Clock;
@@ -38,19 +39,22 @@ class BannedPlayerFilterTest {
 
   @Mock private UserBanDao userBanDao;
   @Mock private Clock clock;
-  @Mock private HttpServletRequest request;
+  @Mock private RoutingContext routingContext;
+  @Mock private HttpServerRequest httpServerRequest;
 
   private BannedPlayerFilter bannedPlayerFilter;
   @Mock private ContainerRequestContext containerRequestContext;
 
   @BeforeEach
   void setup() {
-    bannedPlayerFilter = new BannedPlayerFilter(userBanDao, clock, request);
+    when(routingContext.request()).thenReturn(httpServerRequest);
+    bannedPlayerFilter = new BannedPlayerFilter(userBanDao, clock, routingContext);
   }
 
   void givenIpAndSystemId() {
-    when(request.getRemoteAddr()).thenReturn(IP);
-    when(request.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER)).thenReturn(SYSTEM_ID);
+    when(httpServerRequest.remoteAddress())
+        .thenReturn(io.vertx.core.net.SocketAddress.inetSocketAddress(0, IP));
+    when(httpServerRequest.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER)).thenReturn(SYSTEM_ID);
   }
 
   @Nested
@@ -107,8 +111,8 @@ class BannedPlayerFilterTest {
 
       final Response response = responseCaptor.getValue();
       assertThat(response.getStatus(), is(Response.Status.UNAUTHORIZED.getStatusCode()));
-      assertThat(response.getStatusInfo().getReasonPhrase(), containsString("5 minutes"));
-      assertThat(response.getStatusInfo().getReasonPhrase(), containsString(BAN_ID));
+      assertThat((String) response.getEntity(), containsString("5 minutes"));
+      assertThat((String) response.getEntity(), containsString(BAN_ID));
     }
   }
 
@@ -117,7 +121,7 @@ class BannedPlayerFilterTest {
     @Test
     @DisplayName("Missing system ID is a bad request and should be rejected")
     void noSystemId() {
-      when(request.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER)).thenReturn(null);
+      when(httpServerRequest.getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER)).thenReturn(null);
 
       bannedPlayerFilter.filter(containerRequestContext);
 

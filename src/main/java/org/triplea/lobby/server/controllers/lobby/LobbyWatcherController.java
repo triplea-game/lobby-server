@@ -1,18 +1,19 @@
 package org.triplea.lobby.server.controllers.lobby;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import io.dropwizard.auth.Auth;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import javax.annotation.Nonnull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jetty.http.HttpStatus;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
@@ -22,129 +23,108 @@ import org.triplea.http.client.lobby.game.lobby.watcher.PlayerJoinedNotification
 import org.triplea.http.client.lobby.game.lobby.watcher.PlayerLeftNotification;
 import org.triplea.http.client.lobby.game.lobby.watcher.UpdateGameRequest;
 import org.triplea.lobby.server.HttpController;
-import org.triplea.lobby.server.LobbyServerConfig;
-import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
 import org.triplea.modules.game.listing.GameListing;
 import org.triplea.modules.game.lobby.watcher.GamePostingModule;
 
-/** Controller with endpoints for posting, getting and removing games. */
-@Builder
-@AllArgsConstructor(
-    access = AccessLevel.PACKAGE,
-    onConstructor_ = {@VisibleForTesting})
+/** Controller with endpoints for posting, updating and removing games from the lobby listing. */
+@ApplicationScoped
 @RolesAllowed(UserRole.HOST)
-@Slf4j
+@Path("/")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+@SuppressWarnings("RestResourceMethodInspection")
 public class LobbyWatcherController extends HttpController {
-  @VisibleForTesting
+
   public static final String TEST_ONLY_GAME_POSTING_PATH = "/test-only/lobby/post-game";
 
-  @Nonnull private final Boolean gameHostConnectivityCheckEnabled;
-  @Nonnull private final GameListing gameListing;
-  @Nonnull private final GamePostingModule gamePostingModule;
+  @ConfigProperty(name = "app.game-host-connectivity-check-enabled", defaultValue = "false")
+  boolean gameHostConnectivityCheckEnabled;
 
-  public static LobbyWatcherController build(
-      final LobbyServerConfig lobbyServerConfig, final GameListing gameListing) {
-    return LobbyWatcherController.builder()
-        .gameHostConnectivityCheckEnabled(lobbyServerConfig.isGameHostConnectivityCheckEnabled())
-        .gameListing(gameListing)
-        .gamePostingModule(GamePostingModule.build(gameListing))
-        .build();
+  @Inject GameListing gameListing;
+
+  private GamePostingModule gamePostingModule;
+
+  @PostConstruct
+  void init() {
+    gamePostingModule = GamePostingModule.build(gameListing);
   }
 
-  /**
-   * Adds a game to the lobby listing. Responds with the gameId assigned to the new game. If we see
-   * duplicate posts, the same gameId will be returned.
-   */
   @POST
   @Path(LobbyWatcherClient.POST_GAME_PATH)
   public GamePostingResponse postGame(
-      @Auth final AuthenticatedUser authenticatedUser,
-      final GamePostingRequest gamePostingRequest) {
+      @Context final SecurityContext sc, final GamePostingRequest gamePostingRequest) {
     Preconditions.checkArgument(gamePostingRequest != null);
     Preconditions.checkArgument(gamePostingRequest.getLobbyGame() != null);
-
-    return gamePostingModule.postGame(authenticatedUser.getApiKey(), gamePostingRequest);
+    return gamePostingModule.postGame(user(sc).getApiKey(), gamePostingRequest);
   }
 
   /**
-   * A endpoint available for non-prod-only that allows for integration tests to post games without
-   * actually hosting a game themselves (bypasses the reverse connectivity check).
+   * Available only when the connectivity check is disabled (non-prod). Lets integration tests post
+   * a game without actually hosting one, bypassing the reverse-connectivity check.
    */
   @POST
   @Path(TEST_ONLY_GAME_POSTING_PATH)
   public Response postGameTestOnly(
-      @Auth final AuthenticatedUser authenticatedUser,
-      final GamePostingRequest gamePostingRequest) {
+      @Context final SecurityContext sc, final GamePostingRequest gamePostingRequest) {
     Preconditions.checkArgument(gamePostingRequest != null);
     Preconditions.checkArgument(gamePostingRequest.getLobbyGame() != null);
 
-    return gameHostConnectivityCheckEnabled
-        ? Response.status(HttpStatus.NOT_FOUND_404).build()
-        : Response.ok()
-            .entity(
-                GamePostingResponse.builder()
-                    .connectivityCheckSucceeded(true)
-                    .gameId(gameListing.postGame(authenticatedUser.getApiKey(), gamePostingRequest))
-                    .build())
-            .build();
+    if (gameHostConnectivityCheckEnabled) {
+      return Response.status(404).build();
+    }
+    return Response.ok()
+        .entity(
+            GamePostingResponse.builder()
+                .connectivityCheckSucceeded(true)
+                .gameId(gameListing.postGame(user(sc).getApiKey(), gamePostingRequest))
+                .build())
+        .build();
   }
 
-  /** Explicit remove of a game from the lobby. */
   @POST
   @Path(LobbyWatcherClient.REMOVE_GAME_PATH)
-  public Response removeGame(@Auth final AuthenticatedUser authenticatedUser, final String gameId) {
-    gameListing.removeGame(authenticatedUser.getApiKey(), gameId);
+  public Response removeGame(@Context final SecurityContext sc, final String gameId) {
+    gameListing.removeGame(user(sc).getApiKey(), gameId);
     return Response.ok().build();
   }
 
   /**
-   * "Alive" endpoint to periodically invoked after a game has been posted to indicate the client is
-   * still hosting and is alive. If the endpoint is not invoked within a cutoff time then the game
-   * with the corresponding gameId will be unlisted. The return value indicates if the game has been
-   * kept alive, or false indicates the game was already removed and the client should re-post.
+   * Heartbeat endpoint. Returns {@code true} if the game is still listed; {@code false} if it was
+   * already removed and the host should re-post.
    */
   @POST
   @Path(LobbyWatcherClient.KEEP_ALIVE_PATH)
-  public boolean keepAlive(@Auth final AuthenticatedUser authenticatedUser, final String gameId) {
-    return gameListing.keepAlive(authenticatedUser.getApiKey(), gameId);
+  public boolean keepAlive(@Context final SecurityContext sc, final String gameId) {
+    return gameListing.keepAlive(user(sc).getApiKey(), gameId);
   }
 
-  /** Replaces an existing game with new game data details. */
   @POST
   @Path(LobbyWatcherClient.UPDATE_GAME_PATH)
   public Response updateGame(
-      @Auth final AuthenticatedUser authenticatedUser, final UpdateGameRequest updateGameRequest) {
+      @Context final SecurityContext sc, final UpdateGameRequest updateGameRequest) {
     gameListing.updateGame(
-        authenticatedUser.getApiKey(),
-        updateGameRequest.getGameId(),
-        updateGameRequest.getGameData());
+        user(sc).getApiKey(), updateGameRequest.getGameId(), updateGameRequest.getGameData());
     return Response.ok().build();
   }
 
   @POST
   @Path(LobbyWatcherClient.PLAYER_JOINED_PATH)
-  @RolesAllowed(UserRole.HOST)
   public Response playerJoinedGame(
-      @Auth final AuthenticatedUser authenticatedUser,
-      final PlayerJoinedNotification playerJoinedNotification) {
+      @Context final SecurityContext sc, final PlayerJoinedNotification playerJoinedNotification) {
     gameListing.addPlayerToGame(
         UserName.of(playerJoinedNotification.getPlayerName()),
-        authenticatedUser.getApiKey(),
+        user(sc).getApiKey(),
         playerJoinedNotification.getGameId());
-
     return Response.ok().build();
   }
 
   @POST
   @Path(LobbyWatcherClient.PLAYER_LEFT_PATH)
-  @RolesAllowed(UserRole.HOST)
   public Response playerLeftGame(
-      @Auth final AuthenticatedUser authenticatedUser,
-      final PlayerLeftNotification playerLeftNotification) {
-
+      @Context final SecurityContext sc, final PlayerLeftNotification playerLeftNotification) {
     gameListing.removePlayerFromGame(
         UserName.of(playerLeftNotification.getPlayerName()),
-        authenticatedUser.getApiKey(),
+        user(sc).getApiKey(),
         playerLeftNotification.getGameId());
 
     return Response.ok().build();

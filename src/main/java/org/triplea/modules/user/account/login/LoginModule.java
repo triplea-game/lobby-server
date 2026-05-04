@@ -36,7 +36,7 @@ public class LoginModule {
 
   public static LoginModule build(final Jdbi jdbi, final Chatters chatters) {
     return LoginModule.builder()
-        .userJdbiDao(jdbi.onDemand(UserJdbiDao.class))
+        .userJdbiDao(new UserJdbiDao(jdbi))
         .accessLogUpdater(AccessLogUpdater.build(jdbi))
         .apiKeyGenerator(ApiKeyGenerator.build(jdbi))
         .anonymousLogin(AnonymousLogin.build(jdbi, chatters))

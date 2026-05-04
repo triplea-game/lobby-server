@@ -45,8 +45,8 @@ public class UserBanService {
       final Chatters chatters,
       final WebSocketMessagingBus chatMessagingBus,
       final WebSocketMessagingBus gameMessagingBus) {
-    moderatorAuditHistoryDao = jdbi.onDemand(ModeratorAuditHistoryDao.class);
-    userBanDao = jdbi.onDemand(UserBanDao.class);
+    moderatorAuditHistoryDao = new ModeratorAuditHistoryDao(jdbi);
+    userBanDao = new UserBanDao(jdbi);
     publicIdSupplier = () -> UUID.randomUUID().toString();
     this.chatters = chatters;
     this.apiKeyDaoWrapper = PlayerApiKeyDaoWrapper.build(jdbi);

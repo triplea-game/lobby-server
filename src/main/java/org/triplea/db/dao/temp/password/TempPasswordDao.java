@@ -1,51 +1,101 @@
 package org.triplea.db.dao.temp.password;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.Optional;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
-import org.jdbi.v3.sqlobject.transaction.Transaction;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
 
 /**
  * DAO for CRUD operations on temp password table. A table that stores temporary passwords issued to
  * them with the 'forgot password' feature.
  */
-public interface TempPasswordDao {
-  String TEMP_PASSWORD_EXPIRATION = "1 day";
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class TempPasswordDao {
+  public static final String TEMP_PASSWORD_EXPIRATION = "1 day";
 
-  @SqlQuery(
-      "select temp_password"
-          + " from temp_password_request t"
-          + " join lobby_user lu on lu.id = t.lobby_user_id"
-          + " where lu.username = :username"
-          + "   and t.date_created >  (now() - '"
-          + TEMP_PASSWORD_EXPIRATION
-          + "'::interval)"
-          + "   and t.date_invalidated is null")
-  Optional<String> fetchTempPassword(@Bind("username") String username);
+  private final Jdbi jdbi;
 
-  @SqlQuery("select id from lobby_user where username = :username")
-  Optional<Integer> lookupUserIdByUsername(@Bind("username") String username);
+  public Optional<String> fetchTempPassword(String username) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select temp_password
+                     from temp_password_request t
+                     join lobby_user lu on lu.id = t.lobby_user_id
+                     where lu.username = :username
+                       and t.date_created >  (now() - '"""
+                        + TEMP_PASSWORD_EXPIRATION
+                        + """
+                    '::interval)
+                       and t.date_invalidated is null
+                    """)
+                .bind("username", username)
+                .mapTo(String.class)
+                .findOne());
+  }
 
-  @SqlUpdate(
-      "insert into temp_password_request"
-          + " (lobby_user_id, temp_password)"
-          + " values (:userId, :password)")
-  void insertPassword(@Bind("userId") int userId, @Bind("password") String password);
+  public Optional<Integer> lookupUserIdByUsername(String username) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select id from lobby_user where username = :username
+                    """)
+                .bind("username", username)
+                .mapTo(Integer.class)
+                .findOne());
+  }
 
-  @SqlQuery("select id from lobby_user where username = :username and email = :email")
-  Optional<Integer> lookupUserIdByUsernameAndEmail(
-      @Bind("username") String username, @Bind("email") String email);
+  public void insertPassword(int userId, String password) {
+    jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into temp_password_request
+                     (lobby_user_id, temp_password)
+                     values (:userId, :password)
+                    """)
+                .bind("userId", userId)
+                .bind("password", password)
+                .execute());
+  }
 
-  @SqlUpdate(
-      "update temp_password_request"
-          + " set date_invalidated = now()"
-          + " where lobby_user_id = (select id from lobby_user where username = :playerName)"
-          + "   and date_invalidated is null")
-  int invalidateTempPasswords(@Bind("playerName") String playerName);
+  public Optional<Integer> lookupUserIdByUsernameAndEmail(String username, String email) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select id from lobby_user where username = :username and email = :email
+                    """)
+                .bind("username", username)
+                .bind("email", email)
+                .mapTo(Integer.class)
+                .findOne());
+  }
 
-  @Transaction
-  default boolean insertTempPassword(
+  public int invalidateTempPasswords(String playerName) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    update temp_password_request
+                     set date_invalidated = now()
+                     where lobby_user_id = (select id from lobby_user where username = :playerName)
+                       and date_invalidated is null
+                    """)
+                .bind("playerName", playerName)
+                .execute());
+  }
+
+  public boolean insertTempPassword(
       final String username, final String email, final String password) {
     return lookupUserIdByUsernameAndEmail(username, email)
         .map(

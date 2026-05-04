@@ -15,7 +15,7 @@ public class AccessLogService {
 
   public static AccessLogService build(final Jdbi jdbi) {
     return AccessLogService.builder() //
-        .accessLogDao(jdbi.onDemand(AccessLogDao.class))
+        .accessLogDao(new AccessLogDao(jdbi))
         .build();
   }
 

@@ -1,13 +1,17 @@
 package org.triplea.lobby.server.controllers.lobby.moderation;
 
 import com.google.common.base.Preconditions;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.annotation.Nonnull;
-import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
@@ -17,15 +21,20 @@ import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.audit.history.ModeratorAuditHistoryService;
 
 /** Http server endpoints for accessing and returning moderator audit history rows. */
-@Builder
+@ApplicationScoped
 @RolesAllowed(UserRole.MODERATOR)
+@Path("/")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class ModeratorAuditHistoryController extends HttpController {
-  @Nonnull private final ModeratorAuditHistoryService moderatorAuditHistoryService;
 
-  public static ModeratorAuditHistoryController build(final Jdbi jdbi) {
-    return ModeratorAuditHistoryController.builder()
-        .moderatorAuditHistoryService(ModeratorAuditHistoryService.build(jdbi))
-        .build();
+  @Inject Jdbi jdbi;
+
+  private ModeratorAuditHistoryService moderatorAuditHistoryService;
+
+  @PostConstruct
+  void init() {
+    moderatorAuditHistoryService = ModeratorAuditHistoryService.build(jdbi);
   }
 
   /**

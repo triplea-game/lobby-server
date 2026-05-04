@@ -3,24 +3,21 @@ package org.triplea.web.socket;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.java_websocket.WebSocket;
 import org.triplea.http.client.web.socket.MessageEnvelope;
 import org.triplea.http.client.web.socket.messages.envelopes.ServerErrorMessage;
 import org.triplea.java.StringUtils;
@@ -39,15 +36,10 @@ public class GenericWebSocket {
   private static final Gson GSON = new Gson();
   private static final Cache<InetAddress, AtomicInteger> badMessageCache =
       Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(30)).build();
-  private static final Map<Class<?>, GenericWebSocket> websockets = new HashMap<>();
 
   @Nonnull private final WebSocketMessagingBus webSocketMessagingBus;
   @Nullable private final Predicate<InetAddress> banCheck;
   @Nonnull private final MessageSender messageSender;
-
-  public GenericWebSocket(@Nonnull final WebSocketMessagingBus webSocketMessagingBus) {
-    this(webSocketMessagingBus, ip -> false, new MessageSender());
-  }
 
   public GenericWebSocket(
       @Nonnull final WebSocketMessagingBus webSocketMessagingBus,
@@ -55,31 +47,20 @@ public class GenericWebSocket {
     this(webSocketMessagingBus, banCheck, new MessageSender());
   }
 
-  public static void init(
-      final Class<?> websocketClass,
-      final WebSocketMessagingBus webSocketMessagingBus,
-      @Nullable final Predicate<InetAddress> banCheck) {
-
-    final var genericWebsocket =
-        new GenericWebSocket(webSocketMessagingBus, banCheck, new MessageSender());
-    websockets.put(websocketClass, genericWebsocket);
-  }
-
-  public static GenericWebSocket getInstance(final Class<?> websocketClass) {
-    return Preconditions.checkNotNull(
-        websockets.get(websocketClass),
-        "Error, unable to find generic websocket for: "
-            + websocketClass
-            + ", did you run GenericWebSocket.init("
-            + websocketClass
-            + ", ...) ?");
-  }
-
-  void onOpen(final WebSocket webSocket) {
-    onOpen(WebSocketSessionAdapter.fromWebSocket(webSocket));
-  }
-
   void onOpen(final Session session) {
+    if (!session.getUserProperties().containsKey(InetExtractor.IP_ADDRESS_KEY)) {
+      log.warn(
+          "Rejecting WebSocket connection — no client IP address available (session: {})",
+          session.getId());
+      try {
+        session.close(
+            new CloseReason(
+                CloseReason.CloseCodes.UNEXPECTED_CONDITION, "Client IP address required"));
+      } catch (final IOException e) {
+        log.error("Error closing session with missing IP (session: {})", session.getId(), e);
+      }
+      return;
+    }
     onOpen(WebSocketSessionAdapter.fromSession(session));
   }
 
@@ -99,10 +80,6 @@ public class GenericWebSocket {
 
   private static void disconnectBannedSession(final WebSocketSession session) {
     session.close(new CloseReason(CloseReason.CloseCodes.NORMAL_CLOSURE, "You have been banned"));
-  }
-
-  public void onMessage(final WebSocket webSocket, final String message) {
-    onMessage(WebSocketSessionAdapter.fromWebSocket(webSocket), message, badMessageCache);
   }
 
   public void onMessage(final Session session, final String message) {
@@ -185,20 +162,12 @@ public class GenericWebSocket {
             .toEnvelope());
   }
 
-  void onClose(final WebSocket webSocket, final CloseReason closeReason) {
-    onClose(WebSocketSessionAdapter.fromWebSocket(webSocket), closeReason);
-  }
-
   void onClose(final Session session, final CloseReason closeReason) {
     onClose(WebSocketSessionAdapter.fromSession(session), closeReason);
   }
 
   void onClose(final WebSocketSession session, final CloseReason closeReason) {
     webSocketMessagingBus.onClose(session);
-  }
-
-  public void onError(final WebSocket webSocket, final Throwable throwable) {
-    onError(WebSocketSessionAdapter.fromWebSocket(webSocket), throwable);
   }
 
   public void onError(final Session session, final Throwable throwable) {

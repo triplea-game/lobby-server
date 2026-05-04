@@ -5,18 +5,19 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.user.account.UserAccountClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class UserAccountControllerIntegrationTest extends ControllerIntegrationTest {
-  private final URI localhost;
-  private final UserAccountClient client;
+@QuarkusTest
+public class UserAccountControllerIntegrationTest extends ControllerIntegrationTest {
+  UserAccountClient client;
 
-  UserAccountControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     client = UserAccountClient.newClient(localhost, PLAYER);
   }
 

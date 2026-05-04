@@ -3,20 +3,21 @@ package org.triplea.lobby.server.controllers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.management.ToolboxModeratorManagementClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class ModeratorsControllerIntegrationTest extends ControllerIntegrationTest {
-  private final URI localhost;
-  private final ToolboxModeratorManagementClient playerClient;
-  private final ToolboxModeratorManagementClient moderatorClient;
-  private final ToolboxModeratorManagementClient adminClient;
+@QuarkusTest
+public class ModeratorsControllerIntegrationTest extends ControllerIntegrationTest {
+  ToolboxModeratorManagementClient playerClient;
+  ToolboxModeratorManagementClient moderatorClient;
+  ToolboxModeratorManagementClient adminClient;
 
-  ModeratorsControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setup() {
     this.playerClient = ToolboxModeratorManagementClient.newClient(localhost, PLAYER);
     this.moderatorClient = ToolboxModeratorManagementClient.newClient(localhost, MODERATOR);
     this.adminClient = ToolboxModeratorManagementClient.newClient(localhost, ADMIN);

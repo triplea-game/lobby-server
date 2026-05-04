@@ -50,12 +50,10 @@ GameListingWebsocketIntegrationTest > Post a game, verify listener is notified F
 @Disabled // Disabled due to flakiness, the above error is frequently seen and needs to be resolved.
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
-class GameListingWebsocketIntegrationTest extends ControllerIntegrationTest {
+public class GameListingWebsocketIntegrationTest extends ControllerIntegrationTest {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final GamePostingRequest GAME_POSTING_REQUEST =
       GamePostingRequest.builder().playerNames(List.of()).lobbyGame(TestData.LOBBY_GAME).build();
-
-  private final URI localhost;
 
   @Mock private Consumer<LobbyGameListing> gameUpdatedListener;
   @Mock private Consumer<String> gameRemovedListener;

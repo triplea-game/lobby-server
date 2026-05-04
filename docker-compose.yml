@@ -25,8 +25,8 @@ services:
 
   flyway:
     build:
-      context: database/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: database/Dockerfile
     command: >
       -locations=filesystem:/flyway/sql
       -connectRetries=60
@@ -57,7 +57,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./build/libs/lobby-server.jar:/lobby-server.jar
-      - ./configuration.yml:/configuration.yml
     environment:
       - DATABASE_USER=lobby_user
       - DATABASE_PASSWORD=lobby_user

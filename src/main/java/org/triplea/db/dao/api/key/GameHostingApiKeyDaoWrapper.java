@@ -22,7 +22,7 @@ public class GameHostingApiKeyDaoWrapper {
 
   public static GameHostingApiKeyDaoWrapper build(final Jdbi jdbi) {
     return GameHostingApiKeyDaoWrapper.builder()
-        .gameHostApiKeyDao(jdbi.onDemand(GameHostingApiKeyDao.class))
+        .gameHostApiKeyDao(new GameHostingApiKeyDao(jdbi))
         .keyMaker(ApiKey::newKey)
         .keyHashingFunction(new ApiKeyHasher())
         .build();

@@ -6,7 +6,7 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -51,8 +51,9 @@ import org.triplea.lobby.server.ControllerIntegrationTest;
  * that have joined. So we expect 'moderator' to be the only player in the connected list, when
  * chatter joins we expect both moderator and chatter to be in the connected event list.
  */
+@QuarkusTest
 @RequiredArgsConstructor
-class LobbyChatIntegrationTest extends ControllerIntegrationTest {
+public class LobbyChatIntegrationTest extends ControllerIntegrationTest {
   private static final int MESSAGE_TIMEOUT = 3000;
 
   private static final String STATUS = "status";
@@ -75,8 +76,6 @@ class LobbyChatIntegrationTest extends ControllerIntegrationTest {
           .status("")
           .playerChatId("player-chat-id")
           .build();
-
-  private final URI localhost;
 
   private final List<PlayerStatusUpdateReceivedMessage> modPlayerStatusEvents = new ArrayList<>();
   private final List<PlayerLeftMessage> modPlayerLeftEvents = new ArrayList<>();

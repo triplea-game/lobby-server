@@ -2,11 +2,13 @@ package org.triplea.lobby.server;
 
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 /**
  * This class is used to convert IllegalArgumentExceptions thrown by http endpoint controllers to
  * return HTTP status 400 codes. Without this, those errors would be 500s.
  */
+@Provider
 public class IllegalArgumentMapper implements ExceptionMapper<IllegalArgumentException> {
   @Override
   public Response toResponse(final IllegalArgumentException exception) {

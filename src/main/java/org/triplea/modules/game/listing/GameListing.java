@@ -78,8 +78,8 @@ public class GameListing {
 
   public static GameListing build(final Jdbi jdbi, final WebSocketMessagingBus playerMessagingBus) {
     return GameListing.builder()
-        .lobbyGameDao(jdbi.onDemand(LobbyGameDao.class))
-        .auditHistoryDao(jdbi.onDemand(ModeratorAuditHistoryDao.class))
+        .lobbyGameDao(new LobbyGameDao(jdbi))
+        .auditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
         .playerMessagingBus(playerMessagingBus)
         .games(
             new ExpiringAfterWriteTtlCache<>(

@@ -4,14 +4,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.login.CreateAccountResponse;
 import org.triplea.http.client.lobby.login.LobbyLoginClient;
 import org.triplea.java.Sha512Hasher;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class CreateAccountControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class CreateAccountControllerIntegrationTest extends ControllerIntegrationTest {
   private static final String USERNAME = "user-name";
   private static final String EMAIL = "email@email.com";
   private static final String PASSWORD = Sha512Hasher.hashPasswordWithSalt("pass");
@@ -20,9 +22,10 @@ class CreateAccountControllerIntegrationTest extends ControllerIntegrationTest {
   private static final String EMAIL_1 = "email1@email.com";
   private static final String PASSWORD_1 = Sha512Hasher.hashPasswordWithSalt("pass_1");
 
-  private final LobbyLoginClient client;
+  LobbyLoginClient client;
 
-  CreateAccountControllerIntegrationTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     this.client = LobbyLoginClient.newClient(localhost);
   }
 

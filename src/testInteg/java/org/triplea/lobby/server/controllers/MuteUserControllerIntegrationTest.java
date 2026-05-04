@@ -1,15 +1,18 @@
 package org.triplea.lobby.server.controllers;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.domain.data.PlayerChatId;
 import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class MuteUserControllerIntegrationTest extends ControllerIntegrationTest {
-  private final ModeratorLobbyClient client;
+@QuarkusTest
+public class MuteUserControllerIntegrationTest extends ControllerIntegrationTest {
+  ModeratorLobbyClient client;
 
-  MuteUserControllerIntegrationTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     this.client = ModeratorLobbyClient.newClient(localhost, MODERATOR);
   }
 

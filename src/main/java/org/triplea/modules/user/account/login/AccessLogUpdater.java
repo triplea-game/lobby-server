@@ -14,7 +14,7 @@ class AccessLogUpdater implements Consumer<LoginRecord> {
 
   public static AccessLogUpdater build(final Jdbi jdbi) {
     return AccessLogUpdater.builder() //
-        .accessLogDao(jdbi.onDemand(AccessLogDao.class))
+        .accessLogDao(new AccessLogDao(jdbi))
         .build();
   }
 

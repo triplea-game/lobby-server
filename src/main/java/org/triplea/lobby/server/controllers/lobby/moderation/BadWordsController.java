@@ -1,31 +1,39 @@
 package org.triplea.lobby.server.controllers.lobby.moderation;
 
-import com.google.common.base.Preconditions;
-import io.dropwizard.auth.Auth;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import javax.annotation.Nonnull;
-import lombok.Builder;
+import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.http.client.lobby.moderator.toolbox.words.ToolboxBadWordsClient;
 import org.triplea.lobby.server.HttpController;
-import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
 import org.triplea.modules.moderation.bad.words.BadWordsService;
 
 /** Controller for servicing moderator toolbox bad-words tab (provides CRUD operations). */
-@Builder
+@ApplicationScoped
 @RolesAllowed(UserRole.MODERATOR)
+@Path("/")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class BadWordsController extends HttpController {
-  @Nonnull private final BadWordsService badWordsService;
 
-  public static BadWordsController build(final Jdbi jdbi) {
-    return BadWordsController.builder() //
-        .badWordsService(BadWordsService.build(jdbi))
-        .build();
+  @Inject Jdbi jdbi;
+
+  private BadWordsService badWordsService;
+
+  @PostConstruct
+  void init() {
+    badWordsService = BadWordsService.build(jdbi);
   }
 
   /**
@@ -36,10 +44,11 @@ public class BadWordsController extends HttpController {
    */
   @POST
   @Path(ToolboxBadWordsClient.BAD_WORD_REMOVE_PATH)
-  public Response removeBadWord(
-      @Auth final AuthenticatedUser authenticatedUser, final String word) {
-    Preconditions.checkArgument(word != null && !word.isEmpty());
-    badWordsService.removeBadWord(authenticatedUser.getUserIdOrThrow(), word);
+  public Response removeBadWord(@Context final SecurityContext sc, final String word) {
+    if (word == null || word.isEmpty()) {
+      throw new jakarta.ws.rs.BadRequestException("Word cannot be null or empty");
+    }
+    badWordsService.removeBadWord(user(sc).getUserIdOrThrow(), word);
     return Response.ok().entity("Removed bad word: " + word).build();
   }
 
@@ -50,9 +59,11 @@ public class BadWordsController extends HttpController {
    */
   @POST
   @Path(ToolboxBadWordsClient.BAD_WORD_ADD_PATH)
-  public Response addBadWord(@Auth final AuthenticatedUser authenticatedUser, final String word) {
-    Preconditions.checkArgument(word != null && !word.isEmpty());
-    return badWordsService.addBadWord(authenticatedUser.getUserIdOrThrow(), word)
+  public Response addBadWord(@Context final SecurityContext sc, final String word) {
+    if (word == null || word.isEmpty()) {
+      throw new jakarta.ws.rs.BadRequestException("Word cannot be null or empty");
+    }
+    return badWordsService.addBadWord(user(sc).getUserIdOrThrow(), word)
         ? Response.ok().build()
         : Response.status(400)
             .entity(word + " was not added, it may already have been added")

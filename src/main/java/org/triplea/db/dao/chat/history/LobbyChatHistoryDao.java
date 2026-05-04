@@ -1,17 +1,23 @@
 package org.triplea.db.dao.chat.history;
 
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
 import org.slf4j.LoggerFactory;
 import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatReceivedMessage;
 import org.triplea.java.StringUtils;
 import org.triplea.java.concurrency.AsyncRunner;
 
 /** Lobby chat history records lobby chat messages. */
-public interface LobbyChatHistoryDao {
-  int MESSAGE_COLUMN_LENGTH = 240;
+@ApplicationScoped
+@RequiredArgsConstructor
+public class LobbyChatHistoryDao {
+  static final int MESSAGE_COLUMN_LENGTH = 240;
 
-  default void recordMessage(ChatReceivedMessage chatReceivedMessage, int apiKeyId) {
+  @Inject private final Jdbi jdbi;
+
+  public void recordMessage(ChatReceivedMessage chatReceivedMessage, int apiKeyId) {
     AsyncRunner.runAsync(
             () ->
                 insertMessage(
@@ -32,11 +38,18 @@ public interface LobbyChatHistoryDao {
    *     cross-referencing to know the users IP and system-id.
    * @param message The chat message contents.
    */
-  @SqlUpdate(
-      "insert into lobby_chat_history (username, lobby_api_key_id, message) "
-          + "values(:username, :apiKeyId, :message)")
-  void insertMessage(
-      @Bind("username") String username,
-      @Bind("apiKeyId") int apiKeyId,
-      @Bind("message") String message);
+  void insertMessage(String username, int apiKeyId, String message) {
+    jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into lobby_chat_history (username, lobby_api_key_id, message)
+                    values(:username, :apiKeyId, :message)
+                    """)
+                .bind("username", username)
+                .bind("apiKeyId", apiKeyId)
+                .bind("message", message)
+                .execute());
+  }
 }

@@ -5,19 +5,21 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.PlayerSummary;
 import org.triplea.http.client.lobby.player.PlayerLobbyActionsClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class PlayerInfoControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class PlayerInfoControllerIntegrationTest extends ControllerIntegrationTest {
+  PlayerLobbyActionsClient client;
+  PlayerLobbyActionsClient moderatorClient;
 
-  private final PlayerLobbyActionsClient client;
-  private final PlayerLobbyActionsClient moderatorClient;
-
-  PlayerInfoControllerIntegrationTest(final URI localhost) {
+  @BeforeEach
+  void setup() {
     client = PlayerLobbyActionsClient.newClient(localhost, ANONYMOUS);
     moderatorClient = PlayerLobbyActionsClient.newClient(localhost, MODERATOR);
   }

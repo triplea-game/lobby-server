@@ -13,7 +13,7 @@ public class SessionBannedCheck implements Predicate<InetAddress> {
   private final UserBanDao userBanDao;
 
   public static SessionBannedCheck build(final Jdbi jdbi) {
-    return new SessionBannedCheck(jdbi.onDemand(UserBanDao.class));
+    return new SessionBannedCheck(new UserBanDao(jdbi));
   }
 
   @Override

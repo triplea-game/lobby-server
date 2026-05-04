@@ -7,21 +7,22 @@ import static org.hamcrest.core.IsNot.not;
 import static org.triplea.test.common.matchers.CollectionMatchers.containsMappedItem;
 import static org.triplea.test.common.matchers.CollectionMatchers.doesNotContainMappedItem;
 
-import java.net.URI;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.ToolboxUserBanClient;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanData;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanParams;
 import org.triplea.lobby.server.ControllerIntegrationTest;
 
-class UserBanControllerIntegrationTest extends ControllerIntegrationTest {
+@QuarkusTest
+public class UserBanControllerIntegrationTest extends ControllerIntegrationTest {
 
-  private final URI localhost;
-  private final ToolboxUserBanClient client;
+  private ToolboxUserBanClient client;
 
-  UserBanControllerIntegrationTest(final URI localhost) {
-    this.localhost = localhost;
+  @BeforeEach
+  void setUp() {
     client = ToolboxUserBanClient.newClient(localhost, MODERATOR);
   }
 

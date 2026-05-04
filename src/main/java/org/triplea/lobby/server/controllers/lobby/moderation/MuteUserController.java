@@ -2,11 +2,14 @@ package org.triplea.lobby.server.controllers.lobby.moderation;
 
 import com.google.common.base.Preconditions;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.domain.data.PlayerChatId;
 import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
@@ -14,16 +17,14 @@ import org.triplea.http.client.lobby.moderator.MuteUserRequest;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.chat.Chatters;
 
-@AllArgsConstructor
-@Builder
+@ApplicationScoped
 @RolesAllowed(UserRole.MODERATOR)
+@Path("/")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class MuteUserController extends HttpController {
 
-  private final Chatters chatters;
-
-  public static MuteUserController build(final Chatters chatters) {
-    return new MuteUserController(chatters);
-  }
+  @Inject Chatters chatters;
 
   @POST
   @Path(ModeratorLobbyClient.MUTE_USER)

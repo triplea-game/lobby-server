@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.core.api.dataset.ExpectedDataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.triplea.IntegTestExtension;
 import org.triplea.db.dao.user.role.UserRole;
 
+@QuarkusTest
 @DataSet(
     value =
         "lobby_api_key/user_role.yml,"

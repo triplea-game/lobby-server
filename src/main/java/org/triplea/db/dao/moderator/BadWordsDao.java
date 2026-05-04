@@ -1,23 +1,63 @@
 package org.triplea.db.dao.moderator;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.List;
-import org.jdbi.v3.sqlobject.customizer.Bind;
-import org.jdbi.v3.sqlobject.statement.SqlQuery;
-import org.jdbi.v3.sqlobject.statement.SqlUpdate;
+import lombok.RequiredArgsConstructor;
+import org.jdbi.v3.core.Jdbi;
 
 /** DAO interface for interacting with the badword table. Essentially provides CRUD operations. */
-public interface BadWordsDao {
+@ApplicationScoped
+@RequiredArgsConstructor(onConstructor_ = @Inject)
+public class BadWordsDao {
+  private final Jdbi jdbi;
 
-  @SqlQuery("select word from bad_word order by word")
-  List<String> getBadWords();
+  public List<String> getBadWords() {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select word from bad_word order by word
+                    """)
+                .mapTo(String.class)
+                .list());
+  }
 
-  @SqlUpdate("insert into bad_word (word) values (:word)")
-  int addBadWord(@Bind("word") String badWordToAdd);
+  public int addBadWord(String badWordToAdd) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    insert into bad_word (word) values (:word)
+                    """)
+                .bind("word", badWordToAdd)
+                .execute());
+  }
 
-  @SqlUpdate("delete from bad_word where word = :word")
-  int removeBadWord(@Bind("word") String badWordToRemove);
+  public int removeBadWord(String badWordToRemove) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createUpdate(
+                    """
+                    delete from bad_word where word = :word
+                    """)
+                .bind("word", badWordToRemove)
+                .execute());
+  }
 
-  @SqlQuery(
-      "select exists (select * from bad_word where lower(:word) like '%' || lower(word) || '%')")
-  boolean containsBadWord(@Bind("word") String word);
+  public boolean containsBadWord(String word) {
+    return jdbi.withHandle(
+        handle ->
+            handle
+                .createQuery(
+                    """
+                    select exists (select * from bad_word where lower(:word) like '%' || lower(word) || '%')
+                    """)
+                .bind("word", word)
+                .mapTo(Boolean.class)
+                .one());
+  }
 }

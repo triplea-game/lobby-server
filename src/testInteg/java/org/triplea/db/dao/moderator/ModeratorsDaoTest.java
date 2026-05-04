@@ -9,6 +9,7 @@ import static org.triplea.test.common.IsInstant.isInstant;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.core.api.dataset.ExpectedDataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
+import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.triplea.IntegTestExtension;
 import org.triplea.db.dao.user.role.UserRole;
 
+@QuarkusTest
 @DataSet(
     value = "moderators/user_role.yml, moderators/lobby_user.yml, moderators/access_log.yml",
     useSequenceFiltering = false)

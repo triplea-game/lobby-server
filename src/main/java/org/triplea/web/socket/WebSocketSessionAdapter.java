@@ -4,10 +4,8 @@ import jakarta.websocket.CloseReason;
 import jakarta.websocket.Session;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import lombok.experimental.UtilityClass;
-import org.java_websocket.WebSocket;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -51,37 +49,6 @@ public class WebSocketSessionAdapter {
       @Override
       public String getId() {
         return session.getId();
-      }
-    };
-  }
-
-  static WebSocketSession fromWebSocket(final WebSocket webSocket) {
-    return new WebSocketSession() {
-      private final String id = UUID.randomUUID().toString();
-
-      @Override
-      public boolean isOpen() {
-        return webSocket != null && webSocket.isOpen();
-      }
-
-      @Override
-      public InetAddress getRemoteAddress() {
-        return webSocket.getRemoteSocketAddress().getAddress();
-      }
-
-      @Override
-      public void close(final CloseReason closeReason) {
-        webSocket.close(closeReason.getCloseCode().getCode(), closeReason.getReasonPhrase());
-      }
-
-      @Override
-      public void sendText(final String text) {
-        webSocket.send(text);
-      }
-
-      @Override
-      public String getId() {
-        return id;
       }
     };
   }
