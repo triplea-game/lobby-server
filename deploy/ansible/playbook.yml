@@ -1,8 +1,5 @@
 - hosts: lobby
   tasks:
-    - name: Migrate Database
-      become: true
-      command: /usr/local/bin/run-flyway-migrate.sh
 
     - name: Pull Latest Lobby and Restart
       become: true

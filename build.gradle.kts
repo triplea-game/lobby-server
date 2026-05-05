@@ -108,12 +108,13 @@ dependencies {
     runtimeOnly("io.github.openfeign:feign-gson:13.6")
 
     testImplementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
+    implementation("io.quarkus:quarkus-flyway")              // run DB migrations on startup
+    implementation("org.flywaydb:flyway-database-postgresql") // Flyway PostgreSQL support
+
     testImplementation("io.quarkus:quarkus-junit5")         // @QuarkusTest + Dev Services
-    testImplementation("io.quarkus:quarkus-flyway")
 
     // feign-core on the test compile classpath allows integration tests to assert on FeignException
     testImplementation("io.github.openfeign:feign-core:13.6")
-    testImplementation("org.flywaydb:flyway-database-postgresql")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
