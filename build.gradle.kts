@@ -92,7 +92,7 @@ dependencies {
 
     // Non-DropWizard dependencies retained from before
     implementation("at.favre.lib:bcrypt:0.10.2")
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.google.code.gson:gson:2.14.0")
     implementation("com.sun.mail:jakarta.mail:2.0.2")
     // org.java-websocket is only used by integration-test WebSocket clients; not needed at runtime
     testImplementation("org.java-websocket:Java-WebSocket:1.6.0")
