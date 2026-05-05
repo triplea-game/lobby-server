@@ -24,6 +24,11 @@ jobs:
         run: make check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Package application
+        if: ${{ env.IS_MAIN_BUILD }}
+        run: ./gradlew quarkusBuild
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to GitHub Container Registry
         if: ${{ env.IS_MAIN_BUILD }}
         uses: docker/login-action@v1
@@ -45,9 +50,3 @@ jobs:
         uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-      - name: Update test
-        run: |
-          cat .github/workflows/host-keys/test.triplea-game.org >> ~/.ssh/known_hosts
-          pip install ansible
-          ansible --version
-          SSH_USER=deploy make deploy-prod

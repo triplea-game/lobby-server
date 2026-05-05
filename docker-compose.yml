@@ -23,22 +23,6 @@ services:
       timeout: 3s
       start_period: 20s
 
-  flyway:
-    build:
-      context: .
-      dockerfile: database/Dockerfile
-    command: >
-      -locations=filesystem:/flyway/sql
-      -connectRetries=60
-      -user=lobby_user
-      -password=lobby_user
-      -url=jdbc:postgresql://database:5432/lobby_db
-      -ignoreMigrationPatterns="repeatable:missing"
-      migrate
-    volumes:
-      - ${PWD}/.docker-compose/docker-flyway.config:/flyway/conf/flyway.config
-    depends_on:
-      - database
   sample-data:
     build:
       context: database/sample_data/
@@ -51,7 +35,8 @@ services:
       -url=jdbc:postgresql://database:5432/lobby_db
       migrate
     depends_on:
-      - flyway
+      lobby:
+        condition: service_healthy
   lobby:
     build:
       dockerfile: Dockerfile
@@ -64,6 +49,12 @@ services:
       - SMTP_PORT=25
     ports:
       - "${LOBBY_PORT}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health"]
+      interval: 5s
+      retries: 10
+      timeout: 3s
+      start_period: 30s
     depends_on:
-      flyway:
-         condition: service_completed_successfully
+      database:
+        condition: service_healthy
