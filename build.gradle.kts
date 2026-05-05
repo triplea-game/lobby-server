@@ -67,7 +67,7 @@ spotless {
     }
 }
 
-val quarkusPlatformVersion = "3.34.6"
+val quarkusPlatformVersion = "3.35.2"
 val tripleaVersion = "2.7.15281"
 
 dependencies {
