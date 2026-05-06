@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("io.freefair.lombok") version "9.5.0"
-    id("com.diffplug.spotless") version "7.2.1"
+    id("com.diffplug.spotless") version "8.4.0"
     id("io.quarkus") version "3.34.6"
 }
 
