@@ -104,8 +104,8 @@ dependencies {
 
     // feign-core and feign-gson are still required at runtime because triplea:feign-common and
     // triplea:lobby-client were compiled against feign and load feign classes at runtime.
-    runtimeOnly("io.github.openfeign:feign-core:13.6")
-    runtimeOnly("io.github.openfeign:feign-gson:13.6")
+    runtimeOnly("io.github.openfeign:feign-core:13.12")
+    runtimeOnly("io.github.openfeign:feign-gson:13.12")
 
     testImplementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-flyway")              // run DB migrations on startup
@@ -114,7 +114,7 @@ dependencies {
     testImplementation("io.quarkus:quarkus-junit5")         // @QuarkusTest + Dev Services
 
     // feign-core on the test compile classpath allows integration tests to assert on FeignException
-    testImplementation("io.github.openfeign:feign-core:13.6")
+    testImplementation("io.github.openfeign:feign-core:13.12")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
