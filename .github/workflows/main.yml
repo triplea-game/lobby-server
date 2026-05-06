@@ -47,6 +47,6 @@ jobs:
           docker build . --tag ghcr.io/triplea-game/lobby/server:latest
           docker push ghcr.io/triplea-game/lobby/server:latest
       - name: Load SSH private key into ssh-agent
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
