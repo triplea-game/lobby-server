@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.UserName;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
 import org.triplea.web.socket.MessageBroadcaster;
 import org.triplea.web.socket.WebSocketSession;
 
@@ -39,7 +38,7 @@ public class Chatters {
     return Optional.ofNullable(participants.get(senderSession.getId()));
   }
 
-  public Optional<ChatterSession> lookupPlayerByChatId(final PlayerChatId playerChatId) {
+  public Optional<ChatterSession> lookupPlayerByChatId(final String playerChatId) {
     return participants.values().stream()
         .filter(
             chatterSession ->
@@ -60,7 +59,8 @@ public class Chatters {
   public Optional<UserName> playerLeft(final WebSocketSession session) {
     return Optional.ofNullable(participants.remove(session.getId()))
         .map(ChatterSession::getChatParticipant)
-        .map(ChatParticipant::getUserName);
+        .map(ChatParticipant::getUserName)
+        .map(UserName::of);
   }
 
   public boolean isPlayerConnected(final UserName userName) {
@@ -91,7 +91,7 @@ public class Chatters {
         participants.values().stream()
             .filter(
                 chatterSession ->
-                    chatterSession.getChatParticipant().getUserName().equals(userName))
+                    chatterSession.getChatParticipant().getUserName().equals(userName.toString()))
             .map(ChatterSession::getSession)
             .collect(Collectors.toSet());
 
@@ -145,13 +145,13 @@ public class Chatters {
             (address, existingBan) -> existingBan.isAfter(clock.instant()) ? existingBan : null));
   }
 
-  public void mutePlayer(final PlayerChatId playerChatId, final long muteMinutes) {
+  public void mutePlayer(final String playerChatId, final long muteMinutes) {
     mutePlayer(playerChatId, muteMinutes, Clock.systemUTC(), MessageBroadcaster.build());
   }
 
   @VisibleForTesting
   void mutePlayer(
-      final PlayerChatId playerChatId,
+      final String playerChatId,
       final long muteMinutes,
       final Clock clock,
       final MessageBroadcaster messageBroadcaster) {
@@ -160,7 +160,7 @@ public class Chatters {
             chatterSession -> {
               muteIpAddress(chatterSession.getIp(), muteMinutes, clock);
               broadCastPlayerMutedMessageToAllPlayer(
-                  chatterSession.getChatParticipant().getUserName(),
+                  UserName.of(chatterSession.getChatParticipant().getUserName()),
                   muteMinutes,
                   messageBroadcaster);
             });

@@ -15,8 +15,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.moderation.disconnect.user.DisconnectUserAction;
@@ -43,12 +42,11 @@ public class DisconnectUserController extends HttpController {
   }
 
   @POST
-  @Path(ModeratorLobbyClient.DISCONNECT_PLAYER_PATH)
+  @Path(ServerPaths.DISCONNECT_PLAYER_PATH)
   public Response disconnectPlayer(@Context final SecurityContext sc, final String playerIdToBan) {
     Preconditions.checkNotNull(playerIdToBan);
     final boolean removed =
-        disconnectUserAction.disconnectPlayer(
-            user(sc).getUserIdOrThrow(), PlayerChatId.of(playerIdToBan));
+        disconnectUserAction.disconnectPlayer(user(sc).getUserIdOrThrow(), playerIdToBan);
     return Response.status(removed ? 200 : 400).build();
   }
 }

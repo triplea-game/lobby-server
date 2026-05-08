@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.lobby.moderator.toolbox.banned.name.ToolboxUsernameBanClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.ban.name.UsernameBanService;
 
@@ -38,7 +38,7 @@ public class UsernameBanController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxUsernameBanClient.REMOVE_BANNED_USER_NAME_PATH)
+  @Path(ServerPaths.REMOVE_BANNED_USER_NAME_PATH)
   public Response removeBannedUsername(@Context final SecurityContext sc, final String username) {
     Preconditions.checkArgument(username != null && !username.isEmpty());
     return Response.status(
@@ -47,7 +47,7 @@ public class UsernameBanController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxUsernameBanClient.ADD_BANNED_USER_NAME_PATH)
+  @Path(ServerPaths.ADD_BANNED_USER_NAME_PATH)
   public Response addBannedUsername(@Context final SecurityContext sc, final String username) {
     Preconditions.checkArgument(username != null && !username.isEmpty());
     return Response.status(
@@ -59,7 +59,7 @@ public class UsernameBanController extends HttpController {
   }
 
   @GET
-  @Path(ToolboxUsernameBanClient.GET_BANNED_USER_NAMES_PATH)
+  @Path(ServerPaths.GET_BANNED_USER_NAMES_PATH)
   public Response getBannedUsernames() {
     return Response.status(200).entity(bannedNamesService.getBannedUserNames()).build();
   }

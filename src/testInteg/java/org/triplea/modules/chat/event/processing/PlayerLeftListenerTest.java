@@ -16,8 +16,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.domain.data.UserName;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerLeftMessage;
 import org.triplea.http.client.web.socket.MessageEnvelope;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerLeftMessage;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessagingBus;
 import org.triplea.web.socket.WebSocketSession;
@@ -49,7 +49,7 @@ class PlayerLeftListenerTest {
     playerLeftListener.accept(webSocketMessagingBus, session);
 
     verify(webSocketMessagingBus).broadcastMessage(messageCaptor.capture());
-    assertThat(messageCaptor.getValue().getUserName(), is(UserName.of("user-name")));
+    assertThat(messageCaptor.getValue().getUserName(), is("user-name"));
   }
 
   @Test

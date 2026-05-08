@@ -17,9 +17,8 @@ import java.time.Duration;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.ban.BanLookupRecord;
 import org.triplea.db.dao.user.ban.UserBanDao;
-import org.triplea.http.client.LobbyHttpClientConfig;
-import org.triplea.http.client.lobby.moderator.BanDurationFormatter;
 import org.triplea.lobby.server.IpAddressExtractor;
+import org.triplea.lobby.server.LobbyHeaders;
 
 @Provider
 @PreMatching
@@ -55,8 +54,7 @@ public class BannedPlayerFilter implements ContainerRequestFilter {
   @Override
   public void filter(final ContainerRequestContext requestContext) {
     final String systemId =
-        Strings.emptyToNull(
-            routingContext.request().getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER));
+        Strings.emptyToNull(routingContext.request().getHeader(LobbyHeaders.SYSTEM_ID_HEADER));
     if (systemId == null) {
       requestContext.abortWith(
           Response.status(Response.Status.UNAUTHORIZED).entity("Invalid request").build());

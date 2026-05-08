@@ -14,9 +14,9 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
 import org.triplea.http.client.lobby.moderator.toolbox.log.ModeratorEvent;
-import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxEventLogClient;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.audit.history.ModeratorAuditHistoryService;
 
@@ -43,7 +43,7 @@ public class ModeratorAuditHistoryController extends HttpController {
    * @param pagingParams Parameter JSON object for page number and page size.
    */
   @POST
-  @Path(ToolboxEventLogClient.AUDIT_HISTORY_PATH)
+  @Path(ServerPaths.AUDIT_HISTORY_PATH)
   public Response lookupAuditHistory(final PagingParams pagingParams) {
     Preconditions.checkArgument(pagingParams != null);
     Preconditions.checkArgument(pagingParams.getRowNumber() >= 0);

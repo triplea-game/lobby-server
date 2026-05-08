@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,8 +17,7 @@ import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao.AuditAction;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao.AuditArgs;
 import org.triplea.db.dao.user.ban.UserBanDao;
-import org.triplea.http.client.web.socket.messages.envelopes.remote.actions.ShutdownServerMessage;
-import org.triplea.java.IpAddressParser;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.remote.actions.ShutdownServerMessage;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +48,7 @@ class RemoteActionsModuleTest {
     void userIsBanned() {
       when(userBanDao.isBannedByIp(IP)).thenReturn(true);
 
-      final boolean result = remoteActionsModule.isUserBanned(IpAddressParser.fromString(IP));
+      final boolean result = remoteActionsModule.isUserBanned(InetAddresses.forString(IP));
 
       assertThat(result, is(true));
     }
@@ -57,7 +57,7 @@ class RemoteActionsModuleTest {
     void userIsNotBanned() {
       when(userBanDao.isBannedByIp(IP)).thenReturn(false);
 
-      final boolean result = remoteActionsModule.isUserBanned(IpAddressParser.fromString(IP));
+      final boolean result = remoteActionsModule.isUserBanned(InetAddresses.forString(IP));
 
       assertThat(result, is(false));
     }

@@ -13,10 +13,8 @@ import org.triplea.db.dao.user.UserJdbiDao;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.db.dao.user.role.UserRoleDao;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
 import org.triplea.domain.data.UserName;
-import org.triplea.java.Postconditions;
 
 /** Wrapper to abstract away DB details of how API key is stored and to provide convenience APIs. */
 @Builder
@@ -49,7 +47,7 @@ public class PlayerApiKeyDaoWrapper {
       final UserName userName,
       final InetAddress ip,
       final SystemId systemId,
-      final PlayerChatId playerChatId) {
+      final String playerChatId) {
     Preconditions.checkNotNull(userName);
     Preconditions.checkNotNull(ip);
 
@@ -84,7 +82,7 @@ public class PlayerApiKeyDaoWrapper {
       final ApiKey apiKey,
       final InetAddress ipAddress,
       final SystemId systemId,
-      final PlayerChatId playerChatId,
+      final String playerChatId,
       final int userRoleId) {
     final String hashedKey = keyHashingFunction.apply(apiKey);
 
@@ -93,19 +91,18 @@ public class PlayerApiKeyDaoWrapper {
             username,
             userId,
             userRoleId,
-            playerChatId.getValue(),
+            playerChatId,
             hashedKey,
             systemId.getValue(),
             ipAddress.getHostAddress());
-    Postconditions.assertState(rowsInserted == 1);
+    Preconditions.checkState(rowsInserted == 1);
   }
 
-  public Optional<PlayerIdentifiersByApiKeyLookup> lookupPlayerByChatId(
-      final PlayerChatId playerChatId) {
-    return lobbyApiKeyDao.lookupByPlayerChatId(playerChatId.getValue());
+  public Optional<PlayerIdentifiersByApiKeyLookup> lookupPlayerByChatId(final String playerChatId) {
+    return lobbyApiKeyDao.lookupByPlayerChatId(playerChatId);
   }
 
-  public Optional<Integer> lookupUserIdByChatId(final PlayerChatId playerChatId) {
-    return lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(playerChatId.getValue());
+  public Optional<Integer> lookupUserIdByChatId(final String playerChatId) {
+    return lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(playerChatId);
   }
 }

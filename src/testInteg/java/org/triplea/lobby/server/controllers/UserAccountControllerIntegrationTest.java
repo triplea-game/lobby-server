@@ -9,16 +9,22 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.user.account.UserAccountClient;
+import org.triplea.http.client.lobby.user.account.FetchEmailResponse;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class UserAccountControllerIntegrationTest extends ControllerIntegrationTest {
-  UserAccountClient client;
+
+  private static final String CHANGE_PASSWORD_PATH = "/lobby/user-account/change-password";
+  private static final String FETCH_EMAIL_PATH = "/lobby/user-account/fetch-email";
+  private static final String CHANGE_EMAIL_PATH = "/lobby/user-account/change-email";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    client = UserAccountClient.newClient(localhost, PLAYER);
+    client = new LobbyHttpClientHelper(localhost, PLAYER);
   }
 
   @SuppressWarnings("unchecked")
@@ -26,28 +32,31 @@ public class UserAccountControllerIntegrationTest extends ControllerIntegrationT
   void mustBeAuthorized() {
     assertNotAuthorized(
         List.of(ANONYMOUS),
-        apiKey -> UserAccountClient.newClient(localhost, apiKey),
-        UserAccountClient::fetchEmail,
-        client -> client.changeEmail("new-email"),
-        client -> client.changePassword("new-password"));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c -> c.get(FETCH_EMAIL_PATH, FetchEmailResponse.class),
+        c -> c.post(CHANGE_EMAIL_PATH, "new-email"),
+        c -> c.post(CHANGE_PASSWORD_PATH, "new-password"));
   }
 
   @Test
   void changePassword() {
-    client.changePassword("password");
+    client.post(CHANGE_PASSWORD_PATH, "password");
   }
 
   @Test
   void fetchEmail() {
-    assertThat(client.fetchEmail(), notNullValue());
+    assertThat(client.get(FETCH_EMAIL_PATH, FetchEmailResponse.class), notNullValue());
   }
 
   @Test
   void changeEmail() {
-    assertThat(client.fetchEmail(), is(not("email@email-test.com")));
+    assertThat(
+        client.get(FETCH_EMAIL_PATH, FetchEmailResponse.class), is(not("email@email-test.com")));
 
-    client.changeEmail("email@email-test.com");
+    client.post(CHANGE_EMAIL_PATH, "email@email-test.com");
 
-    assertThat(client.fetchEmail().getUserEmail(), is("email@email-test.com"));
+    assertThat(
+        client.get(FETCH_EMAIL_PATH, FetchEmailResponse.class).getUserEmail(),
+        is("email@email-test.com"));
   }
 }

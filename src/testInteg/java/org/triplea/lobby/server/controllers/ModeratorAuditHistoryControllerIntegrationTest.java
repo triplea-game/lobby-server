@@ -11,16 +11,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
 import org.triplea.http.client.lobby.moderator.toolbox.log.ModeratorEvent;
-import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxEventLogClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class ModeratorAuditHistoryControllerIntegrationTest extends ControllerIntegrationTest {
-  ToolboxEventLogClient client;
+
+  private static final String AUDIT_HISTORY_PATH = "/lobby/moderator-toolbox/audit-history/lookup";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    this.client = ToolboxEventLogClient.newClient(localhost, MODERATOR);
+    this.client = new LobbyHttpClientHelper(localhost, MODERATOR);
   }
 
   @SuppressWarnings("unchecked")
@@ -28,15 +31,21 @@ public class ModeratorAuditHistoryControllerIntegrationTest extends ControllerIn
   void mustBeAuthorized() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ToolboxEventLogClient.newClient(localhost, apiKey),
-        client ->
-            client.lookupModeratorEvents(PagingParams.builder().pageSize(1).rowNumber(0).build()));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c ->
+            c.postForList(
+                AUDIT_HISTORY_PATH,
+                PagingParams.builder().pageSize(1).rowNumber(0).build(),
+                ModeratorEvent.class));
   }
 
   @Test
   void fetchHistory() {
     final List<ModeratorEvent> response =
-        client.lookupModeratorEvents(PagingParams.builder().pageSize(1).rowNumber(0).build());
+        client.postForList(
+            AUDIT_HISTORY_PATH,
+            PagingParams.builder().pageSize(1).rowNumber(0).build(),
+            ModeratorEvent.class);
     assertThat(response, not(empty()));
     assertThat(response.get(0).getActionTarget(), notNullValue());
     assertThat(response.get(0).getModeratorAction(), notNullValue());

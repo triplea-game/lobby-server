@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import java.net.InetAddress;
 import java.time.Duration;
@@ -27,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.http.client.web.socket.MessageEnvelope;
 import org.triplea.http.client.web.socket.messages.envelopes.ServerErrorMessage;
-import org.triplea.java.IpAddressParser;
 
 @SuppressWarnings({"SameParameterValue", "InnerClassMayBeStatic"})
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +55,7 @@ class GenericWebSocketTest {
   @Test
   void verifyBannedSessionsAreDisconnected() {
     givenIpInSession("1.1.1.1");
-    when(banCheck.test(IpAddressParser.fromString("1.1.1.1"))).thenReturn(true);
+    when(banCheck.test(InetAddresses.forString("1.1.1.1"))).thenReturn(true);
 
     genericWebSocket.onOpen(session);
 
@@ -66,7 +66,7 @@ class GenericWebSocketTest {
   @Test
   void verifyNotBannedSessionsAreSentToMessagingBux() {
     givenOnOpenSessionWithIp("1.1.1.1");
-    when(banCheck.test(IpAddressParser.fromString("1.1.1.1"))).thenReturn(false);
+    when(banCheck.test(InetAddresses.forString("1.1.1.1"))).thenReturn(false);
 
     genericWebSocket.onOpen(session);
 
@@ -75,7 +75,7 @@ class GenericWebSocketTest {
   }
 
   void givenOnOpenSessionWithIp(final String ip) {
-    when(session.getRemoteAddress()).thenReturn(IpAddressParser.fromString(ip));
+    when(session.getRemoteAddress()).thenReturn(InetAddresses.forString(ip));
   }
 
   @Test
@@ -93,7 +93,7 @@ class GenericWebSocketTest {
         is(ServerErrorMessage.TYPE.getMessageTypeId()));
     assertThat(
         "Verify cache has been populated and incremented",
-        cache.getIfPresent(IpAddressParser.fromString("1.1.1.1")).get(),
+        cache.getIfPresent(InetAddresses.forString("1.1.1.1")).get(),
         is(1));
   }
 
@@ -106,12 +106,12 @@ class GenericWebSocketTest {
 
     assertThat(
         "Verify cache has been incremented",
-        cache.getIfPresent(IpAddressParser.fromString("1.1.1.1")).get(),
+        cache.getIfPresent(InetAddresses.forString("1.1.1.1")).get(),
         is(2));
   }
 
   private void givenIpInSession(final String ip) {
-    when(session.getRemoteAddress()).thenReturn(IpAddressParser.fromString(ip));
+    when(session.getRemoteAddress()).thenReturn(InetAddresses.forString(ip));
   }
 
   @DisplayName("If a session has hit max bad messages, we ignore all messages from that session")
@@ -133,7 +133,7 @@ class GenericWebSocketTest {
   }
 
   private void givenIpHasBadMessageCount(final String ip, final int count) {
-    cache.put(IpAddressParser.fromString(ip), new AtomicInteger(count));
+    cache.put(InetAddresses.forString(ip), new AtomicInteger(count));
   }
 
   @Test

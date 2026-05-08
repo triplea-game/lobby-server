@@ -21,9 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
-import org.triplea.domain.data.PlayerChatId;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
 import org.triplea.http.client.web.socket.MessageEnvelope;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
@@ -32,7 +31,7 @@ import org.triplea.web.socket.WebSocketMessagingBus;
 class DisconnectUserActionTest {
 
   private static final int MODERATOR_ID = 100;
-  private static final PlayerChatId PLAYER_CHAT_ID = PlayerChatId.of("player-chat-id");
+  private static final String PLAYER_CHAT_ID = "player-chat-id";
   private static final PlayerIdentifiersByApiKeyLookup PLAYER_ID_LOOKUP =
       PlayerIdentifiersByApiKeyLookup.builder()
           .ip("99.99.99.99")

@@ -9,22 +9,34 @@ import static org.triplea.test.common.matchers.CollectionMatchers.containsMapped
 import static org.triplea.test.common.matchers.CollectionMatchers.doesNotContainMappedItem;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.login.LobbyLoginClient;
 import org.triplea.http.client.lobby.login.LobbyLoginResponse;
-import org.triplea.http.client.lobby.moderator.toolbox.banned.name.ToolboxUsernameBanClient;
+import org.triplea.http.client.lobby.login.LoginRequest;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.name.UsernameBanData;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class UsernameBanControllerIntegrationTest extends ControllerIntegrationTest {
-  ToolboxUsernameBanClient client;
+
+  private static final String GET_USERNAME_BANS_PATH = "/lobby/moderator-toolbox/get-username-bans";
+  private static final String ADD_USERNAME_BAN_PATH = "/lobby/moderator-toolbox/add-username-ban";
+  private static final String REMOVE_USERNAME_BAN_PATH =
+      "/lobby/moderator-toolbox/remove-username-ban";
+  private static final String LOGIN_PATH = "/lobby/user-login/authenticate";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    this.client = ToolboxUsernameBanClient.newClient(localhost, MODERATOR);
+    this.client = new LobbyHttpClientHelper(localhost, MODERATOR);
+  }
+
+  private List<UsernameBanData> getUsernameBans() {
+    return Arrays.asList(client.get(GET_USERNAME_BANS_PATH, UsernameBanData[].class));
   }
 
   @SuppressWarnings("unchecked")
@@ -32,45 +44,41 @@ public class UsernameBanControllerIntegrationTest extends ControllerIntegrationT
   void mustBeAuthorized() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ToolboxUsernameBanClient.newClient(localhost, apiKey),
-        ToolboxUsernameBanClient::getUsernameBans,
-        client -> client.addUsernameBan("some-username"),
-        client -> client.removeUsernameBan("some-username"));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c -> c.get(GET_USERNAME_BANS_PATH, UsernameBanData[].class),
+        c -> c.post(ADD_USERNAME_BAN_PATH, "some-username"),
+        c -> c.post(REMOVE_USERNAME_BAN_PATH, "some-username"));
   }
 
   @Test
   void listBans() {
-    final List<UsernameBanData> nameBans = client.getUsernameBans();
+    final List<UsernameBanData> nameBans = getUsernameBans();
     assertThat(nameBans, is(not(empty())));
   }
 
   @Test
   void removeBan() {
-    final List<UsernameBanData> nameBans = client.getUsernameBans();
-
-    // remember the first item
+    final List<UsernameBanData> nameBans = getUsernameBans();
     final UsernameBanData firstItem = nameBans.get(0);
 
-    // remove the first item
-    client.removeUsernameBan(firstItem.getBannedName());
+    client.post(REMOVE_USERNAME_BAN_PATH, firstItem.getBannedName());
 
-    // verify first item is removed
-    assertThat(client.getUsernameBans(), is(not(hasItem(firstItem))));
+    assertThat(getUsernameBans(), is(not(hasItem(firstItem))));
   }
 
   @Test
   void addBan() {
     assertThat(
         "Make sure bans does not contain the item we will add",
-        client.getUsernameBans(),
+        getUsernameBans(),
         doesNotContainMappedItem(
             UsernameBanData::getBannedName, "username-that-is-now-banned".toUpperCase()));
 
-    client.addUsernameBan("username-that-is-now-banned");
+    client.post(ADD_USERNAME_BAN_PATH, "username-that-is-now-banned");
 
     assertThat(
         "Bans should now contain the newly added item",
-        client.getUsernameBans(),
+        getUsernameBans(),
         containsMappedItem(
             UsernameBanData::getBannedName, "username-that-is-now-banned".toUpperCase()));
   }
@@ -81,13 +89,22 @@ public class UsernameBanControllerIntegrationTest extends ControllerIntegrationT
    */
   @Test
   void usernameBanDisallowsLogin() {
+    final LobbyHttpClientHelper loginClient = new LobbyHttpClientHelper(localhost);
+
     LobbyLoginResponse loginResponse =
-        LobbyLoginClient.newClient(localhost).login("random-user", null);
+        loginClient.post(
+            LOGIN_PATH,
+            LoginRequest.builder().name("random-user").password(null).build(),
+            LobbyLoginResponse.class);
     assertThat("Verify our anonymous login worked", loginResponse.isSuccess(), is(true));
 
-    client.addUsernameBan("random-user");
+    client.post(ADD_USERNAME_BAN_PATH, "random-user");
 
-    loginResponse = LobbyLoginClient.newClient(localhost).login("random-user", null);
+    loginResponse =
+        loginClient.post(
+            LOGIN_PATH,
+            LoginRequest.builder().name("random-user").password(null).build(),
+            LobbyLoginResponse.class);
     assertThat("Verify our anonymous login worked", loginResponse.isSuccess(), is(false));
   }
 }

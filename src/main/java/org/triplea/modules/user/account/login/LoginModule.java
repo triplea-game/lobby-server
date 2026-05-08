@@ -2,6 +2,7 @@ package org.triplea.modules.user.account.login;
 
 import com.google.common.base.Strings;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -12,7 +13,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.UserJdbiDao;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
 import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.login.LobbyLoginResponse;
@@ -69,8 +69,7 @@ public class LoginModule {
 
     // successful login case
     if (hasPassword && registeredLogin.test(loginRequest)) {
-      final ApiKey apiKey =
-          recordLoginAndGenerateApiKey(loginRequest, playerSystemId, PlayerChatId.newId(), ip);
+      final ApiKey apiKey = recordLoginAndGenerateApiKey(loginRequest, playerSystemId, newId(), ip);
       return LobbyLoginResponse.builder()
           .apiKey(apiKey.getValue())
           .moderator(isModerator(loginRequest.getName()))
@@ -78,8 +77,7 @@ public class LoginModule {
           .build();
       // successful login using a temp password
     } else if (hasPassword && tempPasswordLogin.test(loginRequest)) {
-      final ApiKey apiKey =
-          recordLoginAndGenerateApiKey(loginRequest, playerSystemId, PlayerChatId.newId(), ip);
+      final ApiKey apiKey = recordLoginAndGenerateApiKey(loginRequest, playerSystemId, newId(), ip);
       return LobbyLoginResponse.builder()
           .apiKey(apiKey.getValue())
           .passwordChangeRequired(true)
@@ -99,7 +97,7 @@ public class LoginModule {
         return LobbyLoginResponse.builder().failReason(errorMessage.get()).build();
       } else {
         final ApiKey apiKey =
-            recordLoginAndGenerateApiKey(loginRequest, playerSystemId, PlayerChatId.newId(), ip);
+            recordLoginAndGenerateApiKey(loginRequest, playerSystemId, newId(), ip);
         return LobbyLoginResponse.builder()
             .apiKey(apiKey.getValue())
             .lobbyMessage(lobbyLoginMessageDao.get())
@@ -108,10 +106,14 @@ public class LoginModule {
     }
   }
 
+  public static String newId() {
+    return UUID.randomUUID().toString();
+  }
+
   private ApiKey recordLoginAndGenerateApiKey(
       final LoginRequest loginRequest,
       final SystemId systemId,
-      final PlayerChatId playerchatId,
+      final String playerchatId,
       final String ip) {
     final var loginRecord =
         LoginRecord.builder()

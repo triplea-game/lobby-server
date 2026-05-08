@@ -1,6 +1,7 @@
 package org.triplea.modules.moderation.ban.user;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.net.InetAddresses;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -13,14 +14,12 @@ import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
 import org.triplea.db.dao.user.ban.UserBanDao;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.lobby.moderator.BanDurationFormatter;
 import org.triplea.http.client.lobby.moderator.BanPlayerRequest;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanData;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanParams;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.remote.actions.PlayerBannedMessage;
-import org.triplea.java.IpAddressParser;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.remote.actions.PlayerBannedMessage;
+import org.triplea.lobby.server.access.authorization.BanDurationFormatter;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
@@ -93,7 +92,7 @@ public class UserBanService {
 
   public void banUser(final int moderatorId, final BanPlayerRequest banPlayerRequest) {
     apiKeyDaoWrapper
-        .lookupPlayerByChatId(PlayerChatId.of(banPlayerRequest.getPlayerChatId()))
+        .lookupPlayerByChatId(banPlayerRequest.getPlayerChatId())
         .map(
             gamePlayerLookup -> toUserBanParams(gamePlayerLookup, banPlayerRequest.getBanMinutes()))
         .ifPresent(banUserParams -> banUser(moderatorId, banUserParams));
@@ -136,7 +135,7 @@ public class UserBanService {
 
   private boolean removePlayerFromChat(final UserBanParams userBanParams) {
     return chatters.disconnectIp(
-        IpAddressParser.fromString(userBanParams.getIp()),
+        InetAddresses.forString(userBanParams.getIp()),
         String.format(
             "You have been banned for %s for violating lobby rules",
             BanDurationFormatter.formatBanMinutes(userBanParams.getMinutesToBan())));

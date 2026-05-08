@@ -15,13 +15,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.domain.data.UserName;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerSlapReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerSlapSentMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerSlapReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerSlapSentMessage;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
+import org.triplea.modules.user.account.login.LoginModule;
 import org.triplea.web.socket.WebSocketMessageContext;
 import org.triplea.web.socket.WebSocketSession;
 
@@ -50,14 +49,10 @@ class SlapListenerTest {
   @DisplayName("If a player is in the chatter session, then we do relay their message")
   void ifPlayerSessionDoesExistThenRelayTheirMessage() {
     when(messageContext.getSenderSession()).thenReturn(session);
-    when(messageContext.getMessage())
-        .thenReturn(new PlayerSlapSentMessage(UserName.of("slapped-player")));
+    when(messageContext.getMessage()).thenReturn(new PlayerSlapSentMessage("slapped-player"));
     givenChatterSession(
         session,
-        ChatParticipant.builder()
-            .playerChatId(PlayerChatId.newId().getValue())
-            .userName("user-name")
-            .build());
+        ChatParticipant.builder().playerChatId(LoginModule.newId()).userName("user-name").build());
 
     slapListener.accept(messageContext);
 
@@ -78,7 +73,7 @@ class SlapListenerTest {
   }
 
   private static void verifyMessageContents(final PlayerSlapReceivedMessage chatReceivedMessage) {
-    assertThat(chatReceivedMessage.getSlappedPlayer(), is(UserName.of("slapped-player")));
-    assertThat(chatReceivedMessage.getSlappingPlayer(), is(UserName.of("user-name")));
+    assertThat(chatReceivedMessage.getSlappedPlayer(), is("slapped-player"));
+    assertThat(chatReceivedMessage.getSlappingPlayer(), is("user-name"));
   }
 }

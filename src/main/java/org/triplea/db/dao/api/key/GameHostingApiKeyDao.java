@@ -1,14 +1,13 @@
 package org.triplea.db.dao.api.key;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 
 @ApplicationScoped
-@RequiredArgsConstructor(onConstructor_ = @Inject)
+@RequiredArgsConstructor
 public class GameHostingApiKeyDao {
-  @Inject private final Jdbi jdbi;
+  private final Jdbi jdbi;
 
   public int insertKey(String key, String ip) {
     return jdbi.withHandle(

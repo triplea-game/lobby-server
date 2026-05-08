@@ -7,21 +7,25 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.game.hosting.request.GameHostingClient;
+import org.triplea.http.client.lobby.game.hosting.request.GameHostingResponse;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class GameHostingControllerTest extends ControllerIntegrationTest {
-  GameHostingClient client;
+
+  private static final String GAME_HOSTING_PATH = "/lobby/game-hosting-request";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    client = GameHostingClient.newClient(localhost);
+    client = new LobbyHttpClientHelper(localhost);
   }
 
   @Test
   void sendGameHostingRequest() {
-    final var result = client.sendGameHostingRequest();
+    final var result = client.post(GAME_HOSTING_PATH, null, GameHostingResponse.class);
     assertThat(result, is(IsNull.notNullValue()));
   }
 }

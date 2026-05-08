@@ -2,10 +2,10 @@ package org.triplea.modules.chat.event.processing;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.triplea.java.DateTimeUtil.utcInstantOf;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.function.Function;
@@ -16,7 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerIsMutedMessageTest {
-  private static final Instant CURRENT_TIME = utcInstantOf(2020, 11, 1, 2, 20);
+  private static final Instant CURRENT_TIME =
+      LocalDateTime.of(2020, 11, 1, 2, 20).toInstant(ZoneOffset.UTC);
 
   private final Function<Instant, String> formattingFunction =
       PlayerIsMutedMessage.MuteDurationRemainingCalculator.builder()

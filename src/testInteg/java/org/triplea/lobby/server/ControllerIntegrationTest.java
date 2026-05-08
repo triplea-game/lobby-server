@@ -7,40 +7,21 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.github.database.rider.core.api.dataset.DataSet;
 import com.github.database.rider.junit5.DBUnitExtension;
 import com.google.common.base.Preconditions;
-import feign.FeignException;
 import io.quarkus.test.common.http.TestHTTPResource;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.triplea.IntegTestExtension;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.SystemIdLoader;
-import org.triplea.http.client.LobbyHttpClientConfig;
 
 @ExtendWith(IntegTestExtension.class)
 @ExtendWith(DBUnitExtension.class)
 @DataSet(value = ControllerIntegrationTest.DATA_SETS, useSequenceFiltering = false)
 public abstract class ControllerIntegrationTest {
   @TestHTTPResource protected URI localhost;
-
-  @BeforeAll
-  static void setup() {
-    LobbyHttpClientConfig.setConfig(
-        LobbyHttpClientConfig.builder()
-            .clientVersion("1.0")
-            .systemId(SystemIdLoader.load().getValue())
-            .build());
-  }
-
-  @AfterAll
-  static void tearDown() {
-    LobbyHttpClientConfig.setConfig(null);
-  }
 
   /**
    * All data sets used for controller integration tests. Note, we include all data even that which
@@ -94,8 +75,8 @@ public abstract class ControllerIntegrationTest {
         try {
           invocation.accept(client);
           fail("Invocation did not produce a 403");
-        } catch (final FeignException feignException) {
-          assertThat(feignException.status(), is(403));
+        } catch (final HttpStatusException httpStatusException) {
+          assertThat(httpStatusException.getStatus(), is(403));
         }
       }
     }
@@ -105,8 +86,8 @@ public abstract class ControllerIntegrationTest {
     try {
       invocation.run();
       fail("Invocation did not produce a 400");
-    } catch (final FeignException feignException) {
-      assertThat(feignException.status(), is(400));
+    } catch (final HttpStatusException httpStatusException) {
+      assertThat(httpStatusException.getStatus(), is(400));
     }
   }
 }

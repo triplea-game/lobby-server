@@ -16,9 +16,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.moderator.BanPlayerRequest;
-import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
-import org.triplea.http.client.lobby.moderator.toolbox.banned.user.ToolboxUserBanClient;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanParams;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.chat.Chatters;
@@ -56,13 +55,13 @@ public class UserBanController extends HttpController {
   }
 
   @GET
-  @Path(ToolboxUserBanClient.GET_USER_BANS_PATH)
+  @Path(ServerPaths.GET_USER_BANS_PATH)
   public Response getUserBans() {
     return Response.ok().entity(bannedUsersService.getBannedUsers()).build();
   }
 
   @POST
-  @Path(ToolboxUserBanClient.REMOVE_USER_BAN_PATH)
+  @Path(ServerPaths.REMOVE_USER_BAN_PATH)
   public Response removeUserBan(@Context final SecurityContext sc, final String banId) {
     Preconditions.checkArgument(banId != null);
     final boolean removed = bannedUsersService.removeUserBan(user(sc).getUserIdOrThrow(), banId);
@@ -71,7 +70,7 @@ public class UserBanController extends HttpController {
 
   /** Endpoint to add a user ban. Returns 200 if the ban is added, 400 if not. */
   @POST
-  @Path(ToolboxUserBanClient.BAN_USER_PATH)
+  @Path(ServerPaths.BAN_USER_PATH)
   public Response banUser(@Context final SecurityContext sc, final UserBanParams banUserParams) {
     Preconditions.checkArgument(banUserParams != null);
     Preconditions.checkArgument(banUserParams.getSystemId() != null);
@@ -83,7 +82,7 @@ public class UserBanController extends HttpController {
   }
 
   @POST
-  @Path(ModeratorLobbyClient.BAN_PLAYER_PATH)
+  @Path(ServerPaths.BAN_PLAYER_PATH)
   public Response banPlayer(
       @Context final SecurityContext sc, final BanPlayerRequest banPlayerRequest) {
     Preconditions.checkNotNull(banPlayerRequest);

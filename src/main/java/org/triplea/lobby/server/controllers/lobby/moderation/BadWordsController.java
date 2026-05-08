@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.lobby.moderator.toolbox.words.ToolboxBadWordsClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.bad.words.BadWordsService;
 
@@ -43,7 +43,7 @@ public class BadWordsController extends HttpController {
    *     return a 400.
    */
   @POST
-  @Path(ToolboxBadWordsClient.BAD_WORD_REMOVE_PATH)
+  @Path(ServerPaths.BAD_WORD_REMOVE_PATH)
   public Response removeBadWord(@Context final SecurityContext sc, final String word) {
     if (word == null || word.isEmpty()) {
       throw new jakarta.ws.rs.BadRequestException("Word cannot be null or empty");
@@ -58,7 +58,7 @@ public class BadWordsController extends HttpController {
    * @param word The new bad word entry to add.
    */
   @POST
-  @Path(ToolboxBadWordsClient.BAD_WORD_ADD_PATH)
+  @Path(ServerPaths.BAD_WORD_ADD_PATH)
   public Response addBadWord(@Context final SecurityContext sc, final String word) {
     if (word == null || word.isEmpty()) {
       throw new jakarta.ws.rs.BadRequestException("Word cannot be null or empty");
@@ -71,7 +71,7 @@ public class BadWordsController extends HttpController {
   }
 
   @GET
-  @Path(ToolboxBadWordsClient.BAD_WORD_GET_PATH)
+  @Path(ServerPaths.BAD_WORD_GET_PATH)
   public Response getBadWords() {
     return Response.status(200).entity(badWordsService.getBadWords()).build();
   }

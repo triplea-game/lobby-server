@@ -3,7 +3,7 @@ package org.triplea.modules.chat.event.processing;
 import java.util.function.BiFunction;
 import org.triplea.db.dao.api.key.PlayerApiKeyLookupRecord;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.domain.data.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.web.socket.WebSocketSession;
 

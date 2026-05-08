@@ -1,7 +1,6 @@
 package org.triplea.db.dao.moderator.player.info;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
@@ -18,7 +17,7 @@ import org.jdbi.v3.core.mapper.reflect.ConstructorMapper;
 @ApplicationScoped
 @RequiredArgsConstructor
 public class PlayerInfoForModeratorDao {
-  @Inject private final Jdbi jdbi;
+  private final Jdbi jdbi;
 
   public List<PlayerAliasRecord> lookupPlayerAliasRecords(String systemId, String ip) {
     return jdbi.withHandle(

@@ -11,7 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.Collection;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.lobby.player.PlayerLobbyActionsClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.game.listing.GameListing;
 
@@ -26,7 +26,7 @@ public class PlayersInGameController extends HttpController {
   @Inject GameListing gameListing;
 
   @POST
-  @Path(PlayerLobbyActionsClient.FETCH_PLAYERS_IN_GAME)
+  @Path(ServerPaths.FETCH_PLAYERS_IN_GAME)
   public Collection<String> fetchPlayersInGame(final String gameId) {
     Preconditions.checkNotNull(gameId);
     return gameListing.getPlayersInGame(gameId);

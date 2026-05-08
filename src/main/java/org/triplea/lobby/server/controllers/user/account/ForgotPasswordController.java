@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.function.BiFunction;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jdbi.v3.core.Jdbi;
-import org.triplea.http.client.forgot.password.ForgotPasswordClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.forgot.password.ForgotPasswordRequest;
 import org.triplea.http.client.forgot.password.ForgotPasswordResponse;
 import org.triplea.lobby.server.HttpController;
@@ -46,7 +46,7 @@ public class ForgotPasswordController extends HttpController {
   }
 
   @POST
-  @Path(ForgotPasswordClient.FORGOT_PASSWORD_PATH)
+  @Path(ServerPaths.FORGOT_PASSWORD_PATH)
   public ForgotPasswordResponse requestTempPassword(
       @Context final RoutingContext routingContext,
       final ForgotPasswordRequest forgotPasswordRequest) {

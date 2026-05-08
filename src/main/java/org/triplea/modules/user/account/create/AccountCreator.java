@@ -1,5 +1,6 @@
 package org.triplea.modules.user.account.create;
 
+import com.google.common.base.Preconditions;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import lombok.Builder;
@@ -7,7 +8,6 @@ import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.UserJdbiDao;
 import org.triplea.http.client.lobby.login.CreateAccountRequest;
 import org.triplea.http.client.lobby.login.CreateAccountResponse;
-import org.triplea.java.Postconditions;
 import org.triplea.modules.user.account.PasswordBCrypter;
 
 /**
@@ -33,7 +33,7 @@ class AccountCreator implements Function<CreateAccountRequest, CreateAccountResp
     final int rowCount =
         userJdbiDao.createUser(
             createAccountRequest.getUsername(), createAccountRequest.getEmail(), cryptedPassword);
-    Postconditions.assertState(rowCount == 1);
+    Preconditions.checkState(rowCount == 1);
     return CreateAccountResponse.SUCCESS_RESPONSE;
   }
 }

@@ -55,9 +55,29 @@ tasks.clean {
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
-        events("standardOut", "standardError", "skipped", "failed")
+        events("skipped", "failed")
     }
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    jvmArgs("-XX:+EnableDynamicAgentLoading", "-Xshare:off")
+    val outputByTest = mutableMapOf<String, StringBuilder>()
+
+    addTestOutputListener { descriptor, event ->
+        val key = "${descriptor.className}.${descriptor.name}"
+        outputByTest.getOrPut(key) { StringBuilder() }.append(event.message)
+    }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) {}
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {}
+        override fun beforeTest(testDescriptor: TestDescriptor) {}
+
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
+            val key = "${testDescriptor.className}.${testDescriptor.name}"
+            val output = outputByTest.remove(key)
+            if (result.resultType == TestResult.ResultType.FAILURE && !output.isNullOrEmpty()) {
+                println("\n-- Output for ${testDescriptor.displayName} --\n$output")
+            }
+        }
+    })
 }
 
 spotless {
@@ -68,7 +88,7 @@ spotless {
 }
 
 val quarkusPlatformVersion = "3.35.2"
-val tripleaVersion = "2.7.15281"
+val tripleaVersion = "2.7.15498"
 
 dependencies {
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
@@ -94,18 +114,7 @@ dependencies {
     implementation("at.favre.lib:bcrypt:0.10.2")
     implementation("com.google.code.gson:gson:2.14.0")
     implementation("com.sun.mail:jakarta.mail:2.0.2")
-    // org.java-websocket is only used by integration-test WebSocket clients; not needed at runtime
-    testImplementation("org.java-websocket:Java-WebSocket:1.6.0")
-    implementation("triplea:domain-data:$tripleaVersion")
-    implementation("triplea:feign-common:$tripleaVersion")
-    implementation("triplea:java-extras:$tripleaVersion")
-    implementation("triplea:lobby-client:$tripleaVersion")
-    implementation("triplea:websocket-client:$tripleaVersion")
-
-    // feign-core and feign-gson are still required at runtime because triplea:feign-common and
-    // triplea:lobby-client were compiled against feign and load feign classes at runtime.
-    runtimeOnly("io.github.openfeign:feign-core:13.12")
-    runtimeOnly("io.github.openfeign:feign-gson:13.12")
+    implementation("triplea:lobby-client-data:$tripleaVersion")
 
     testImplementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
     implementation("io.quarkus:quarkus-flyway")              // run DB migrations on startup
@@ -113,16 +122,16 @@ dependencies {
 
     testImplementation("io.quarkus:quarkus-junit5")         // @QuarkusTest + Dev Services
 
-    // feign-core on the test compile classpath allows integration tests to assert on FeignException
-    testImplementation("io.github.openfeign:feign-core:13.12")
+    testImplementation("org.java-websocket:Java-WebSocket:1.6.0")
 
     testImplementation("com.github.database-rider:rider-junit5:1.43.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
-    testImplementation("com.sun.mail:jakarta.mail:2.0.2")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+
     testImplementation("org.awaitility:awaitility:4.3.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:6.0.3")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.0.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.13.4")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.13.4")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.13.4")
 
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
@@ -130,5 +139,5 @@ dependencies {
     testImplementation("ru.lanwen.wiremock:wiremock-junit5:1.3.1")
     testImplementation("uk.co.datumedge:hamcrest-json:0.3")
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
 }

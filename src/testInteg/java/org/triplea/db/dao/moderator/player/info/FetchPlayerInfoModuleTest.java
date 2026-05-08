@@ -12,6 +12,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -29,11 +30,10 @@ import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.user.history.PlayerHistoryDao;
 import org.triplea.db.dao.user.history.PlayerHistoryRecord;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
+import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.moderator.PlayerSummary.Alias;
 import org.triplea.http.client.lobby.moderator.PlayerSummary.BanInformation;
-import org.triplea.java.IpAddressParser;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.game.listing.GameListing;
@@ -80,7 +80,7 @@ class FetchPlayerInfoModuleTest {
   void setupChatterSessionData() {
     chatterSession =
         ChatterSession.builder()
-            .ip(IpAddressParser.fromString("1.2.3.4"))
+            .ip(InetAddresses.forString("1.2.3.4"))
             .apiKeyId(-1)
             .chatParticipant(
                 ChatParticipant.builder()
@@ -95,22 +95,19 @@ class FetchPlayerInfoModuleTest {
 
   @Test
   void unableToFindPlayerChatIdInChattersThrows() {
-    when(chatters.lookupPlayerByChatId(PlayerChatId.of("id"))).thenReturn(Optional.empty());
+    when(chatters.lookupPlayerByChatId("id")).thenReturn(Optional.empty());
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> fetchPlayerInfoModule.fetchPlayerInfo(PlayerChatId.of("id")));
+    assertThrows(IllegalArgumentException.class, () -> fetchPlayerInfoModule.fetchPlayerInfo("id"));
   }
 
   @Test
   void unableToFindPlayerChatIdInApiKeyTableThrows() {
-    when(chatters.lookupPlayerByChatId(PlayerChatId.of("id")))
-        .thenReturn(Optional.of(chatterSession));
-    when(apiKeyDaoWrapper.lookupPlayerByChatId(PlayerChatId.of("id"))) //
+    when(chatters.lookupPlayerByChatId("id")).thenReturn(Optional.of(chatterSession));
+    when(apiKeyDaoWrapper.lookupPlayerByChatId("id")) //
         .thenReturn(Optional.empty());
     assertThrows(
         IllegalArgumentException.class,
-        () -> fetchPlayerInfoModule.fetchPlayerInfoAsModerator(PlayerChatId.of("id")),
+        () -> fetchPlayerInfoModule.fetchPlayerInfoAsModerator("id"),
         "Using the lookup play info function requires a player to be in the lobby, "
             + "we therefore expect to find their play id, or else throws.");
   }
@@ -118,13 +115,13 @@ class FetchPlayerInfoModuleTest {
   @Test
   @DisplayName("Verify data transformation retrieving info available to any player")
   void playerLookupByPlayer() {
-    when(chatters.lookupPlayerByChatId(PlayerChatId.of("id")))
-        .thenReturn(Optional.of(chatterSession));
+    when(chatters.lookupPlayerByChatId("id")).thenReturn(Optional.of(chatterSession));
 
-    when(gameListing.getGameNamesPlayerHasJoined(chatterSession.getChatParticipant().getUserName()))
+    when(gameListing.getGameNamesPlayerHasJoined(
+            UserName.of(chatterSession.getChatParticipant().getUserName())))
         .thenReturn(Set.of("Host1", "Host2"));
 
-    final var playerSummaryForPlayer = fetchPlayerInfoModule.fetchPlayerInfo(PlayerChatId.of("id"));
+    final var playerSummaryForPlayer = fetchPlayerInfoModule.fetchPlayerInfo("id");
 
     assertThat(playerSummaryForPlayer.getCurrentGames(), hasItems("Host1", "Host2"));
 
@@ -134,28 +131,25 @@ class FetchPlayerInfoModuleTest {
 
   @Test
   void lookupRegistrationDate() {
-    givenChatIdToUserIdLookup(PlayerChatId.of("chat-id"), 123);
+    givenChatIdToUserIdLookup("chat-id", 123);
     when(playerHistoryDao.lookupPlayerHistoryByUserId(123))
         .thenReturn(Optional.of(new PlayerHistoryRecord(Instant.ofEpochMilli(5000))));
 
-    final var playerSummaryForPlayer =
-        fetchPlayerInfoModule.fetchPlayerInfo(PlayerChatId.of("chat-id"));
+    final var playerSummaryForPlayer = fetchPlayerInfoModule.fetchPlayerInfo("chat-id");
 
     assertThat(playerSummaryForPlayer.getRegistrationDateEpochMillis(), is(5000L));
   }
 
-  private void givenChatIdToUserIdLookup(final PlayerChatId playerChatId, final Integer userId) {
+  private void givenChatIdToUserIdLookup(final String playerChatId, final Integer userId) {
     when(chatters.lookupPlayerByChatId(playerChatId)).thenReturn(Optional.of(chatterSession));
-    when(apiKeyDaoWrapper.lookupUserIdByChatId(PlayerChatId.of("chat-id")))
-        .thenReturn(Optional.ofNullable(userId));
+    when(apiKeyDaoWrapper.lookupUserIdByChatId("chat-id")).thenReturn(Optional.ofNullable(userId));
   }
 
   @Test
   void lookupRegistrationDateNotRegisteredUserCase() {
-    givenChatIdToUserIdLookup(PlayerChatId.of("chat-id"), null);
+    givenChatIdToUserIdLookup("chat-id", null);
 
-    final var playerSummaryForPlayer =
-        fetchPlayerInfoModule.fetchPlayerInfo(PlayerChatId.of("chat-id"));
+    final var playerSummaryForPlayer = fetchPlayerInfoModule.fetchPlayerInfo("chat-id");
 
     assertThat(playerSummaryForPlayer.getRegistrationDateEpochMillis(), is(nullValue()));
   }
@@ -163,10 +157,8 @@ class FetchPlayerInfoModuleTest {
   @Test
   @DisplayName("Verify data transformation into a player summary object")
   void playerLookupByModerator() {
-    when(chatters.lookupPlayerByChatId(PlayerChatId.of("id")))
-        .thenReturn(Optional.of(chatterSession));
-    when(apiKeyDaoWrapper.lookupPlayerByChatId(PlayerChatId.of("id")))
-        .thenReturn(Optional.of(GAME_PLAYER_LOOKUP));
+    when(chatters.lookupPlayerByChatId("id")).thenReturn(Optional.of(chatterSession));
+    when(apiKeyDaoWrapper.lookupPlayerByChatId("id")).thenReturn(Optional.of(GAME_PLAYER_LOOKUP));
     when(playerInfoForModeratorDao.lookupPlayerAliasRecords(
             GAME_PLAYER_LOOKUP.getSystemId().getValue(), GAME_PLAYER_LOOKUP.getIp()))
         .thenReturn(List.of(PLAYER_ALIAS_RECORD));
@@ -174,8 +166,7 @@ class FetchPlayerInfoModuleTest {
             GAME_PLAYER_LOOKUP.getSystemId().getValue(), GAME_PLAYER_LOOKUP.getIp()))
         .thenReturn(List.of(PLAYER_BAN_RECORD));
 
-    final var playerSummaryForModerator =
-        fetchPlayerInfoModule.fetchPlayerInfoAsModerator(PlayerChatId.of("id"));
+    final var playerSummaryForModerator = fetchPlayerInfoModule.fetchPlayerInfoAsModerator("id");
     assertThat(playerSummaryForModerator.getIp(), is(chatterSession.getIp().toString()));
     assertThat(
         playerSummaryForModerator.getSystemId(), is(GAME_PLAYER_LOOKUP.getSystemId().getValue()));

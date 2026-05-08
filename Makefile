@@ -11,6 +11,10 @@ help: ## Show this help text
 setup: ## Installs pre-commit as a pre-push git hook (requires pre-commit to be installed)
 	uv tool install pre-commit
 	pre-commit install --hook-type pre-push
+	@if ! grep -qs '^testcontainers.reuse.enable=true' $${HOME}/.testcontainers.properties; then \
+		echo 'testcontainers.reuse.enable=true' >> $${HOME}/.testcontainers.properties; \
+		echo "Enabled testcontainers reuse in ~/.testcontainers.properties"; \
+	fi
 
 check test: ## run branch verification
 	./gradlew check

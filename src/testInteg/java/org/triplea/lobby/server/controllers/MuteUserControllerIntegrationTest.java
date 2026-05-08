@@ -1,23 +1,26 @@
 package org.triplea.lobby.server.controllers;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class MuteUserControllerIntegrationTest extends ControllerIntegrationTest {
-  ModeratorLobbyClient client;
+
+  private static final String MUTE_USER_PATH = "/lobby/moderator/mute-player";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    this.client = ModeratorLobbyClient.newClient(localhost, MODERATOR);
+    this.client = new LobbyHttpClientHelper(localhost, MODERATOR);
   }
 
   @Test
   void muteUser() {
-    client.muteUser(PlayerChatId.of("chat-id"), 600);
+    client.post(MUTE_USER_PATH, Map.of("playerChatId", "chat-id", "minutes", 600));
   }
 }

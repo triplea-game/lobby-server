@@ -20,7 +20,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.triplea.http.client.web.socket.MessageEnvelope;
 import org.triplea.http.client.web.socket.messages.envelopes.ServerErrorMessage;
-import org.triplea.java.StringUtils;
 
 /**
  * Extracts common code between websocket server methods. Each websocket endpoint is essentially
@@ -151,7 +150,7 @@ public class GenericWebSocket {
     log.warn(
         "Failed to decode JSON string from IP {}, into a MessageEnvelope: {}",
         inetAddress,
-        StringUtils.truncate(message, 500));
+        message.substring(0, Math.min(message.length(), 500)));
   }
 
   private static void respondWithServerError(

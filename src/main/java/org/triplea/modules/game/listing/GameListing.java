@@ -1,5 +1,9 @@
 package org.triplea.modules.game.listing;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.RemovalCause;
+import com.github.benmanes.caffeine.cache.RemovalListener;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -23,15 +27,13 @@ import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.lobby.games.LobbyGameDao;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.LobbyGame;
 import org.triplea.domain.data.UserName;
-import org.triplea.http.client.lobby.game.lobby.watcher.GameListingClient;
+import org.triplea.http.client.lobby.LobbyConstants;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
+import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGame;
 import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGameListing;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameUpdatedMessage;
-import org.triplea.java.cache.ttl.ExpiringAfterWriteTtlCache;
-import org.triplea.java.cache.ttl.TtlCache;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameUpdatedMessage;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
 /**
@@ -60,7 +62,7 @@ import org.triplea.web.socket.WebSocketMessagingBus;
 public class GameListing {
   @Nonnull private final ModeratorAuditHistoryDao auditHistoryDao;
   @Nonnull private final LobbyGameDao lobbyGameDao;
-  @Nonnull private final TtlCache<GameId, LobbyGame> games;
+  @Nonnull private final Cache<GameId, LobbyGame> games;
   @Nonnull private final WebSocketMessagingBus playerMessagingBus;
 
   /** Map of player names to the games they are in, both observing and playing. */
@@ -82,10 +84,16 @@ public class GameListing {
         .auditHistoryDao(new ModeratorAuditHistoryDao(jdbi))
         .playerMessagingBus(playerMessagingBus)
         .games(
-            new ExpiringAfterWriteTtlCache<>(
-                GameListingClient.KEEP_ALIVE_SECONDS,
-                TimeUnit.SECONDS,
-                new GameTtlExpiredListener(playerMessagingBus)))
+            Caffeine.newBuilder()
+                .expireAfterWrite(LobbyConstants.KEEP_ALIVE_SECONDS, TimeUnit.SECONDS)
+                .removalListener(
+                    (RemovalListener<GameId, LobbyGame>)
+                        (key, value, cause) -> {
+                          if (cause == RemovalCause.EXPIRED) {
+                            new GameTtlExpiredListener(playerMessagingBus).accept(key, value);
+                          }
+                        })
+                .build())
         .build();
   }
 
@@ -110,9 +118,10 @@ public class GameListing {
   /** Adds or updates a game. Returns true if game is updated, false if game was not found. */
   public boolean updateGame(final ApiKey apiKey, final String id, final LobbyGame lobbyGame) {
     final var listedGameId = new GameId(apiKey, id);
-    final LobbyGame existingValue = games.replace(listedGameId, lobbyGame).orElse(null);
+    final LobbyGame existingValue = games.getIfPresent(listedGameId);
 
     if (existingValue != null) {
+      games.put(listedGameId, lobbyGame);
       playerMessagingBus.broadcastMessage(
           new LobbyGameUpdatedMessage(
               LobbyGameListing.builder().gameId(id).lobbyGame(lobbyGame).build()));
@@ -136,9 +145,11 @@ public class GameListing {
             .collect(Collectors.toList());
     gameEntries.forEach(entry -> playerIsInGames.remove(entry.getKey(), entry.getValue()));
 
-    games
-        .invalidate(key)
-        .ifPresent(value -> playerMessagingBus.broadcastMessage(new LobbyGameRemovedMessage(id)));
+    final LobbyGame removed = games.getIfPresent(key);
+    games.invalidate(key);
+    if (removed != null) {
+      playerMessagingBus.broadcastMessage(new LobbyGameRemovedMessage(id));
+    }
   }
 
   public List<LobbyGameListing> getGames() {
@@ -154,7 +165,7 @@ public class GameListing {
 
   /** Checks if a given api-key and game-id pair are valid and match an active game. */
   public boolean isValidApiKeyAndGameId(final ApiKey apiKey, final String gameId) {
-    return games.get(new GameId(apiKey, gameId)).isPresent();
+    return games.getIfPresent(new GameId(apiKey, gameId)) != null;
   }
 
   /**
@@ -165,13 +176,20 @@ public class GameListing {
    *     extended.
    */
   public boolean keepAlive(final ApiKey apiKey, final String id) {
-    return games.refresh(new GameId(apiKey, id));
+    final GameId key = new GameId(apiKey, id);
+    final LobbyGame existing = games.getIfPresent(key);
+    if (existing != null) {
+      games.put(key, existing);
+      return true;
+    }
+    return false;
   }
 
   /** Moderator action to remove a game. */
   public void bootGame(final int moderatorId, final String id) {
-    games
-        .findEntryByKey(gameId -> gameId.id.equals(id))
+    games.asMap().entrySet().stream()
+        .filter(entry -> entry.getKey().id.equals(id))
+        .findFirst()
         .ifPresent(
             gameToRemove -> {
               final String hostName = gameToRemove.getValue().getHostName();
@@ -188,8 +206,7 @@ public class GameListing {
   }
 
   public Optional<InetSocketAddress> getHostForGame(final ApiKey apiKey, final String id) {
-    return games
-        .get(new GameId(apiKey, id))
+    return Optional.ofNullable(games.getIfPresent(new GameId(apiKey, id)))
         .map(
             lobbyGame ->
                 new InetSocketAddress(lobbyGame.getHostAddress(), lobbyGame.getHostPort()));
@@ -211,12 +228,16 @@ public class GameListing {
   public Collection<String> getGameNamesPlayerHasJoined(final UserName userName) {
     final Collection<GameId> expiredGames =
         playerIsInGames.get(userName).stream()
-            .filter(gameId -> games.get(gameId).isEmpty())
+            .filter(gameId -> games.getIfPresent(gameId) == null)
             .collect(Collectors.toList());
     expiredGames.forEach(gameId -> playerIsInGames.remove(userName, gameId));
 
     return playerIsInGames.get(userName).stream()
-        .map(gameId -> games.get(gameId).map(LobbyGame::getHostName).orElse(null))
+        .map(
+            gameId ->
+                Optional.ofNullable(games.getIfPresent(gameId))
+                    .map(LobbyGame::getHostName)
+                    .orElse(null))
         .collect(Collectors.toList());
   }
 

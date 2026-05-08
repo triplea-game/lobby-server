@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.Nested;
@@ -13,7 +14,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.java.IpAddressParser;
 
 @ExtendWith(MockitoExtension.class)
 class GameHostingApiKeyDaoWrapperTest {
@@ -54,7 +54,7 @@ class GameHostingApiKeyDaoWrapperTest {
       when(gameHostApiKeyDao.insertKey("hashed-key", "1.1.1.1")).thenReturn(1);
 
       final ApiKey result =
-          gameHostingApiKeyDaoWrapper.newGameHostKey(IpAddressParser.fromString("1.1.1.1"));
+          gameHostingApiKeyDaoWrapper.newGameHostKey(InetAddresses.forString("1.1.1.1"));
 
       assertThat(result, is(ApiKey.of("api-key")));
     }

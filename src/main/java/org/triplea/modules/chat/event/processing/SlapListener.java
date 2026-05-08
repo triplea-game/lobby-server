@@ -2,9 +2,9 @@ package org.triplea.modules.chat.event.processing;
 
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerSlapReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerSlapSentMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerSlapReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerSlapSentMessage;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessageContext;
 
@@ -27,7 +27,7 @@ public class SlapListener implements Consumer<WebSocketMessageContext<PlayerSlap
 
     messageContext.broadcastMessage(
         PlayerSlapReceivedMessage.builder()
-            .slappingPlayer(slapper.getUserName().getValue())
+            .slappingPlayer(slapper.getUserName())
             .slappedPlayer(messageContext.getMessage().getSlappedPlayer())
             .build());
   }

@@ -6,8 +6,7 @@ import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
@@ -33,7 +32,7 @@ public class DisconnectUserAction {
    * Does a simple disconnect of a given player from chat, records an audit log entry, and notifies
    * chatters of the disconnect.
    */
-  public boolean disconnectPlayer(final int moderatorId, final PlayerChatId playerChatId) {
+  public boolean disconnectPlayer(final int moderatorId, final String playerChatId) {
     final PlayerIdentifiersByApiKeyLookup gamePlayerLookup =
         apiKeyDaoWrapper.lookupPlayerByChatId(playerChatId).orElse(null);
     if (gamePlayerLookup == null || !chatters.isPlayerConnected(gamePlayerLookup.getUserName())) {

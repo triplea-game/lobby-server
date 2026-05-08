@@ -7,20 +7,26 @@ import io.quarkus.test.junit.QuarkusTest;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.moderator.toolbox.management.ToolboxModeratorManagementClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class ModeratorsControllerIntegrationTest extends ControllerIntegrationTest {
-  ToolboxModeratorManagementClient playerClient;
-  ToolboxModeratorManagementClient moderatorClient;
-  ToolboxModeratorManagementClient adminClient;
+
+  private static final String IS_ADMIN_PATH = "/lobby/moderator-toolbox/is-admin";
+  private static final String ADD_ADMIN_PATH = "/lobby/moderator-toolbox/admin/add-super-mod";
+  private static final String REMOVE_MOD_PATH = "/lobby/moderator-toolbox/admin/remove-mod";
+  private static final String ADD_MODERATOR_PATH = "/lobby/moderator-toolbox/admin/add-moderator";
+
+  LobbyHttpClientHelper playerClient;
+  LobbyHttpClientHelper moderatorClient;
+  LobbyHttpClientHelper adminClient;
 
   @BeforeEach
   void setup() {
-    this.playerClient = ToolboxModeratorManagementClient.newClient(localhost, PLAYER);
-    this.moderatorClient = ToolboxModeratorManagementClient.newClient(localhost, MODERATOR);
-    this.adminClient = ToolboxModeratorManagementClient.newClient(localhost, ADMIN);
+    this.playerClient = new LobbyHttpClientHelper(localhost, PLAYER);
+    this.moderatorClient = new LobbyHttpClientHelper(localhost, MODERATOR);
+    this.adminClient = new LobbyHttpClientHelper(localhost, ADMIN);
   }
 
   @SuppressWarnings("unchecked")
@@ -28,31 +34,31 @@ public class ModeratorsControllerIntegrationTest extends ControllerIntegrationTe
   void mustBeAuthorized() {
     assertNotAuthorized(
         List.of(PLAYER, MODERATOR),
-        apiKey -> ToolboxModeratorManagementClient.newClient(localhost, apiKey),
-        client -> client.addAdmin("admin"),
-        client -> client.addModerator("mod"),
-        client -> client.removeMod("mod"));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c -> c.post(ADD_ADMIN_PATH, "admin"),
+        c -> c.post(ADD_MODERATOR_PATH, "mod"),
+        c -> c.post(REMOVE_MOD_PATH, "mod"));
   }
 
   @Test
   void isAdmin() {
-    assertThat(playerClient.isCurrentUserAdmin(), is(false));
-    assertThat(moderatorClient.isCurrentUserAdmin(), is(false));
-    assertThat(adminClient.isCurrentUserAdmin(), is(true));
+    assertThat(playerClient.get(IS_ADMIN_PATH, Boolean.class), is(false));
+    assertThat(moderatorClient.get(IS_ADMIN_PATH, Boolean.class), is(false));
+    assertThat(adminClient.get(IS_ADMIN_PATH, Boolean.class), is(true));
   }
 
   @Test
   void removeMod() {
-    adminClient.removeMod("mod");
+    adminClient.post(REMOVE_MOD_PATH, "mod");
   }
 
   @Test
   void addMod() {
-    adminClient.addModerator("mod");
+    adminClient.post(ADD_MODERATOR_PATH, "mod");
   }
 
   @Test
   void setAdmin() {
-    adminClient.addAdmin("admin");
+    adminClient.post(ADD_ADMIN_PATH, "admin");
   }
 }

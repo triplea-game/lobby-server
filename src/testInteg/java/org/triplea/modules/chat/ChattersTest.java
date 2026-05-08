@@ -9,11 +9,12 @@ import static org.hamcrest.core.IsCollectionContaining.hasItems;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.triplea.java.DateTimeUtil.utcInstantOf;
 
+import com.google.common.net.InetAddresses;
 import jakarta.websocket.CloseReason;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
@@ -23,10 +24,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
+import org.triplea.domain.data.UserName;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
 import org.triplea.http.client.web.socket.MessageEnvelope;
-import org.triplea.java.IpAddressParser;
 import org.triplea.web.socket.MessageBroadcaster;
 import org.triplea.web.socket.WebSocketSession;
 
@@ -76,9 +76,7 @@ class ChattersTest {
     void lookupPlayerByChatIdEmptyCase() {
       chatters.getParticipants().put("session-id", buildChatterSession(session));
 
-      assertThat(
-          chatters.lookupPlayerByChatId(PlayerChatId.of("DNE")), //
-          isEmpty());
+      assertThat(chatters.lookupPlayerByChatId("DNE"), isEmpty());
     }
 
     @Test
@@ -96,8 +94,10 @@ class ChattersTest {
   class IsPlayerConnected {
     @Test
     void hasPlayerReturnsFalseWithNoChatters() {
-      assertThat(chatters.isPlayerConnected(CHAT_PARTICIPANT.getUserName()), is(false));
-      assertThat(chatters.isPlayerConnected(CHAT_PARTICIPANT_2.getUserName()), is(false));
+      assertThat(
+          chatters.isPlayerConnected(UserName.of(CHAT_PARTICIPANT.getUserName())), is(false));
+      assertThat(
+          chatters.isPlayerConnected(UserName.of(CHAT_PARTICIPANT_2.getUserName())), is(false));
     }
 
     @Test
@@ -106,8 +106,9 @@ class ChattersTest {
       chatters.connectPlayer(buildChatterSession(session));
 
       // one chatter is added
-      assertThat(chatters.isPlayerConnected(CHAT_PARTICIPANT.getUserName()), is(true));
-      assertThat(chatters.isPlayerConnected(CHAT_PARTICIPANT_2.getUserName()), is(false));
+      assertThat(chatters.isPlayerConnected(UserName.of(CHAT_PARTICIPANT.getUserName())), is(true));
+      assertThat(
+          chatters.isPlayerConnected(UserName.of(CHAT_PARTICIPANT_2.getUserName())), is(false));
     }
   }
 
@@ -160,7 +161,7 @@ class ChattersTest {
         .session(session)
         .chatParticipant(CHAT_PARTICIPANT)
         .apiKeyId(123)
-        .ip(IpAddressParser.fromString("1.1.1.1"))
+        .ip(InetAddresses.forString("1.1.1.1"))
         .build();
   }
 
@@ -169,7 +170,8 @@ class ChattersTest {
     @Test
     void noOpIfPlayerNotConnected() {
       final boolean result =
-          chatters.disconnectPlayerByName(CHAT_PARTICIPANT.getUserName(), "disconnect message");
+          chatters.disconnectPlayerByName(
+              UserName.of(CHAT_PARTICIPANT.getUserName()), "disconnect message");
       assertThat(result, is(false));
     }
 
@@ -179,7 +181,8 @@ class ChattersTest {
       chatters.connectPlayer(buildChatterSession(session));
 
       final boolean result =
-          chatters.disconnectPlayerByName(CHAT_PARTICIPANT.getUserName(), "disconnect message");
+          chatters.disconnectPlayerByName(
+              UserName.of(CHAT_PARTICIPANT.getUserName()), "disconnect message");
       assertThat(result, is(true));
 
       verify(session).close(any(CloseReason.class));
@@ -195,7 +198,8 @@ class ChattersTest {
       chatters.connectPlayer(buildChatterSession(session2));
 
       final boolean result =
-          chatters.disconnectPlayerByName(CHAT_PARTICIPANT.getUserName(), "disconnect message");
+          chatters.disconnectPlayerByName(
+              UserName.of(CHAT_PARTICIPANT.getUserName()), "disconnect message");
       assertThat(result, is(true));
 
       verify(session).close(any(CloseReason.class));
@@ -208,7 +212,7 @@ class ChattersTest {
     @Test
     void noOpIfPlayerNotConnected() {
       final boolean result =
-          chatters.disconnectIp(IpAddressParser.fromString("1.1.1.1"), "disconnect message");
+          chatters.disconnectIp(InetAddresses.forString("1.1.1.1"), "disconnect message");
       assertThat(result, is(false));
     }
 
@@ -244,13 +248,12 @@ class ChattersTest {
 
   @Nested
   class Muting {
-    private final Instant now = utcInstantOf(2000, 1, 1, 12, 20);
+    private final Instant now = LocalDateTime.of(2000, 1, 1, 12, 20).toInstant(ZoneOffset.UTC);
 
     @Test
     @DisplayName("With no players connected, checking if a player is muted is trivially false")
     void playerIsNotConnected() {
-      assertThat(
-          chatters.getPlayerMuteExpiration(IpAddressParser.fromString("1.1.1.1")), isEmpty());
+      assertThat(chatters.getPlayerMuteExpiration(InetAddresses.forString("1.1.1.1")), isEmpty());
     }
 
     @Test
@@ -261,7 +264,7 @@ class ChattersTest {
       chatters.connectPlayer(chatterSession);
 
       final Optional<Instant> result =
-          chatters.getPlayerMuteExpiration(IpAddressParser.fromString("55.55.55.55"));
+          chatters.getPlayerMuteExpiration(InetAddresses.forString("55.55.55.55"));
 
       assertThat(result, isEmpty());
     }

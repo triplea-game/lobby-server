@@ -12,13 +12,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import org.jdbi.v3.core.Jdbi;
-import org.triplea.domain.data.LobbyConstants;
-import org.triplea.http.client.LobbyHttpClientConfig;
-import org.triplea.http.client.lobby.login.LobbyLoginClient;
+import org.triplea.http.client.ServerPaths;
+import org.triplea.http.client.lobby.LobbyConstants;
 import org.triplea.http.client.lobby.login.LobbyLoginResponse;
 import org.triplea.http.client.lobby.login.LoginRequest;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.lobby.server.IpAddressExtractor;
+import org.triplea.lobby.server.LobbyHeaders;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.user.account.login.LoginModule;
 
@@ -39,7 +39,7 @@ public class LoginController extends HttpController {
   }
 
   @POST
-  @Path(LobbyLoginClient.LOGIN_PATH)
+  @Path(ServerPaths.LOGIN_PATH)
   public LobbyLoginResponse login(
       @Context final RoutingContext routingContext, final LoginRequest loginRequest) {
     if (loginRequest == null) {
@@ -57,7 +57,7 @@ public class LoginController extends HttpController {
 
     return loginModule.doLogin(
         loginRequest,
-        routingContext.request().getHeader(LobbyHttpClientConfig.SYSTEM_ID_HEADER),
+        routingContext.request().getHeader(LobbyHeaders.SYSTEM_ID_HEADER),
         IpAddressExtractor.extractIpAddress(routingContext));
   }
 }

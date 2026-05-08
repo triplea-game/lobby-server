@@ -1,7 +1,6 @@
 package org.triplea.db.dao.moderator;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -14,7 +13,7 @@ import org.triplea.db.dao.user.role.UserRole;
 @ApplicationScoped
 @RequiredArgsConstructor
 public class ModeratorsDao {
-  @Inject private final Jdbi jdbi;
+  private final Jdbi jdbi;
 
   public List<ModeratorUserDaoData> getUserByRole(Collection<String> roles) {
     return jdbi.withHandle(

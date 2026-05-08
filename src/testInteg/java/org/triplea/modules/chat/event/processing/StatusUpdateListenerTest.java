@@ -1,7 +1,6 @@
 package org.triplea.modules.chat.event.processing;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,13 +14,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.domain.data.UserName;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerStatusUpdateReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerStatusUpdateSentMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerStatusUpdateReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerStatusUpdateSentMessage;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
+import org.triplea.modules.user.account.login.LoginModule;
 import org.triplea.web.socket.WebSocketMessageContext;
 import org.triplea.web.socket.WebSocketSession;
 
@@ -53,10 +51,7 @@ class StatusUpdateListenerTest {
     when(messageContext.getMessage()).thenReturn(new PlayerStatusUpdateSentMessage("status"));
     givenChatterSession(
         session,
-        ChatParticipant.builder()
-            .playerChatId(PlayerChatId.newId().getValue())
-            .userName("user-name")
-            .build());
+        ChatParticipant.builder().playerChatId(LoginModule.newId()).userName("user-name").build());
 
     statusUpdateListener.accept(messageContext);
 
@@ -78,7 +73,7 @@ class StatusUpdateListenerTest {
 
   private static void verifyMessageContents(
       final PlayerStatusUpdateReceivedMessage chatReceivedMessage) {
-    assertThat(chatReceivedMessage.getStatus(), is("status"));
-    assertThat(chatReceivedMessage.getUserName(), is(UserName.of("user-name")));
+    assertThat(chatReceivedMessage.getStatus()).isEqualTo("status");
+    assertThat(chatReceivedMessage.getUserName()).isEqualTo("user-name");
   }
 }
