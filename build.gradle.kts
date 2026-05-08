@@ -102,8 +102,8 @@ dependencies {
     implementation("io.quarkus:quarkus-smallrye-health")    // health checks
 
     // JDBI — framework-agnostic, wires against any DataSource
-    implementation("org.jdbi:jdbi3-core:3.49.5")
-    implementation("org.jdbi:jdbi3-sqlobject:3.49.5")
+    implementation("org.jdbi:jdbi3-core:3.53.0")
+    implementation("org.jdbi:jdbi3-sqlobject:3.53.0")
 
     // Utility libraries (no longer pulled in transitively post-DropWizard removal)
     implementation("com.google.guava:guava")
