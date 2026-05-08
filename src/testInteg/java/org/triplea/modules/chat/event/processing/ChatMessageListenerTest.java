@@ -9,6 +9,7 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,15 +21,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.chat.history.LobbyChatHistoryDao;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.domain.data.UserName;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatSentMessage;
-import org.triplea.java.IpAddressParser;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatEventReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatSentMessage;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
+import org.triplea.modules.user.account.login.LoginModule;
 import org.triplea.web.socket.WebSocketMessageContext;
 import org.triplea.web.socket.WebSocketSession;
 
@@ -54,11 +53,11 @@ class ChatMessageListenerTest {
             .session(session)
             .chatParticipant(
                 ChatParticipant.builder()
-                    .playerChatId(PlayerChatId.newId().getValue())
+                    .playerChatId(LoginModule.newId())
                     .userName("user-name")
                     .build())
             .apiKeyId(123)
-            .ip(IpAddressParser.fromString("3.3.3.3"))
+            .ip(InetAddresses.forString("3.3.3.3"))
             .build();
   }
 
@@ -90,8 +89,7 @@ class ChatMessageListenerTest {
     final ChatReceivedMessage chatReceivedMessage = messageCaptor.getValue();
     assertThat(chatReceivedMessage.getMessage(), is("message"));
     assertThat(
-        chatReceivedMessage.getSender(),
-        is(UserName.of(chatterSession.getChatParticipant().getUserName().getValue())));
+        chatReceivedMessage.getSender(), is(chatterSession.getChatParticipant().getUserName()));
     verify(lobbyChatHistoryDao, timeout(1000)).recordMessage(chatReceivedMessage, 123);
   }
 

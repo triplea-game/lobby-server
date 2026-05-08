@@ -4,7 +4,7 @@ import java.net.InetAddress;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import org.triplea.domain.data.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
 import org.triplea.web.socket.WebSocketSession;
 
 @Getter

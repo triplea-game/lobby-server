@@ -11,8 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.moderator.MuteUserRequest;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.chat.Chatters;
@@ -27,14 +26,13 @@ public class MuteUserController extends HttpController {
   @Inject Chatters chatters;
 
   @POST
-  @Path(ModeratorLobbyClient.MUTE_USER)
+  @Path(ServerPaths.MUTE_USER)
   public Response muteUser(final MuteUserRequest muteUserRequest) {
     Preconditions.checkArgument(muteUserRequest != null);
     Preconditions.checkArgument(muteUserRequest.getPlayerChatId() != null);
     Preconditions.checkArgument(muteUserRequest.getMinutes() > 0);
 
-    chatters.mutePlayer(
-        PlayerChatId.of(muteUserRequest.getPlayerChatId()), muteUserRequest.getMinutes());
+    chatters.mutePlayer(muteUserRequest.getPlayerChatId(), muteUserRequest.getMinutes());
     return Response.ok().build();
   }
 }

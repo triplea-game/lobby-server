@@ -3,7 +3,6 @@ package org.triplea.modules.user.account.login;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import lombok.Value;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
 import org.triplea.domain.data.UserName;
 
@@ -13,5 +12,5 @@ public class LoginRecord {
   @Nonnull private final UserName userName;
   @Nonnull private String ip;
   @Nonnull private final SystemId systemId;
-  @Nonnull private final PlayerChatId playerChatId;
+  @Nonnull private final String playerChatId;
 }

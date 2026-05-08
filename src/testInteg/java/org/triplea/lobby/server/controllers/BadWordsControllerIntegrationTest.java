@@ -1,58 +1,60 @@
 package org.triplea.lobby.server.controllers;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.collection.IsEmptyCollection.empty;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsNot.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.moderator.toolbox.words.ToolboxBadWordsClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class BadWordsControllerIntegrationTest extends ControllerIntegrationTest {
-  private ToolboxBadWordsClient client;
+
+  private static final String GET_PATH = "/lobby/moderator-toolbox/bad-words/get";
+  private static final String ADD_PATH = "/lobby/moderator-toolbox/bad-words/add";
+  private static final String REMOVE_PATH = "/lobby/moderator-toolbox/bad-words/remove";
+
+  private LobbyHttpClientHelper client;
 
   @BeforeEach
   void setUp() {
-    client = ToolboxBadWordsClient.newClient(localhost, MODERATOR);
+    client = new LobbyHttpClientHelper(localhost, MODERATOR);
+  }
+
+  private List<String> getBadWords() {
+    return Arrays.asList(client.get(GET_PATH, String[].class));
   }
 
   @Test
   void badRequests() {
-    assertBadRequest(() -> client.addBadWord(""));
-    assertBadRequest(() -> client.removeBadWord(""));
+    assertBadRequest(() -> client.post(ADD_PATH, ""));
+    assertBadRequest(() -> client.post(REMOVE_PATH, ""));
   }
 
   @Test
   void listBadWords() {
-    assertThat(client.getBadWords(), is(not(empty())));
+    assertThat(getBadWords()).isNotEmpty();
   }
 
   @Test
   void removeBadWord() {
-    final List<String> badWords = client.getBadWords();
-
-    // remember the first entry
+    final List<String> badWords = getBadWords();
     final String firstBadWord = badWords.get(0);
 
-    // remove the first entry
-    client.removeBadWord(firstBadWord);
+    client.post(REMOVE_PATH, firstBadWord);
 
-    // make sure entry is removed from listing
-    assertThat(client.getBadWords(), not(hasItem(firstBadWord)));
+    assertThat(getBadWords()).doesNotContain(firstBadWord);
   }
 
   @Test
   void addBadWord() {
-    assertThat(client.getBadWords(), not(hasItem("bad-word-to-be-added")));
+    assertThat(getBadWords()).doesNotContain("bad-word-to-be-added");
 
-    client.addBadWord("bad-word-to-be-added");
+    client.post(ADD_PATH, "bad-word-to-be-added");
 
-    assertThat(client.getBadWords(), hasItem("bad-word-to-be-added"));
+    assertThat(getBadWords()).contains("bad-word-to-be-added");
   }
 }

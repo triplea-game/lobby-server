@@ -4,18 +4,19 @@ import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.triplea.domain.data.PlayerChatId;
-import org.triplea.http.client.lobby.moderator.ModeratorLobbyClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class DisconnectUserControllerIntegrationTest extends ControllerIntegrationTest {
-  private static final PlayerChatId CHAT_ID = PlayerChatId.of("chat-id");
-  ModeratorLobbyClient client;
+
+  private static final String DISCONNECT_PATH = "/lobby/moderator/disconnect-player";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    this.client = ModeratorLobbyClient.newClient(localhost, MODERATOR);
+    this.client = new LobbyHttpClientHelper(localhost, MODERATOR);
   }
 
   @SuppressWarnings("unchecked")
@@ -23,13 +24,13 @@ public class DisconnectUserControllerIntegrationTest extends ControllerIntegrati
   void mustBeAuthorized() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ModeratorLobbyClient.newClient(localhost, apiKey),
-        client -> client.disconnectPlayer("chat-id"));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c -> c.post(DISCONNECT_PATH, "chat-id"));
   }
 
   @Test
   @DisplayName("Send disconnect request, verify we get a 400 for chat-id not found")
   void disconnectPlayer() {
-    assertBadRequest(() -> client.disconnectPlayer(CHAT_ID.getValue()));
+    assertBadRequest(() -> client.post(DISCONNECT_PATH, "chat-id"));
   }
 }

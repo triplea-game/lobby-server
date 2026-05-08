@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.lobby.moderator.toolbox.management.ToolboxModeratorManagementClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.moderators.ModeratorsService;
 
@@ -40,27 +40,27 @@ public class ModeratorsController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxModeratorManagementClient.CHECK_USER_EXISTS_PATH)
+  @Path(ServerPaths.CHECK_USER_EXISTS_PATH)
   @RolesAllowed(UserRole.ADMIN)
   public Response checkUserExists(final String username) {
     return Response.ok().entity(moderatorsService.userExistsByName(username)).build();
   }
 
   @GET
-  @Path(ToolboxModeratorManagementClient.FETCH_MODERATORS_PATH)
+  @Path(ServerPaths.FETCH_MODERATORS_PATH)
   @RolesAllowed(UserRole.MODERATOR)
   public Response getModerators() {
     return Response.ok().entity(moderatorsService.fetchModerators()).build();
   }
 
   @GET
-  @Path(ToolboxModeratorManagementClient.IS_ADMIN_PATH)
+  @Path(ServerPaths.IS_ADMIN_PATH)
   public Response isAdmin(@Context final SecurityContext sc) {
     return Response.ok().entity(user(sc).getUserRole().equals(UserRole.ADMIN)).build();
   }
 
   @POST
-  @Path(ToolboxModeratorManagementClient.REMOVE_MOD_PATH)
+  @Path(ServerPaths.REMOVE_MOD_PATH)
   @RolesAllowed(UserRole.ADMIN)
   public Response removeMod(@Context final SecurityContext sc, final String moderatorName) {
     moderatorsService.removeMod(user(sc).getUserIdOrThrow(), moderatorName);
@@ -68,7 +68,7 @@ public class ModeratorsController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxModeratorManagementClient.ADD_ADMIN_PATH)
+  @Path(ServerPaths.ADD_ADMIN_PATH)
   @RolesAllowed(UserRole.ADMIN)
   public Response setAdmin(@Context final SecurityContext sc, final String moderatorName) {
     moderatorsService.addAdmin(user(sc).getUserIdOrThrow(), moderatorName);
@@ -76,7 +76,7 @@ public class ModeratorsController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxModeratorManagementClient.ADD_MODERATOR_PATH)
+  @Path(ServerPaths.ADD_MODERATOR_PATH)
   @RolesAllowed(UserRole.ADMIN)
   public Response addModerator(@Context final SecurityContext sc, final String username) {
     moderatorsService.addModerator(user(sc).getUserIdOrThrow(), username);

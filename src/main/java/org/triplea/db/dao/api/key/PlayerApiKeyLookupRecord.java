@@ -1,5 +1,6 @@
 package org.triplea.db.dao.api.key;
 
+import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import lombok.Builder;
@@ -8,7 +9,6 @@ import lombok.Getter;
 import lombok.ToString;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.java.Postconditions;
 
 /** Maps ResultSet data when querying for a users API key. */
 @Getter
@@ -42,16 +42,16 @@ public class PlayerApiKeyLookupRecord {
   }
 
   private void verifyState() {
-    Postconditions.assertState(!userRole.equals(UserRole.HOST));
+    Preconditions.checkState(!userRole.equals(UserRole.HOST));
 
     if (userRole.equals(UserRole.ANONYMOUS)) {
-      Postconditions.assertState(userId == null || userId == 0);
+      Preconditions.checkState(userId == null || userId == 0);
     } else {
-      Postconditions.assertState(
+      Preconditions.checkState(
           userId != null && userId > 0,
-          String.format(
-              "Non anonymouse users must have a user id, user id: %s, user role: %s",
-              userId, userRole));
+          "Non anonymouse users must have a user id, user id: %s, user role: %s",
+          userId,
+          userRole);
     }
   }
 }

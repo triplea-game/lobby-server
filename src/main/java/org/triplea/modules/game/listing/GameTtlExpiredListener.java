@@ -2,8 +2,8 @@ package org.triplea.modules.game.listing;
 
 import java.util.function.BiConsumer;
 import lombok.AllArgsConstructor;
-import org.triplea.domain.data.LobbyGame;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
+import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGame;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
 @AllArgsConstructor

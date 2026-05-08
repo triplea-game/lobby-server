@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -21,12 +22,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerApiKeyLookupRecord;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.ChatParticipant;
+import org.triplea.domain.data.UserName;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatterListingMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ConnectToChatMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerJoinedMessage;
 import org.triplea.http.client.web.socket.MessageEnvelope;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatterListingMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ConnectToChatMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerJoinedMessage;
-import org.triplea.java.IpAddressParser;
 import org.triplea.modules.chat.ChatterSession;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessageContext;
@@ -66,14 +67,14 @@ class PlayerConnectedListenerTest {
     apiKeyLookupRecord =
         PlayerApiKeyLookupRecord.builder()
             .userRole("role")
-            .username(CHAT_PARTICIPANT.getUserName().getValue())
+            .username(CHAT_PARTICIPANT.getUserName())
             .playerChatId("player-chat-id")
             .apiKeyId(123)
             .userId(33)
             .build();
     context =
         WebSocketMessageContext.<ConnectToChatMessage>builder()
-            .message(new ConnectToChatMessage(ApiKey.of("api-key")))
+            .message(new ConnectToChatMessage("api-key"))
             .messagingBus(webSocketMessagingBus)
             .senderSession(session)
             .build();
@@ -82,7 +83,7 @@ class PlayerConnectedListenerTest {
             .apiKeyId(apiKeyLookupRecord.getApiKeyId())
             .chatParticipant(CHAT_PARTICIPANT)
             .session(session)
-            .ip(IpAddressParser.fromString("5.5.5.5"))
+            .ip(InetAddresses.forString("5.5.5.5"))
             .build();
 
     playerConnectedListener =
@@ -109,7 +110,7 @@ class PlayerConnectedListenerTest {
 
   private void givenApiKeyLookupResult(
       @Nullable final PlayerApiKeyLookupRecord apiKeyLookupRecord) {
-    when(apiKeyDaoWrapper.lookupByApiKey(context.getMessage().getApiKey()))
+    when(apiKeyDaoWrapper.lookupByApiKey(ApiKey.of(context.getMessage().getApiKey())))
         .thenReturn(Optional.ofNullable(apiKeyLookupRecord));
   }
 
@@ -119,7 +120,7 @@ class PlayerConnectedListenerTest {
     givenApiKeyLookupResult(apiKeyLookupRecord);
 
     when(session.getRemoteAddress()).thenReturn(chatterSession.getIp());
-    when(chatters.isPlayerConnected(chatterSession.getChatParticipant().getUserName()))
+    when(chatters.isPlayerConnected(UserName.of(chatterSession.getChatParticipant().getUserName())))
         .thenReturn(false);
 
     playerConnectedListener.accept(context);
@@ -139,7 +140,7 @@ class PlayerConnectedListenerTest {
     givenApiKeyLookupResult(apiKeyLookupRecord);
 
     when(session.getRemoteAddress()).thenReturn(chatterSession.getIp());
-    when(chatters.isPlayerConnected(chatterSession.getChatParticipant().getUserName()))
+    when(chatters.isPlayerConnected(UserName.of(chatterSession.getChatParticipant().getUserName())))
         .thenReturn(true);
 
     playerConnectedListener.accept(context);

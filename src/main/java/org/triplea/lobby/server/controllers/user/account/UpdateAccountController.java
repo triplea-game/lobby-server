@@ -16,9 +16,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.user.account.FetchEmailResponse;
-import org.triplea.http.client.lobby.user.account.UserAccountClient;
-import org.triplea.java.ArgChecker;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.user.account.update.UpdateAccountService;
 
@@ -39,17 +38,17 @@ public class UpdateAccountController extends HttpController {
   }
 
   @POST
-  @Path(UserAccountClient.CHANGE_PASSWORD_PATH)
+  @Path(ServerPaths.CHANGE_PASSWORD_PATH)
   @RolesAllowed(UserRole.PLAYER)
   public Response changePassword(@Context final SecurityContext sc, final String newPassword) {
-    ArgChecker.checkNotEmpty(newPassword);
+    Preconditions.checkArgument(newPassword != null && !newPassword.isBlank());
     Preconditions.checkArgument(user(sc).getUserIdOrThrow() > 0);
     userAccountService.changePassword(user(sc).getUserIdOrThrow(), newPassword);
     return Response.ok().build();
   }
 
   @GET
-  @Path(UserAccountClient.FETCH_EMAIL_PATH)
+  @Path(ServerPaths.FETCH_EMAIL_PATH)
   @RolesAllowed(UserRole.PLAYER)
   public FetchEmailResponse fetchEmail(@Context final SecurityContext sc) {
     Preconditions.checkArgument(user(sc).getUserIdOrThrow() > 0);
@@ -57,10 +56,10 @@ public class UpdateAccountController extends HttpController {
   }
 
   @POST
-  @Path(UserAccountClient.CHANGE_EMAIL_PATH)
+  @Path(ServerPaths.CHANGE_EMAIL_PATH)
   @RolesAllowed(UserRole.PLAYER)
   public Response changeEmail(@Context final SecurityContext sc, final String newEmail) {
-    ArgChecker.checkNotEmpty(newEmail);
+    Preconditions.checkArgument(newEmail != null && !newEmail.isBlank());
     Preconditions.checkArgument(user(sc).getUserIdOrThrow() > 0);
     userAccountService.changeEmail(user(sc).getUserIdOrThrow(), newEmail);
     return Response.ok().build();

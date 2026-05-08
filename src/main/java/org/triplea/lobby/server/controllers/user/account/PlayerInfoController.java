@@ -15,9 +15,8 @@ import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.moderator.player.info.FetchPlayerInfoModule;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.domain.data.PlayerChatId;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.moderator.PlayerSummary;
-import org.triplea.http.client.lobby.player.PlayerLobbyActionsClient;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.modules.game.listing.GameListing;
@@ -41,13 +40,13 @@ public class PlayerInfoController extends HttpController {
   }
 
   @POST
-  @Path(PlayerLobbyActionsClient.FETCH_PLAYER_INFORMATION)
+  @Path(ServerPaths.FETCH_PLAYER_INFORMATION)
   public PlayerSummary fetchPlayerInfo(@Context final SecurityContext sc, final String playerId) {
     if (playerId == null) {
       throw new BadRequestException("playerId is null");
     }
     return UserRole.isModerator(user(sc).getUserRole())
-        ? fetchPlayerInfoModule.fetchPlayerInfoAsModerator(PlayerChatId.of(playerId))
-        : fetchPlayerInfoModule.fetchPlayerInfo(PlayerChatId.of(playerId));
+        ? fetchPlayerInfoModule.fetchPlayerInfoAsModerator(playerId)
+        : fetchPlayerInfoModule.fetchPlayerInfo(playerId);
   }
 }

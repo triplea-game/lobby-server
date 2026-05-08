@@ -32,7 +32,7 @@ class PlayerApiKeyLookupRecordTest {
   @ParameterizedTest
   @MethodSource
   void invalidStates(final Supplier<PlayerApiKeyLookupRecord> apiKeyLookupRecord) {
-    assertThrows(AssertionError.class, apiKeyLookupRecord::get);
+    assertThrows(IllegalStateException.class, apiKeyLookupRecord::get);
   }
 
   @SuppressWarnings("unused")

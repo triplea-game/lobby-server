@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.access.log.AccessLogDao;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
 import org.triplea.domain.data.UserName;
 
@@ -20,7 +19,7 @@ class AccessLogUpdaterTest {
   private static final LoginRecord REGISTERED_LOGIN_RECORD =
       LoginRecord.builder()
           .systemId(SystemId.of("system-id"))
-          .playerChatId(PlayerChatId.newId())
+          .playerChatId(LoginModule.newId())
           .ip("ip")
           .userName(UserName.of("player-name"))
           .build();

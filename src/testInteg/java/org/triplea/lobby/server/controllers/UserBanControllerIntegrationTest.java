@@ -8,22 +8,32 @@ import static org.triplea.test.common.matchers.CollectionMatchers.containsMapped
 import static org.triplea.test.common.matchers.CollectionMatchers.doesNotContainMappedItem;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.triplea.http.client.lobby.moderator.toolbox.banned.user.ToolboxUserBanClient;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanData;
 import org.triplea.http.client.lobby.moderator.toolbox.banned.user.UserBanParams;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class UserBanControllerIntegrationTest extends ControllerIntegrationTest {
 
-  private ToolboxUserBanClient client;
+  private static final String GET_USER_BANS_PATH = "/lobby/moderator-toolbox/get-user-bans";
+  private static final String REMOVE_USER_BAN_PATH = "/lobby/moderator-toolbox/remove-user-ban";
+  private static final String BAN_USER_PATH = "/lobby/moderator-toolbox/ban-user";
+
+  private LobbyHttpClientHelper client;
 
   @BeforeEach
   void setUp() {
-    client = ToolboxUserBanClient.newClient(localhost, MODERATOR);
+    client = new LobbyHttpClientHelper(localhost, MODERATOR);
+  }
+
+  private List<UserBanData> getUserBans() {
+    return Arrays.asList(client.get(GET_USER_BANS_PATH, UserBanData[].class));
   }
 
   @SuppressWarnings("unchecked")
@@ -31,37 +41,35 @@ public class UserBanControllerIntegrationTest extends ControllerIntegrationTest 
   void mustBeAuthorized() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ToolboxUserBanClient.newClient(localhost, apiKey),
-        ToolboxUserBanClient::getUserBans,
-        client ->
-            client.banUser(
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c -> c.get(GET_USER_BANS_PATH, UserBanData[].class),
+        c ->
+            c.post(
+                BAN_USER_PATH,
                 UserBanParams.builder()
                     .ip("ip")
                     .minutesToBan(10)
                     .systemId("system-id")
                     .username("username")
                     .build()),
-        client -> client.removeUserBan("some-username"));
+        c -> c.post(REMOVE_USER_BAN_PATH, "some-username"));
   }
 
   @Test
   void listUserBans() {
-    assertThat(client.getUserBans(), is(not(empty())));
+    assertThat(getUserBans(), is(not(empty())));
   }
 
-  /** Get list of banned users. Unban the first item. */
   @Test
   void removeUserNameBan() {
-    final UserBanData firstItem = client.getUserBans().get(0);
+    final UserBanData firstItem = getUserBans().get(0);
+
+    assertThat(getUserBans(), containsMappedItem(UserBanData::getBanId, firstItem.getBanId()));
+
+    client.post(REMOVE_USER_BAN_PATH, firstItem.getBanId());
 
     assertThat(
-        client.getUserBans(), containsMappedItem(UserBanData::getBanId, firstItem.getBanId()));
-
-    client.removeUserBan(firstItem.getBanId());
-
-    assertThat(
-        client.getUserBans(),
-        doesNotContainMappedItem(UserBanData::getBanId, firstItem.getBanId()));
+        getUserBans(), doesNotContainMappedItem(UserBanData::getBanId, firstItem.getBanId()));
   }
 
   /**
@@ -73,10 +81,10 @@ public class UserBanControllerIntegrationTest extends ControllerIntegrationTest 
   @Test
   void addUserNameBan() {
     final String userNameToBan = "user-name-to-ban-" + UUID.randomUUID().toString().substring(0, 5);
-    assertThat(
-        client.getUserBans(), doesNotContainMappedItem(UserBanData::getUsername, userNameToBan));
+    assertThat(getUserBans(), doesNotContainMappedItem(UserBanData::getUsername, userNameToBan));
 
-    client.banUser(
+    client.post(
+        BAN_USER_PATH,
         UserBanParams.builder()
             .username(userNameToBan)
             .systemId("system-id")
@@ -84,6 +92,6 @@ public class UserBanControllerIntegrationTest extends ControllerIntegrationTest 
             .ip("55.55.55.55")
             .build());
 
-    assertThat(client.getUserBans(), containsMappedItem(UserBanData::getUsername, userNameToBan));
+    assertThat(getUserBans(), containsMappedItem(UserBanData::getUsername, userNameToBan));
   }
 }

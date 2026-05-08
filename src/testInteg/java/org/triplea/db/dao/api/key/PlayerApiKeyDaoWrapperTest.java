@@ -24,7 +24,6 @@ import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.db.dao.user.role.UserRoleDao;
 import org.triplea.db.dao.user.role.UserRoleLookup;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
 import org.triplea.domain.data.UserName;
 
@@ -34,7 +33,7 @@ class PlayerApiKeyDaoWrapperTest {
   private static final ApiKey API_KEY = ApiKey.of("api-key");
   private static final String HASHED_KEY = "Dead, rainy shores proud swashbuckler";
   private static final UserName PLAYER_NAME = UserName.of("The_captain");
-  private static final PlayerChatId PLAYER_CHAT_ID = PlayerChatId.of("player-chat-id");
+  private static final String PLAYER_CHAT_ID = "player-chat-id";
   private static final SystemId SYSTEM_ID = SystemId.of("system-id");
   private static final int ANONYMOUS_ROLE_ID = 123;
   private static final PlayerIdentifiersByApiKeyLookup PLAYER_ID_LOOKUP =
@@ -109,7 +108,7 @@ class PlayerApiKeyDaoWrapperTest {
               PLAYER_NAME.getValue(),
               null,
               ANONYMOUS_ROLE_ID,
-              PLAYER_CHAT_ID.getValue(),
+              PLAYER_CHAT_ID,
               HASHED_KEY,
               SYSTEM_ID.getValue(),
               IP.getHostAddress()))
@@ -130,7 +129,7 @@ class PlayerApiKeyDaoWrapperTest {
               PLAYER_NAME.getValue(),
               USER_ROLE_LOOKUP.getUserId(),
               USER_ROLE_LOOKUP.getUserRoleId(),
-              PLAYER_CHAT_ID.getValue(),
+              PLAYER_CHAT_ID,
               HASHED_KEY,
               SYSTEM_ID.getValue(),
               IP.getHostAddress()))
@@ -144,7 +143,7 @@ class PlayerApiKeyDaoWrapperTest {
 
   @Test
   void lookupByPlayerChatId() {
-    when(lobbyApiKeyDao.lookupByPlayerChatId(PLAYER_CHAT_ID.getValue()))
+    when(lobbyApiKeyDao.lookupByPlayerChatId(PLAYER_CHAT_ID))
         .thenReturn(Optional.of(PLAYER_ID_LOOKUP));
 
     final Optional<PlayerIdentifiersByApiKeyLookup> result =
@@ -155,8 +154,7 @@ class PlayerApiKeyDaoWrapperTest {
 
   @Test
   void lookupUserByPlayerChatId() {
-    when(lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(PLAYER_CHAT_ID.getValue()))
-        .thenReturn(Optional.of(123));
+    when(lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(PLAYER_CHAT_ID)).thenReturn(Optional.of(123));
 
     final Optional<Integer> result = wrapper.lookupUserIdByChatId(PLAYER_CHAT_ID);
 
@@ -165,8 +163,7 @@ class PlayerApiKeyDaoWrapperTest {
 
   @Test
   void lookupUserByPlayerChatIdNotFoundCase() {
-    when(lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(PLAYER_CHAT_ID.getValue()))
-        .thenReturn(Optional.empty());
+    when(lobbyApiKeyDao.lookupPlayerIdByPlayerChatId(PLAYER_CHAT_ID)).thenReturn(Optional.empty());
 
     final Optional<Integer> result = wrapper.lookupUserIdByChatId(PLAYER_CHAT_ID);
 

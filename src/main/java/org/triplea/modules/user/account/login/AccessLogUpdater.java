@@ -1,11 +1,11 @@
 package org.triplea.modules.user.account.login;
 
+import com.google.common.base.Preconditions;
 import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.access.log.AccessLogDao;
-import org.triplea.java.Postconditions;
 
 @Builder
 class AccessLogUpdater implements Consumer<LoginRecord> {
@@ -26,6 +26,6 @@ class AccessLogUpdater implements Consumer<LoginRecord> {
             loginRecord.getIp(),
             loginRecord.getSystemId().getValue());
 
-    Postconditions.assertState(updateCount == 1);
+    Preconditions.checkState(updateCount == 1);
   }
 }

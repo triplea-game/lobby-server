@@ -2,9 +2,9 @@ package org.triplea.modules.chat.event.processing;
 
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import org.triplea.domain.data.ChatParticipant;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerStatusUpdateReceivedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.PlayerStatusUpdateSentMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatParticipant;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerStatusUpdateReceivedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.PlayerStatusUpdateSentMessage;
 import org.triplea.modules.chat.Chatters;
 import org.triplea.web.socket.WebSocketMessageContext;
 

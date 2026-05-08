@@ -16,7 +16,7 @@ import java.util.function.Function;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.api.key.GameHostingApiKeyDaoWrapper;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.http.client.lobby.game.hosting.request.GameHostingClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.game.hosting.request.GameHostingResponse;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.lobby.server.IpAddressExtractor;
@@ -43,7 +43,7 @@ public class GameHostingController extends HttpController {
   }
 
   @POST
-  @Path(GameHostingClient.GAME_HOSTING_REQUEST_PATH)
+  @Path(ServerPaths.GAME_HOSTING_REQUEST_PATH)
   public GameHostingResponse hostingRequest(@Context final RoutingContext routingContext) {
     String remoteIp = IpAddressExtractor.extractIpAddress(routingContext);
     try {

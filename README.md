@@ -1,5 +1,10 @@
 # lobby-server
 
+Quickstart, to run:
+```
+./gradlew build
+docker compose up
+```
 
 ## Lobby Server
 
@@ -63,8 +68,8 @@ The access token needs: public_repo, read:packages
 Create file (or append to):  `~/.gradle/gradle.properties`, the following:
 
 ```
-triplea.github.username=CHANGE_ME
-triplea.github.access.token=CHANGE_ME
+triplea_github_username=CHANGE_ME
+triplea_github_access.token=CHANGE_ME
 ```
 
 ### Building
@@ -79,6 +84,16 @@ Docker compose is used to start a database during build.
 That database is left running so that future builds can be faster
 and skip the DB setup, and to let developers to look at the database
 state after tests.
+
+### Faster repeat test runs (testcontainers reuse)
+
+Integration tests use Quarkus Dev Services / Testcontainers, which
+opt-in to container reuse. Enable reuse once on your machine to skip
+container teardown/startup between runs:
+
+```
+echo 'testcontainers.reuse.enable=true' >> ~/.testcontainers.properties
+```
 
 
 
@@ -270,4 +285,3 @@ To terminate the request, just throw a IllegalArgumentException, it'l be mapped 
 
 Make sure in addition to the `@Path` annotation on the endpoint method,
 ensure the controller class has a `@Path("")` annotation on it.
-

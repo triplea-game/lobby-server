@@ -1,6 +1,7 @@
 package org.triplea.lobby.server.controllers.lobby.moderation;
 
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,9 +16,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.remote.actions.RemoteActionsClient;
-import org.triplea.java.ArgChecker;
-import org.triplea.java.IpAddressParser;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.remote.actions.RemoteActionsModule;
 import org.triplea.server.qualifier.GameConnections;
@@ -45,7 +44,7 @@ public class RemoteActionsController extends HttpController {
   }
 
   @POST
-  @Path(RemoteActionsClient.SEND_SHUTDOWN_PATH)
+  @Path(ServerPaths.SEND_SHUTDOWN_PATH)
   @RolesAllowed(UserRole.MODERATOR)
   public Response sendShutdownSignal(@Context final SecurityContext sc, final String gameId) {
     Preconditions.checkNotNull(gameId);
@@ -54,12 +53,12 @@ public class RemoteActionsController extends HttpController {
   }
 
   @POST
-  @Path(RemoteActionsClient.IS_PLAYER_BANNED_PATH)
+  @Path(ServerPaths.IS_PLAYER_BANNED_PATH)
   @RolesAllowed(UserRole.HOST)
   public Response isUserBanned(final String ipAddress) {
-    ArgChecker.checkNotEmpty(ipAddress);
-    Preconditions.checkArgument(IpAddressParser.isValid(ipAddress));
-    final boolean result = remoteActionsModule.isUserBanned(IpAddressParser.fromString(ipAddress));
+    Preconditions.checkArgument(ipAddress != null && !ipAddress.isBlank());
+    Preconditions.checkArgument(InetAddresses.isInetAddress(ipAddress));
+    final boolean result = remoteActionsModule.isUserBanned(InetAddresses.forString(ipAddress));
     return Response.ok().entity(result).build();
   }
 }

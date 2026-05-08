@@ -10,10 +10,10 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.function.Function;
 import org.jdbi.v3.core.Jdbi;
-import org.triplea.domain.data.LobbyConstants;
+import org.triplea.http.client.ServerPaths;
+import org.triplea.http.client.lobby.LobbyConstants;
 import org.triplea.http.client.lobby.login.CreateAccountRequest;
 import org.triplea.http.client.lobby.login.CreateAccountResponse;
-import org.triplea.http.client.lobby.login.LobbyLoginClient;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.lobby.server.controllers.ArgConditions;
 import org.triplea.modules.user.account.create.CreateAccountModule;
@@ -34,7 +34,7 @@ public class CreateAccountController extends HttpController {
   }
 
   @POST
-  @Path(LobbyLoginClient.CREATE_ACCOUNT)
+  @Path(ServerPaths.CREATE_ACCOUNT)
   public CreateAccountResponse createAccount(final CreateAccountRequest createAccountRequest) {
     ArgConditions.assertNotNull(createAccountRequest, "Create account request cannot be null");
     ArgConditions.assertNotNull(createAccountRequest.getUsername(), "Username cannot be null");

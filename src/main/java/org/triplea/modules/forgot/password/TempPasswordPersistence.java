@@ -1,6 +1,11 @@
 package org.triplea.modules.forgot.password;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.Locale;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
 import lombok.AccessLevel;
@@ -8,7 +13,6 @@ import lombok.AllArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.temp.password.TempPasswordDao;
 import org.triplea.http.client.forgot.password.ForgotPasswordRequest;
-import org.triplea.java.Sha512Hasher;
 import org.triplea.modules.user.account.PasswordBCrypter;
 
 /**
@@ -26,8 +30,23 @@ class TempPasswordPersistence {
   static TempPasswordPersistence newInstance(final Jdbi jdbi) {
     return new TempPasswordPersistence(
         new TempPasswordDao(jdbi),
-        Sha512Hasher::hashPasswordWithSalt,
+        TempPasswordPersistence::hashPasswordWithSalt,
         PasswordBCrypter::hashPassword);
+  }
+
+  private static String hashPasswordWithSalt(final String password) {
+    if (password.isBlank()) {
+      return password;
+    }
+    try {
+      return HexFormat.of()
+          .formatHex(
+              MessageDigest.getInstance("SHA-512")
+                  .digest(("TripleA" + password).getBytes(StandardCharsets.UTF_8)))
+          .toLowerCase(Locale.ROOT);
+    } catch (final NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-512 is not supported!", e);
+    }
   }
 
   boolean storeTempPassword(

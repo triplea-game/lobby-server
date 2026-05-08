@@ -9,8 +9,8 @@ import org.triplea.db.dao.api.key.PlayerApiKeyDaoWrapper;
 import org.triplea.db.dao.api.key.PlayerIdentifiersByApiKeyLookup;
 import org.triplea.db.dao.user.history.PlayerHistoryDao;
 import org.triplea.db.dao.user.history.PlayerHistoryRecord;
-import org.triplea.domain.data.PlayerChatId;
 import org.triplea.domain.data.SystemId;
+import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.moderator.PlayerSummary;
 import org.triplea.http.client.lobby.moderator.PlayerSummary.Alias;
 import org.triplea.http.client.lobby.moderator.PlayerSummary.BanInformation;
@@ -35,16 +35,15 @@ public class FetchPlayerInfoModule {
         gameListing);
   }
 
-  public PlayerSummary fetchPlayerInfoAsModerator(final PlayerChatId playerChatId) {
+  public PlayerSummary fetchPlayerInfoAsModerator(final String playerChatId) {
     return fetchPlayerInfo(true, playerChatId);
   }
 
-  public PlayerSummary fetchPlayerInfo(final PlayerChatId playerChatId) {
+  public PlayerSummary fetchPlayerInfo(final String playerChatId) {
     return fetchPlayerInfo(false, playerChatId);
   }
 
-  private PlayerSummary fetchPlayerInfo(
-      final boolean isModerator, final PlayerChatId playerChatId) {
+  private PlayerSummary fetchPlayerInfo(final boolean isModerator, final String playerChatId) {
     final var chatterSession =
         chatters.lookupPlayerByChatId(playerChatId).orElseThrow(this::playerLeftChatException);
 
@@ -53,7 +52,7 @@ public class FetchPlayerInfoModule {
             .registrationDateEpochMillis(lookupRegistrationDate(playerChatId))
             .currentGames(
                 gameListing.getGameNamesPlayerHasJoined(
-                    chatterSession.getChatParticipant().getUserName()));
+                    UserName.of(chatterSession.getChatParticipant().getUserName())));
 
     // if a moderator is requesting player data, then attach ban and aliases information
     if (isModerator) {
@@ -75,7 +74,7 @@ public class FetchPlayerInfoModule {
   }
 
   @Nullable
-  private Long lookupRegistrationDate(final PlayerChatId playerChatId) {
+  private Long lookupRegistrationDate(final String playerChatId) {
     return apiKeyDaoWrapper
         .lookupUserIdByChatId(playerChatId)
         .flatMap(playerHistoryDao::lookupPlayerHistoryByUserId)

@@ -16,9 +16,9 @@ import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.triplea.db.dao.user.role.UserRole;
 import org.triplea.domain.data.UserName;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingResponse;
-import org.triplea.http.client.lobby.game.lobby.watcher.LobbyWatcherClient;
 import org.triplea.http.client.lobby.game.lobby.watcher.PlayerJoinedNotification;
 import org.triplea.http.client.lobby.game.lobby.watcher.PlayerLeftNotification;
 import org.triplea.http.client.lobby.game.lobby.watcher.UpdateGameRequest;
@@ -50,7 +50,7 @@ public class LobbyWatcherController extends HttpController {
   }
 
   @POST
-  @Path(LobbyWatcherClient.POST_GAME_PATH)
+  @Path(ServerPaths.POST_GAME_PATH)
   public GamePostingResponse postGame(
       @Context final SecurityContext sc, final GamePostingRequest gamePostingRequest) {
     Preconditions.checkArgument(gamePostingRequest != null);
@@ -82,7 +82,7 @@ public class LobbyWatcherController extends HttpController {
   }
 
   @POST
-  @Path(LobbyWatcherClient.REMOVE_GAME_PATH)
+  @Path(ServerPaths.REMOVE_GAME_PATH)
   public Response removeGame(@Context final SecurityContext sc, final String gameId) {
     gameListing.removeGame(user(sc).getApiKey(), gameId);
     return Response.ok().build();
@@ -93,13 +93,13 @@ public class LobbyWatcherController extends HttpController {
    * already removed and the host should re-post.
    */
   @POST
-  @Path(LobbyWatcherClient.KEEP_ALIVE_PATH)
+  @Path(ServerPaths.KEEP_ALIVE_PATH)
   public boolean keepAlive(@Context final SecurityContext sc, final String gameId) {
     return gameListing.keepAlive(user(sc).getApiKey(), gameId);
   }
 
   @POST
-  @Path(LobbyWatcherClient.UPDATE_GAME_PATH)
+  @Path(ServerPaths.UPDATE_GAME_PATH)
   public Response updateGame(
       @Context final SecurityContext sc, final UpdateGameRequest updateGameRequest) {
     gameListing.updateGame(
@@ -108,7 +108,7 @@ public class LobbyWatcherController extends HttpController {
   }
 
   @POST
-  @Path(LobbyWatcherClient.PLAYER_JOINED_PATH)
+  @Path(ServerPaths.PLAYER_JOINED_PATH)
   public Response playerJoinedGame(
       @Context final SecurityContext sc, final PlayerJoinedNotification playerJoinedNotification) {
     gameListing.addPlayerToGame(
@@ -119,7 +119,7 @@ public class LobbyWatcherController extends HttpController {
   }
 
   @POST
-  @Path(LobbyWatcherClient.PLAYER_LEFT_PATH)
+  @Path(ServerPaths.PLAYER_LEFT_PATH)
   public Response playerLeftGame(
       @Context final SecurityContext sc, final PlayerLeftNotification playerLeftNotification) {
     gameListing.removePlayerFromGame(

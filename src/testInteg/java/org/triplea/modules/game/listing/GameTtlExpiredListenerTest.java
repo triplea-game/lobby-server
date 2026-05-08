@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.TestData;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
 @ExtendWith(MockitoExtension.class)

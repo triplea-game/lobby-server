@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import java.util.Collection;
 import org.triplea.db.dao.user.role.UserRole;
-import org.triplea.http.client.lobby.game.lobby.watcher.GameListingClient;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGameListing;
 import org.triplea.lobby.server.access.authentication.AuthenticatedUser;
 import org.triplea.modules.game.listing.GameListing;
@@ -32,7 +32,7 @@ public class GameListingController {
 
   /** Returns a listing of the current games. */
   @GET
-  @Path(GameListingClient.FETCH_GAMES_PATH)
+  @Path(ServerPaths.FETCH_GAMES_PATH)
   @RolesAllowed(UserRole.ANONYMOUS)
   public Collection<LobbyGameListing> fetchGames() {
     return gameListing.getGames();
@@ -40,7 +40,7 @@ public class GameListingController {
 
   /** Moderator action to remove a game. */
   @POST
-  @Path(GameListingClient.BOOT_GAME_PATH)
+  @Path(ServerPaths.BOOT_GAME_PATH)
   @RolesAllowed(UserRole.MODERATOR)
   public Response bootGame(@Context final SecurityContext sc, final String gameId) {
     gameListing.bootGame(((AuthenticatedUser) sc.getUserPrincipal()).getUserIdOrThrow(), gameId);

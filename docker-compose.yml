@@ -1,4 +1,4 @@
-# This docker-compose file depends on './gradlew shadowJar'
+# This docker-compose file depends on './gradlew build'
 #
 # Launches all of the background servers used by TripleA.
 # The main entrypoint to those services is NGINX which
@@ -23,25 +23,9 @@ services:
       timeout: 3s
       start_period: 20s
 
-  sample-data:
-    build:
-      context: database/sample_data/
-      dockerfile: Dockerfile
-    command: >
-      -locations=filesystem:/flyway/sql
-      -connectRetries=60
-      -user=lobby_user
-      -password=lobby_user
-      -url=jdbc:postgresql://database:5432/lobby_db
-      migrate
-    depends_on:
-      lobby:
-        condition: service_healthy
   lobby:
     build:
       dockerfile: Dockerfile
-    volumes:
-      - ./build/libs/lobby-server.jar:/lobby-server.jar
     environment:
       - DATABASE_USER=lobby_user
       - DATABASE_PASSWORD=lobby_user
@@ -57,4 +41,15 @@ services:
       start_period: 30s
     depends_on:
       database:
+        condition: service_healthy
+
+  sample-data:
+    image: postgres:18
+    entrypoint: ["psql", "-h", "database", "-U", "lobby_user", "-d", "lobby_db", "-f", "/sample-data.sql"]
+    environment:
+      PGPASSWORD: lobby_user
+    volumes:
+      - ./database/sample_data/R__lobby_db_sample_data.sql:/sample-data.sql
+    depends_on:
+      lobby:
         condition: service_healthy

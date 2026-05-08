@@ -13,8 +13,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.role.UserRole;
+import org.triplea.http.client.ServerPaths;
 import org.triplea.http.client.lobby.moderator.toolbox.log.AccessLogRequest;
-import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxAccessLogClient;
 import org.triplea.lobby.server.HttpController;
 import org.triplea.modules.moderation.access.log.AccessLogService;
 
@@ -36,7 +36,7 @@ public class AccessLogController extends HttpController {
   }
 
   @POST
-  @Path(ToolboxAccessLogClient.FETCH_ACCESS_LOG_PATH)
+  @Path(ServerPaths.FETCH_ACCESS_LOG_PATH)
   public Response fetchAccessLog(final AccessLogRequest accessLogRequest) {
     Preconditions.checkNotNull(accessLogRequest);
     Preconditions.checkNotNull(accessLogRequest.getAccessLogSearchRequest());

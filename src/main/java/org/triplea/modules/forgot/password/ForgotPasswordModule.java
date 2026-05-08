@@ -14,7 +14,6 @@ import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.temp.password.TempPasswordHistoryDao;
 import org.triplea.http.client.forgot.password.ForgotPasswordRequest;
-import org.triplea.java.StringUtils;
 
 /**
  * Module to orchestrate generating a temporary password for a user, storing that password in the
@@ -58,7 +57,7 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
 
   @Override
   public String apply(final String inetAddress, final ForgotPasswordRequest forgotPasswordRequest) {
-    checkArgument(!StringUtils.isNullOrBlank(inetAddress));
+    checkArgument(inetAddress != null && !inetAddress.isBlank());
     try {
       //noinspection ResultOfMethodCallIgnored
       InetAddress.getAllByName(inetAddress);
@@ -66,8 +65,11 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
       throw new IllegalArgumentException("Invalid IP address: " + inetAddress);
     }
     checkNotNull(forgotPasswordRequest);
-    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getUsername()));
-    checkArgument(!StringUtils.isNullOrBlank(forgotPasswordRequest.getEmail()));
+    checkArgument(
+        forgotPasswordRequest.getUsername() != null
+            && !forgotPasswordRequest.getUsername().isBlank());
+    checkArgument(
+        forgotPasswordRequest.getEmail() != null && !forgotPasswordRequest.getEmail().isBlank());
 
     if (!tempPasswordHistory.allowRequestFromAddress(inetAddress)) {
       return ERROR_TOO_MANY_REQUESTS;

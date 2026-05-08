@@ -8,7 +8,6 @@ import javax.annotation.Nonnull;
 import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.java.Postconditions;
 
 /** Wrapper to abstract away DB details of how API key is stored and to provide convenience APIs. */
 @Builder
@@ -38,7 +37,7 @@ public class GameHostingApiKeyDaoWrapper {
     final ApiKey key = keyMaker.get();
     final int insertCount =
         gameHostApiKeyDao.insertKey(keyHashingFunction.apply(key), ip.getHostAddress());
-    Postconditions.assertState(insertCount == 1);
+    Preconditions.checkState(insertCount == 1);
     return key;
   }
 }

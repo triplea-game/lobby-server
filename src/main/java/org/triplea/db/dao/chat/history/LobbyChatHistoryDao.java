@@ -1,13 +1,11 @@
 package org.triplea.db.dao.chat.history;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.jdbi.v3.core.Jdbi;
 import org.slf4j.LoggerFactory;
-import org.triplea.http.client.web.socket.messages.envelopes.chat.ChatReceivedMessage;
-import org.triplea.java.StringUtils;
-import org.triplea.java.concurrency.AsyncRunner;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.chat.ChatReceivedMessage;
 
 /** Lobby chat history records lobby chat messages. */
 @ApplicationScoped
@@ -15,19 +13,22 @@ import org.triplea.java.concurrency.AsyncRunner;
 public class LobbyChatHistoryDao {
   static final int MESSAGE_COLUMN_LENGTH = 240;
 
-  @Inject private final Jdbi jdbi;
+  private final Jdbi jdbi;
 
   public void recordMessage(ChatReceivedMessage chatReceivedMessage, int apiKeyId) {
-    AsyncRunner.runAsync(
-            () ->
-                insertMessage(
-                    chatReceivedMessage.getSender().getValue(),
-                    apiKeyId,
-                    StringUtils.truncate(chatReceivedMessage.getMessage(), MESSAGE_COLUMN_LENGTH)))
+    final String truncated =
+        chatReceivedMessage
+            .getMessage()
+            .substring(
+                0, Math.min(chatReceivedMessage.getMessage().length(), MESSAGE_COLUMN_LENGTH));
+    CompletableFuture.runAsync(
+            () -> insertMessage(chatReceivedMessage.getSender(), apiKeyId, truncated))
         .exceptionally(
-            e ->
-                LoggerFactory.getLogger("triplea.dao")
-                    .error("Error recording chat message in database history table", e));
+            e -> {
+              LoggerFactory.getLogger("triplea.dao")
+                  .error("Error recording chat message in database history table", e);
+              return null;
+            });
   }
 
   /**

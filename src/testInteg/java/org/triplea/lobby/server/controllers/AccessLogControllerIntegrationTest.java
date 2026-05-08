@@ -8,20 +8,26 @@ import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 import io.quarkus.test.junit.QuarkusTest;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.http.client.lobby.moderator.toolbox.PagingParams;
+import org.triplea.http.client.lobby.moderator.toolbox.log.AccessLogData;
+import org.triplea.http.client.lobby.moderator.toolbox.log.AccessLogRequest;
 import org.triplea.http.client.lobby.moderator.toolbox.log.AccessLogSearchRequest;
-import org.triplea.http.client.lobby.moderator.toolbox.log.ToolboxAccessLogClient;
 import org.triplea.lobby.server.ControllerIntegrationTest;
+import org.triplea.lobby.server.LobbyHttpClientHelper;
 
 @QuarkusTest
 public class AccessLogControllerIntegrationTest extends ControllerIntegrationTest {
-  ToolboxAccessLogClient client;
+
+  private static final String ACCESS_LOG_PATH = "/lobby/moderator-toolbox/access-log";
+
+  LobbyHttpClientHelper client;
 
   @BeforeEach
   void setup() {
-    this.client = ToolboxAccessLogClient.newClient(localhost, MODERATOR);
+    this.client = new LobbyHttpClientHelper(localhost, MODERATOR);
   }
 
   @SuppressWarnings("unchecked")
@@ -29,17 +35,32 @@ public class AccessLogControllerIntegrationTest extends ControllerIntegrationTes
   void mustBeAuthorized() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ToolboxAccessLogClient.newClient(localhost, apiKey),
-        client ->
-            client.getAccessLog(
-                AccessLogSearchRequest.builder().username("username").ip("ip").build(),
-                PagingParams.builder().pageSize(1).rowNumber(0).build()),
-        client -> client.getAccessLog(PagingParams.builder().pageSize(1).rowNumber(0).build()));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c ->
+            c.postForList(
+                ACCESS_LOG_PATH,
+                accessLogRequest(
+                    AccessLogSearchRequest.builder().username("username").ip("ip").build(),
+                    PagingParams.builder().pageSize(1).rowNumber(0).build()),
+                AccessLogData.class),
+        c ->
+            c.postForList(
+                ACCESS_LOG_PATH,
+                accessLogRequest(
+                    AccessLogSearchRequest.EMPTY_SEARCH,
+                    PagingParams.builder().pageSize(1).rowNumber(0).build()),
+                AccessLogData.class));
   }
 
   @Test
   void getAccessLog() {
-    final var result = client.getAccessLog(PagingParams.builder().pageSize(1).rowNumber(0).build());
+    final List<AccessLogData> result =
+        client.postForList(
+            ACCESS_LOG_PATH,
+            accessLogRequest(
+                AccessLogSearchRequest.EMPTY_SEARCH,
+                PagingParams.builder().pageSize(1).rowNumber(0).build()),
+            AccessLogData.class);
 
     assertThat(result, is(not(empty())));
     assertThat(result.get(0).getAccessDate(), is(notNullValue()));
@@ -51,8 +72,14 @@ public class AccessLogControllerIntegrationTest extends ControllerIntegrationTes
   void getAccessLogUnauthorizedCase() {
     assertNotAuthorized(
         NOT_MODERATORS,
-        apiKey -> ToolboxAccessLogClient.newClient(localhost, apiKey),
-        client -> client.getAccessLog(PagingParams.builder().pageSize(1).rowNumber(0).build()));
+        apiKey -> new LobbyHttpClientHelper(localhost, apiKey),
+        c ->
+            c.postForList(
+                ACCESS_LOG_PATH,
+                accessLogRequest(
+                    AccessLogSearchRequest.EMPTY_SEARCH,
+                    PagingParams.builder().pageSize(1).rowNumber(0).build()),
+                AccessLogData.class));
   }
 
   /**
@@ -62,17 +89,26 @@ public class AccessLogControllerIntegrationTest extends ControllerIntegrationTes
    */
   @Test
   void getAccessLogWithSearchParams() {
-    // first search for a user-name and IP that exist in the system
-    final var firstListing =
-        client.getAccessLog(PagingParams.builder().pageSize(1).rowNumber(0).build()).get(0);
+    final AccessLogData firstListing =
+        client
+            .postForList(
+                ACCESS_LOG_PATH,
+                accessLogRequest(
+                    AccessLogSearchRequest.EMPTY_SEARCH,
+                    PagingParams.builder().pageSize(1).rowNumber(0).build()),
+                AccessLogData.class)
+            .get(0);
 
-    final var result =
-        client.getAccessLog(
-            AccessLogSearchRequest.builder()
-                .username(firstListing.getUsername())
-                .ip(firstListing.getIp())
-                .build(),
-            PagingParams.builder().pageSize(1).rowNumber(0).build());
+    final List<AccessLogData> result =
+        client.postForList(
+            ACCESS_LOG_PATH,
+            accessLogRequest(
+                AccessLogSearchRequest.builder()
+                    .username(firstListing.getUsername())
+                    .ip(firstListing.getIp())
+                    .build(),
+                PagingParams.builder().pageSize(1).rowNumber(0).build()),
+            AccessLogData.class);
 
     assertThat(
         "We expect there to have been at least one match for sure", result, is(not(empty())));
@@ -86,16 +122,28 @@ public class AccessLogControllerIntegrationTest extends ControllerIntegrationTes
 
   @Test
   void emptySearchShouldBeSameAsAllSearch() {
-    // do a search with empty search parameters (should return everything)
-    final var emptySearchResult =
-        client.getAccessLog(
-            AccessLogSearchRequest.builder().build(),
-            PagingParams.builder().pageSize(1).rowNumber(0).build());
+    final PagingParams paging = PagingParams.builder().pageSize(1).rowNumber(0).build();
 
-    // do a full listing of all records
-    final var allSearchResult =
-        client.getAccessLog(PagingParams.builder().pageSize(1).rowNumber(0).build());
+    final List<AccessLogData> emptySearchResult =
+        client.postForList(
+            ACCESS_LOG_PATH,
+            accessLogRequest(AccessLogSearchRequest.builder().build(), paging),
+            AccessLogData.class);
+
+    final List<AccessLogData> allSearchResult =
+        client.postForList(
+            ACCESS_LOG_PATH,
+            accessLogRequest(AccessLogSearchRequest.EMPTY_SEARCH, paging),
+            AccessLogData.class);
 
     assertThat(emptySearchResult, is(equalTo(allSearchResult)));
+  }
+
+  private static AccessLogRequest accessLogRequest(
+      final AccessLogSearchRequest searchRequest, final PagingParams pagingParams) {
+    return AccessLogRequest.builder()
+        .accessLogSearchRequest(searchRequest)
+        .pagingParams(pagingParams)
+        .build();
   }
 }

@@ -8,7 +8,6 @@ import lombok.Builder;
 import org.jdbi.v3.core.Jdbi;
 import org.triplea.db.dao.user.UserJdbiDao;
 import org.triplea.http.client.lobby.login.LoginRequest;
-import org.triplea.java.ArgChecker;
 import org.triplea.modules.user.account.PasswordBCrypter;
 
 @Builder
@@ -27,8 +26,10 @@ public class PasswordCheck implements Predicate<LoginRequest> {
   @Override
   public boolean test(final LoginRequest loginRequest) {
     Preconditions.checkNotNull(loginRequest);
-    ArgChecker.checkNotEmpty(loginRequest.getName());
-    ArgChecker.checkNotEmpty(loginRequest.getPassword());
+    Preconditions.checkArgument(
+        loginRequest.getName() != null && !loginRequest.getName().isBlank());
+    Preconditions.checkArgument(
+        loginRequest.getPassword() != null && !loginRequest.getPassword().isBlank());
     return userJdbiDao
         .getPassword(loginRequest.getName())
         .map(dbPassword -> passwordVerifier.test(loginRequest.getPassword(), dbPassword))

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.util.Collection;
 import org.junit.jupiter.api.DisplayName;
@@ -18,12 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.triplea.java.IpAddressParser;
 
 @ExtendWith(MockitoExtension.class)
 class SessionSetTest {
-  private static final InetAddress IP_0 = IpAddressParser.fromString("99.99.99.0");
-  private static final InetAddress IP_1 = IpAddressParser.fromString("99.99.99.11");
+  private static final InetAddress IP_0 = InetAddresses.forString("99.99.99.0");
+  private static final InetAddress IP_1 = InetAddresses.forString("99.99.99.11");
 
   private final SessionSet sessionSet = new SessionSet();
 

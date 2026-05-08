@@ -18,6 +18,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.google.common.net.InetAddresses;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
@@ -34,15 +37,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.triplea.db.dao.lobby.games.LobbyGameDao;
 import org.triplea.db.dao.moderator.ModeratorAuditHistoryDao;
 import org.triplea.domain.data.ApiKey;
-import org.triplea.domain.data.LobbyGame;
 import org.triplea.domain.data.UserName;
 import org.triplea.http.client.lobby.game.lobby.watcher.GamePostingRequest;
+import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGame;
 import org.triplea.http.client.lobby.game.lobby.watcher.LobbyGameListing;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
+import org.triplea.http.client.lobby.web.socket.messages.envelopes.game.listing.LobbyGameUpdatedMessage;
 import org.triplea.http.client.web.socket.MessageEnvelope;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameRemovedMessage;
-import org.triplea.http.client.web.socket.messages.envelopes.game.listing.LobbyGameUpdatedMessage;
-import org.triplea.java.IpAddressParser;
-import org.triplea.java.cache.ttl.ExpiringAfterWriteTtlCache;
 import org.triplea.web.socket.WebSocketMessagingBus;
 
 /**
@@ -69,8 +70,8 @@ class GameListingTest {
   private static final String HOST_NAME = "host-player";
   private static final int MODERATOR_ID = 33;
 
-  private final ExpiringAfterWriteTtlCache<GameListing.GameId, LobbyGame> cache =
-      new ExpiringAfterWriteTtlCache<>(1, TimeUnit.HOURS, (key, value) -> {});
+  private final Cache<GameListing.GameId, LobbyGame> cache =
+      Caffeine.newBuilder().expireAfterWrite(1, TimeUnit.HOURS).build();
 
   @Mock private ModeratorAuditHistoryDao moderatorAuditHistoryDao;
   @Mock private LobbyGameDao lobbyGameDao;
@@ -299,8 +300,7 @@ class GameListingTest {
       assertThat(
           result,
           isPresentAndIs(
-              new InetSocketAddress(
-                  IpAddressParser.fromString("1.1.1.1"), lobbyGame0.getHostPort())));
+              new InetSocketAddress(InetAddresses.forString("1.1.1.1"), lobbyGame0.getHostPort())));
     }
   }
 
