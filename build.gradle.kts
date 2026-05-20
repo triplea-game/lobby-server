@@ -139,5 +139,5 @@ dependencies {
     testImplementation("ru.lanwen.wiremock:wiremock-junit5:1.3.1")
     testImplementation("uk.co.datumedge:hamcrest-json:0.3")
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.13.4")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.0")
 }
