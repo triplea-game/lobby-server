@@ -28,7 +28,6 @@ public class RemoteAddressConfigurator extends ServerEndpointConfig.Configurator
       final HandshakeRequest request,
       final HandshakeResponse response) {
     final List<String> forwardedFor = request.getHeaders().get("X-Forwarded-For");
-    log.info("IP address forwarded for: {}", forwardedFor);
     if (forwardedFor != null && !forwardedFor.isEmpty()) {
       // X-Forwarded-For may be "client, proxy1, proxy2" — take the leftmost (original client)
       final String ip = forwardedFor.get(0).split(",")[0].trim();
