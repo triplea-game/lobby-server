@@ -40,6 +40,9 @@ build-with-libs: ## Build with local 'triplea' client
 run: ## Runs a local lobby (with database) — Quarkus Dev Services starts Postgres automatically
 	./gradlew quarkusDev
 
+compose:
+	./gradlew build -x test -x testInteg -x spotlessCheck && docker compose up --build
+
 deploy-prod: ## Triggers prod to pull latest docker, run flyway and restart services
 	ANSIBLE_CONFIG="deploy/ansible.cfg" \
 	  ansible-playbook \

@@ -43,6 +43,13 @@ services:
       database:
         condition: service_healthy
 
+  nginx:
+    image: nginx:stable
+    volumes:
+      - ./.docker-compose/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+
   sample-data:
     image: postgres:18
     entrypoint: ["psql", "-h", "database", "-U", "lobby_user", "-d", "lobby_db", "-f", "/sample-data.sql"]

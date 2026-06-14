@@ -99,11 +99,22 @@ echo 'testcontainers.reuse.enable=true' >> ~/.testcontainers.properties
 
 ### Running (local dev environment via docker compose)
 
-Building from source and running locally:
+
+Simple command to launch stack:
+```
+make compose
+```
 
 ```
 ./gradlew composeUp
 ```
+
+
+Testing websocket:
+```
+websocat -H="X-Forwarded-For: 2001:db8::1234" ws://localhost/lobby/player-connection/ws
+```
+
 
 After the compose up, lobby will be running on port 3000, database will be started
 as well and latest flyway migrations run.
@@ -111,11 +122,11 @@ as well and latest flyway migrations run.
 After this, launch the game client, go to settings, update settings to use lobby
 running on http://localhost:3000
 
+We now have NGINX running in front of lobby on port 80 over HTTP.
 
 #### Debugging compose up failures
 
 Run the docker compose up command directly via CLI and look for errors:
-
 ```
 docker compose  -p lobby up
 ```
