@@ -19,10 +19,9 @@ import org.triplea.db.dao.temp.password.TempPasswordDao;
 @Builder
 @Slf4j
 class PasswordEmailSender implements BiConsumer<String, String> {
-  private static final String FROM = "no-reply@triplea-game.org";
-
   private final boolean sendEmailsEnabled;
   private final Properties smtpProperties;
+  private final String from;
 
   @Override
   public void accept(final String email, final String generatedPassword) {
@@ -39,7 +38,7 @@ class PasswordEmailSender implements BiConsumer<String, String> {
 
     try {
       final Message message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(FROM, "no-reply"));
+      message.setFrom(new InternetAddress(from, "no-reply"));
       message.addRecipient(Message.RecipientType.TO, new InternetAddress(email, email));
       message.setSubject("Temporary Password");
       message.setText(createMailBody(generatedPassword));

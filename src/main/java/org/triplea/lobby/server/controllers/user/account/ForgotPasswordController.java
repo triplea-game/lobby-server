@@ -36,13 +36,17 @@ public class ForgotPasswordController extends HttpController {
   @ConfigProperty(name = "app.smtp-port", defaultValue = "25")
   int smtpPort;
 
+  @ConfigProperty(name = "app.email-from", defaultValue = "no-reply@lobby.triplea-game.org")
+  String emailFrom;
+
   @Inject Jdbi jdbi;
 
   private BiFunction<String, ForgotPasswordRequest, String> forgotPasswordModule;
 
   @PostConstruct
   void init() {
-    forgotPasswordModule = ForgotPasswordModule.build(sendEmailsEnabled, jdbi, smtpHost, smtpPort);
+    forgotPasswordModule =
+        ForgotPasswordModule.build(sendEmailsEnabled, jdbi, smtpHost, smtpPort, emailFrom);
   }
 
   @POST

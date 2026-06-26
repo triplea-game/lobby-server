@@ -38,7 +38,11 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
   @Nonnull private final TempPasswordHistory tempPasswordHistory;
 
   public static BiFunction<String, ForgotPasswordRequest, String> build(
-      final boolean sendEmailsEnabled, final Jdbi jdbi, final String smtpHost, final int smtpPort) {
+      final boolean sendEmailsEnabled,
+      final Jdbi jdbi,
+      final String smtpHost,
+      final int smtpPort,
+      final String emailFrom) {
     final Properties props = new Properties();
     props.put("mail.smtp.host", smtpHost);
     props.put("mail.smtp.port", smtpPort);
@@ -48,6 +52,7 @@ public class ForgotPasswordModule implements BiFunction<String, ForgotPasswordRe
             PasswordEmailSender.builder()
                 .sendEmailsEnabled(sendEmailsEnabled)
                 .smtpProperties(props)
+                .from(emailFrom)
                 .build())
         .passwordGenerator(new PasswordGenerator())
         .tempPasswordPersistence(TempPasswordPersistence.newInstance(jdbi))
