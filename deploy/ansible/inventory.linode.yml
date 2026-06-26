@@ -3,6 +3,9 @@
 
 plugin: community.general.linode
 
+compose:
+  ansible_host: ipv4[0]
+
 # keyed_groups creates an Ansible host group for each Linode tag.
 # EG: a server tagged "Bot" becomes a member of the inventory group "Bot".
 keyed_groups:
