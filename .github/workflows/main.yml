@@ -30,7 +30,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Package application
-        if: ${{ env.IS_MAIN_BUILD }}
         run: ./gradlew quarkusBuild
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
