@@ -88,7 +88,7 @@ spotless {
 }
 
 val quarkusPlatformVersion = "3.37.0"
-val tripleaVersion = "2.7.15498"
+val tripleaVersion = "2.7.15622"
 
 dependencies {
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
