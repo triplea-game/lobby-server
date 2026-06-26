@@ -1,4 +1,4 @@
 - hosts: tag_lobby
   tasks:
     - name: Deploy latest Lobby
-      command: /usr/local/bin/deploy-lobby.sh
+      command: /opt/lobby/deploy-lobby.sh
