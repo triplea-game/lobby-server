@@ -43,9 +43,9 @@ run: ## Runs a local lobby (with database) — Quarkus Dev Services starts Postg
 compose:
 	./gradlew build -x test -x testInteg -x spotlessCheck && docker compose up --build
 
-deploy-prod: ## Triggers prod to pull latest docker, run flyway and restart services
+deploy: ## Triggers prod to pull latest docker and restart services
 	ANSIBLE_CONFIG="deploy/ansible.cfg" \
 	  ansible-playbook \
 	    -e ansible_user=$(SSH_USER) \
-	    --inventory deploy/ansible/linode.inventory.yml \
+	    --inventory deploy/ansible/inventory.linode.yml \
 	    deploy/ansible/playbook.yml

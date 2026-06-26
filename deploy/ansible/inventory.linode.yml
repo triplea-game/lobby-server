@@ -1,0 +1,11 @@
+# Dynamic inventory plugin for Linode.
+# Access token is read from the LINODE_ACCESS_TOKEN environment variable
+
+plugin: community.general.linode
+
+# keyed_groups creates an Ansible host group for each Linode tag.
+# EG: a server tagged "Bot" becomes a member of the inventory group "Bot".
+keyed_groups:
+  - key: tags
+    prefix: "tag"
+    separator: "_"

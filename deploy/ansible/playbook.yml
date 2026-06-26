@@ -1,6 +1,4 @@
-- hosts: lobby
+- hosts: tag_lobby
   tasks:
-
-    - name: Pull Latest Lobby and Restart
-      become: true
-      command: /usr/local/bin/deploy-service.sh
+    - name: Deploy latest Lobby
+      command: /usr/local/bin/deploy-lobby.sh
