@@ -46,4 +46,4 @@ LICENSE
 README.md
 .docs/
 .github/
-Makefile
+justfile

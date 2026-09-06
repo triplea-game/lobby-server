@@ -77,7 +77,7 @@ triplea_github_access.token=CHANGE_ME
 Runs all validations (tests/linters) and runs code auto-formatter:
 
 ```
-make check
+just check
 ```
 
 Docker compose is used to start a database during build.
@@ -102,7 +102,7 @@ echo 'testcontainers.reuse.enable=true' >> ~/.testcontainers.properties
 
 Simple command to launch stack:
 ```
-make compose
+just compose
 ```
 
 ```
@@ -146,13 +146,13 @@ a395fabccd4e   postgres:10          "docker-entrypoint.s…"   5 days ago   Up 9
 ### Connecting to local database
 
 ```
-make connect-to-database
+just connect-to-database
 ```
 
 ### Rebuild from clean
 
 ```
-make clean
+just clean
 ```
 
 ### Running (prod-like environment with docker)

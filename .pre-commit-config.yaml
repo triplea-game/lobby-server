@@ -23,9 +23,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: make-format
-        name: Format (make format)
+      - id: just-format
+        name: Format (just format)
         language: system
-        entry: make format
+        entry: just format
         pass_filenames: false
         stages: [pre-push]
