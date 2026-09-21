@@ -124,7 +124,7 @@ dependencies {
 
     testImplementation("org.java-websocket:Java-WebSocket:1.6.0")
 
-    testImplementation("com.github.database-rider:rider-junit5:1.43.0")
+    testImplementation("com.github.database-rider:rider-junit5:1.44.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
     testImplementation("org.assertj:assertj-core:3.27.7")
 
