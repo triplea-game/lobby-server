@@ -55,6 +55,9 @@ When master branch is updated:
     - fetch docker flyway image and run it against postgres
     - pull latest docker image for lobby
     - restart lobby (latest image takes effect)
+    - wait for the lobby's readiness probe; fail the deploy if it never comes up
+- smoke-test prod through public nginx (`/lobby/health`, fetch-games); a failure
+  is an alarm, since the deploy has already happened
 
 
 ## Development

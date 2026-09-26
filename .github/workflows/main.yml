@@ -1,5 +1,6 @@
 # Runs when main branch is updated.
-# Runs builds checks, if all passes then packages the lobby and redeploys
+# Runs build checks; if they pass, packages the lobby, redeploys, and
+# smoke-tests prod.
 
 name: Main Branch Build and Deploy
 on:
@@ -79,3 +80,70 @@ jobs:
         env:
           LINODE_ACCESS_TOKEN: ${{ secrets.LINODE_READ_ONLY_TOKEN }}
         run: SSH_USER=deploy just deploy
+
+  # End-to-end smoke test of the just-deployed lobby, through the real public
+  # path (prod nginx -> lobby container). A red job here turns the main build
+  # red, which emails on failure. This is an alarm, not a gate: the deploy has
+  # already happened, so it signals "this deploy broke prod" rather than
+  # preventing it.
+  smoke:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      # Two probes, since each covers what the other can't:
+      # - /lobby/health is nginx's masked proxy of /q/health/ready (defined in
+      #   the infrastructure repo's server-lobby-2-7.conf), which includes the
+      #   datasource check, so '200 UP' means the app booted and Postgres is
+      #   reachable. The body must say UP too, as a guard on the infra side:
+      #   nginx passes the upstream's error status through today, but if its
+      #   'error_page' ever gained '=' the masked 'DOWN' body would arrive as
+      #   200, and this still fails.
+      # - fetch-games is the route real clients use (the /lobby location, which
+      #   picks the upstream port from the Triplea-Version header). It rejects
+      #   keyless requests (even for the ANONYMOUS role), so we send a made-up
+      #   API key: the lobby looks it up (a read-only query), rejects it, and
+      #   answers with its own Bearer challenge. nginx can't produce that
+      #   header itself, so it proves the request reached the 2.7 lobby.
+      # Both probes always run, so a failure shows which path is broken. Each
+      # retries every 10s for ~2 min: the deploy step already waits for
+      # readiness, so this only rides out transient blips (eg: nginx reload).
+      - name: Smoke-test the deployed lobby
+        run: |
+          probe() {
+            local name="$1" expected="$2"; shift 2
+            for attempt in $(seq 1 12); do
+              got=$("$@" || true)
+              if [ "$got" = "$expected" ]; then
+                echo "$name passed: got '$got' (attempt $attempt)"
+                return 0
+              fi
+              echo "$name attempt $attempt: got '$got', want '$expected'; retrying in 10s"
+              sleep 10
+            done
+            echo "$name FAILED: never got '$expected'"
+            return 1
+          }
+
+          # Prints the status code, plus ' UP' when the body reports UP;
+          # eg: '200 UP'. curl prints '000' as the code when it can't connect.
+          # The UP pattern is pinned by HealthCheckIntegrationTest.
+          health() {
+            curl -sS --max-time 10 -w '\n%{http_code}' \
+                "https://prod.triplea-game.org/lobby/health" \
+              | awk '/"status" *: *"UP"/ { up = " UP" } { last = $0 } END { print last up }'
+          }
+
+          # Prints the status code plus the challenge header;
+          # eg: '401 Bearer realm="lobby"'.
+          fetch_games() {
+            curl -sS -o /dev/null -D - --max-time 10 \
+                -H "Triplea-Version: 2.7" -H "Authorization: Bearer smoke-test-unknown-key" \
+                "https://prod.triplea-game.org/lobby/games/fetch-games" \
+              | tr -d '\r' \
+              | awk 'NR == 1 { code = $2 } tolower($1) == "www-authenticate:" { sub(/^[^:]*: */, ""); hdr = $0 } END { print code " " hdr }'
+          }
+
+          rc=0
+          probe "Health check" "200 UP" health || rc=1
+          probe "Fetch-games route" '401 Bearer realm="lobby"' fetch_games || rc=1
+          exit $rc

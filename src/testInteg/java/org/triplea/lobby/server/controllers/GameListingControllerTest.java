@@ -1,6 +1,12 @@
 package org.triplea.lobby.server.controllers;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 import io.quarkus.test.junit.QuarkusTest;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.triplea.lobby.server.ControllerIntegrationTest;
@@ -22,6 +28,27 @@ public class GameListingControllerTest extends ControllerIntegrationTest {
   @Test
   void fetchGames() {
     client.get(FETCH_GAMES_PATH, Object[].class);
+  }
+
+  /**
+   * The post-deploy smoke check probes fetch-games with an unknown API key and treats exactly this
+   * challenge as proof the request reached the lobby app through nginx's client route.
+   */
+  @Test
+  void fetchGamesWithUnknownApiKeyIsChallenged() throws Exception {
+    final HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(localhost.resolve(FETCH_GAMES_PATH))
+            .header("Authorization", "Bearer smoke-test-unknown-key")
+            .GET()
+            .build();
+
+    final HttpResponse<Void> response =
+        HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.discarding());
+
+    assertThat(response.statusCode(), is(401));
+    assertThat(
+        response.headers().firstValue("WWW-Authenticate").orElse(""), is("Bearer realm=\"lobby\""));
   }
 
   @Test
