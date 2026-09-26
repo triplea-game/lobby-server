@@ -1,8 +1,8 @@
 plugins {
     id("java")
-    id("io.freefair.lombok") version "9.5.0"
-    id("com.diffplug.spotless") version "8.8.0"
-    id("io.quarkus") version "3.37.0"
+    id("io.freefair.lombok") version "9.7.0"
+    id("com.diffplug.spotless") version "8.10.2"
+    id("io.quarkus") version "3.40.0"
 }
 
 java {
@@ -87,8 +87,8 @@ spotless {
     }
 }
 
-val quarkusPlatformVersion = "3.37.0"
-val tripleaVersion = "2.7.15498"
+val quarkusPlatformVersion = "3.39.5"
+val tripleaVersion = "2.7.15622"
 
 dependencies {
     implementation(enforcedPlatform("io.quarkus.platform:quarkus-bom:$quarkusPlatformVersion"))
@@ -102,8 +102,8 @@ dependencies {
     implementation("io.quarkus:quarkus-smallrye-health")    // health checks
 
     // JDBI — framework-agnostic, wires against any DataSource
-    implementation("org.jdbi:jdbi3-core:3.53.0")
-    implementation("org.jdbi:jdbi3-sqlobject:3.53.0")
+    implementation("org.jdbi:jdbi3-core:3.54.0")
+    implementation("org.jdbi:jdbi3-sqlobject:3.54.0")
 
     // Utility libraries (no longer pulled in transitively post-DropWizard removal)
     implementation("com.google.guava:guava")
@@ -124,20 +124,20 @@ dependencies {
 
     testImplementation("org.java-websocket:Java-WebSocket:1.6.0")
 
-    testImplementation("com.github.database-rider:rider-junit5:1.43.0")
+    testImplementation("com.github.database-rider:rider-junit5:1.44.0")
     testImplementation("com.github.npathai:hamcrest-optional:2.0.0")
     testImplementation("org.assertj:assertj-core:3.27.7")
 
     testImplementation("org.awaitility:awaitility:4.3.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.1.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:6.1.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:6.1.3")
 
-    testImplementation("org.mockito:mockito-core:5.23.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
-    testImplementation("org.wiremock:wiremock:3.7.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.24.0")
+    testImplementation("org.wiremock:wiremock:3.13.2")
     testImplementation("ru.lanwen.wiremock:wiremock-junit5:1.3.1")
     testImplementation("uk.co.datumedge:hamcrest-json:0.3")
 
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.0")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.1.3")
 }
