@@ -77,7 +77,7 @@ triplea_github_access.token=CHANGE_ME
 Runs all validations (tests/linters) and runs code auto-formatter:
 
 ```
-just check
+just verify
 ```
 
 Docker compose is used to start a database during build.
