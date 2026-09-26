@@ -23,7 +23,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: extractions/setup-just@v2
+      - uses: extractions/setup-just@v4
       - name: Run Build Checks
         # We skip 'spotlessApply' such that only 'spotlessCheck' will run to validate formatting.
         # This is a good setup for a CI server, meanwhile if a developer runs 'verify', they
@@ -61,7 +61,7 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
       - name: Install just
-        uses: extractions/setup-just@v2
+        uses: extractions/setup-just@v4
       - name: Install uv
         uses: astral-sh/setup-uv@v7
         with:
