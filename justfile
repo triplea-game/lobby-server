@@ -56,6 +56,6 @@ run:
 compose:
     ./gradlew build -x test -x testInteg -x spotlessCheck && docker compose up --build
 
-# Trigger prod to pull the latest docker image and restart services.
-deploy:
-    ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook -e ansible_user={{ssh_user}} --inventory deploy/ansible/inventory.linode.yml deploy/ansible/playbook.yml
+# Deploy an image tag to prod (CI passes sha-<commit>).
+deploy tag="latest":
+    ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook -e ansible_user={{ssh_user}} -e lobby_tag={{tag}} --inventory deploy/ansible/inventory.linode.yml deploy/ansible/playbook.yml

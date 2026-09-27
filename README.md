@@ -48,14 +48,17 @@ these messages are not received after a cut-off period, then the game or player 
 
 When master branch is updated:
 - build push docker images to github packages
-  - server image
+  - server image, tagged both `latest` and `sha-<commit>`
   - "flyway" image with DB migrations
-- update prod to latest version, zero downtime deployment, run ansible:
+- update prod to this commit's `sha-<commit>` image (`just deploy sha-<commit>`),
+  zero downtime deployment, run ansible:
     - ensure postgres is running on docker
     - fetch docker flyway image and run it against postgres
-    - pull latest docker image for lobby
-    - restart lobby (latest image takes effect)
+    - pull the lobby image for that tag
+    - restart lobby (that image takes effect)
     - wait for the lobby's readiness probe; fail the deploy if it never comes up
+- a newer push cancels an in-progress build but never an in-progress deploy;
+  deploys queue instead
 - smoke-test prod through public nginx (`/lobby/health`, fetch-games); a failure
   is an alarm, since the deploy has already happened
 
