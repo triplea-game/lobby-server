@@ -41,7 +41,8 @@ these messages are not received after a cut-off period, then the game or player 
 
 (1) Docker Container for lobby server application. This runs the lobby.
 
-(2) Docker Container for flyway migration. This updates database.
+(2) Docker Container with sample data (`database/sample_data`); the deploy never runs it.
+Schema migrations ship inside the lobby image and run at startup.
 
 
 ### Build Actions
@@ -49,14 +50,14 @@ these messages are not received after a cut-off period, then the game or player 
 When master branch is updated:
 - build push docker images to github packages
   - server image, tagged both `latest` and `sha-<commit>`
-  - "flyway" image with DB migrations
-- update prod to this commit's `sha-<commit>` image (`just deploy sha-<commit>`),
-  zero downtime deployment, run ansible:
-    - ensure postgres is running on docker
-    - fetch docker flyway image and run it against postgres
-    - pull the lobby image for that tag
-    - restart lobby (that image takes effect)
-    - wait for the lobby's readiness probe; fail the deploy if it never comes up
+  - sample data image, tagged `latest`
+- update prod to this commit's `sha-<commit>` image (`just deploy sha-<commit>`);
+  ansible runs the host's deploy script, which:
+    - pulls the lobby image for that tag
+    - recreates the lobby container on it; the lobby is down until the new one
+      is ready, and runs any pending Flyway migrations as it starts
+    - waits for the lobby's healthcheck; if it never comes up, rolls back to the
+      last known good image and fails the deploy
 - a newer push cancels an in-progress build but never an in-progress deploy;
   deploys queue instead
 - smoke-test prod through public nginx (`/lobby/health`, fetch-games); a failure
@@ -168,14 +169,14 @@ set +o history
 DB_PASS=...
 set -o history
 
-docker pull ghcr.io/triplea-game/lobby:latest
+docker pull ghcr.io/triplea-game/lobby/server:latest
 docker run   \
   --network host   \
   -e HTTP_PORT="8026"   \
   -e DB_URL="localhost:5432/lobby_db"   \
   -e DATABASE_USER="lobby_user"   \
   -e DATABASE_PASSWORD="$DB_PASS"   \
-  ghcr.io/triplea-game/lobby
+  ghcr.io/triplea-game/lobby/server:latest
 ```
 
 

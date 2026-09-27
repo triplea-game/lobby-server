@@ -1,9 +1,10 @@
 - hosts: tag_lobby
   tasks:
     - name: Deploy lobby image tag
-      # The command path and run-as user must match the NOPASSWD sudoers rule
-      # the infrastructure repo's lobby/service role installs at
-      # /etc/sudoers.d/deploy-lobby ('deploy ALL=(lobby) NOPASSWD:
-      # /opt/lobby/deploy-lobby.sh'); any mismatch makes sudo prompt for a
+      # The command path and run-as user must match the sudoers rule the
+      # infrastructure repo's lobby/service role installs at
+      # /etc/sudoers.d/deploy-lobby, which lets 'deploy' run only
+      # '{{ lobby_working_directory }}/deploy-lobby.sh' (default '/opt/lobby')
+      # as 'lobby' without a password; any mismatch makes sudo prompt for a
       # password and fail in CI. Keep in sync if that role's path changes.
       command: sudo -u lobby /opt/lobby/deploy-lobby.sh {{ lobby_tag | default('latest') | quote }}
