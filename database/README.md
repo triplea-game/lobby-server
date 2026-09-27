@@ -1,7 +1,19 @@
 # Database
 
-Hosts database migrations. Migration files are raw SQL, they are packaged onto
-a 'flyway' docker, flyway is a tool to run those SQL files.
+Hosts local database tooling and sample data. The schema migrations themselves
+are raw Flyway SQL files in `src/main/resources/db/migration/`; the lobby runs
+them on startup.
+
+## Migrations must be backward compatible
+
+Every migration must work with the previous release's code: additive changes
+only (new tables, new nullable or defaulted columns, new indexes). Drop or
+rename something only in the release after the code stopped using it.
+
+Why: rolling back the lobby one release starts the older build against the
+newer schema. Flyway is configured to ignore applied migrations it doesn't know
+('quarkus.flyway.ignore-migration-patterns=*:future'), so the older build boots,
+and it only works correctly if the schema still has everything it expects.
 
 
 Lobby DB Stores Data on:
