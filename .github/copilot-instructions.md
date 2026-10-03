@@ -1,4 +1,4 @@
-Use `just verify` to validate the project
+Use `just format` then `just check` to validate the project
 
 ## Tech Stack
 - Java 21, DropWizard (HTTP server), JDBI (no ORM), Postgres, Lombok
@@ -6,10 +6,10 @@ Use `just verify` to validate the project
 - Docker + docker-compose for local dev and integration tests
 
 ## Common Commands
-- `just verify` — auto-format + run all tests (recommended for developers)
 - `just check` — run all tests without formatting (used in CI)
-- `./gradlew spotlessApply` — format code only (Google Java Format)
-- `just run` — start a local lobby server + database via docker-compose (port 3000)
+- `just format` — format code only (Google Java Format)
+- `just up` — run a local lobby in Quarkus dev mode; Dev Services starts Postgres
+- `just compose-up` — start a local lobby server + database via docker-compose (port 3000)
 
 ## Testing
 - `src/test/` — unit tests; no database or server required
@@ -17,7 +17,7 @@ Use `just verify` to validate the project
 - Do not put integration tests in `src/test/` or unit tests in `src/testInteg/`
 
 ## Code Style
-- Google Java Format is enforced via Spotless (`./gradlew spotlessApply` or `just verify`)
+- Google Java Format is enforced via Spotless (`just format`)
 - No wildcard imports (Spotless removes them)
 - Use Lombok annotations (`@Value`, `@Builder`, `@Data`, `@RequiredArgsConstructor`, etc.) instead of hand-written boilerplate
 

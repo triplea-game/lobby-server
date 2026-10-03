@@ -8,6 +8,7 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 ssh_user := env_var_or_default("SSH_USER", env_var_or_default("USER", ""))
 
 alias test := check
+alias run := up
 
 # Show available recipes.
 default:
@@ -34,12 +35,8 @@ format:
 clean:
     ./gradlew clean
 
-# Auto-format then verify — the recommended developer loop.
-verify:
-    ./gradlew spotlessApply check
-
 # Connect to the local Postgres dev container (whatever publishes 5432).
-connect-to-database:
+psql:
     #!/usr/bin/env bash
     id="$(docker ps --filter publish=5432 --filter status=running -q | head -n1)"
     docker exec -it --user postgres "$id" psql lobby_db
@@ -49,11 +46,11 @@ build-with-libs:
     ./gradlew --include-build ../triplea compileJava
 
 # Run a local lobby; Quarkus Dev Services starts Postgres automatically.
-run:
+up:
     ./gradlew quarkusDev
 
 # Build (skipping tests + spotless) and bring the stack up via docker compose.
-compose:
+compose-up:
     ./gradlew build -x test -x testInteg -x spotlessCheck && docker compose up --build
 
 # Deploy an image tag to prod (CI passes sha-<commit>).
