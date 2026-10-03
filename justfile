@@ -43,11 +43,9 @@ clean:
     docker compose down -v
     ./gradlew clean
 
-# Connect to the local Postgres dev container (whatever publishes 5432).
+# Connect to the Quarkus Dev Services Postgres started by `just up`.
 psql:
-    #!/usr/bin/env bash
-    id="$(docker ps --filter publish=5432 --filter status=running -q | head -n1)"
-    docker exec -it --user postgres "$id" psql lobby_db
+    docker exec -it "$(just _dev-db | head -n 1)" psql -U quarkus {{dev_db}}
 
 # Build against a local '../triplea' client checkout.
 build-with-libs:
