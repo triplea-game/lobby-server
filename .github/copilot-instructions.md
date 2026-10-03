@@ -23,5 +23,5 @@ Use `just verify` to validate the project
 
 ## Database
 - No ORM — use JDBI with SQL object pattern
-- Database migrations go in `database/migrations/` as Flyway `.sql` files
+- Database migrations go in `src/main/resources/db/migration/` as Flyway `.sql` files
 - Migration naming convention: `V{major}.{minor}.{patch}__description.sql`

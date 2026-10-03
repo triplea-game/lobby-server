@@ -8,10 +8,10 @@ repos:
         stages: [pre-push]
       - id: end-of-file-fixer
         stages: [pre-push]
-        exclude: ^database/migrations/.*\.sql
+        exclude: ^src/main/resources/db/migration/.*\.sql
       - id: trailing-whitespace
         stages: [pre-push]
-        exclude: ^database/migrations/.*\.sql
+        exclude: ^src/main/resources/db/migration/.*\.sql
       - id: check-case-conflict
         stages: [pre-push]
 
