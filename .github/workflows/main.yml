@@ -66,42 +66,14 @@ jobs:
           docker push ghcr.io/triplea-game/lobby/server:latest
           docker push ghcr.io/triplea-game/lobby/server:sha-${{ github.sha }}
   deploy:
-    runs-on: ubuntu-latest
     needs: build
     concurrency:
       group: ${{ github.workflow }}-deploy-${{ github.ref }}
       cancel-in-progress: false
-    # Deploys never cancel, so a hung one would hold the queue for GitHub's 6h
-    # default; the host script's own waits finish well inside this.
-    timeout-minutes: 15
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-      - name: Load SSH private key into ssh-agent
-        uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
-      - name: Install just
-        uses: extractions/setup-just@v4
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-        with:
-          enable-cache: true
-          python-version: "3.12"
-      - name: Cache Ansible Galaxy collections
-        uses: actions/cache@v4
-        with:
-          path: ~/.ansible/collections
-          key: ansible-collections-${{ hashFiles('deploy/ansible/requirements.yml') }}
-      - name: Install Ansible and dependencies
-        run: |
-          uv tool install --with linode_api4 --with-executables-from ansible-core,ansible-lint ansible
-          ansible-galaxy collection install -r deploy/ansible/requirements.yml
-      - name: Deploy
-        env:
-          LINODE_ACCESS_TOKEN: ${{ secrets.LINODE_READ_ONLY_TOKEN }}
-        run: SSH_USER=deploy just deploy sha-${{ github.sha }}
+    uses: triplea-game/infrastructure/.github/workflows/shared-deploy.yml@v1
+    secrets:
+      DEPLOY_SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+      LINODE_READ_ONLY_TOKEN: ${{ secrets.LINODE_READ_ONLY_TOKEN }}
 
   # End-to-end smoke test of the just-deployed lobby, through the real public
   # path (prod nginx -> lobby container). A red job here turns the main build
