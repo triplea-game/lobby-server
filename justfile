@@ -7,6 +7,9 @@ set shell := ["bash", "-euo", "pipefail", "-c"]
 
 ssh_user := env_var_or_default("SSH_USER", env_var_or_default("USER", ""))
 
+# Matches %dev.quarkus.datasource.devservices.db-name in application.properties.
+dev_db := "lobby_db"
+
 alias test := check
 alias run := up
 
@@ -32,7 +35,12 @@ check:
 format:
     ./gradlew spotlessApply
 
+# Wipe local state: the Dev Services database, the compose stack's volumes, and build artifacts.
 clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for id in $(just _dev-db); do docker rm -f -v "$id"; done
+    docker compose down -v
     ./gradlew clean
 
 # Connect to the local Postgres dev container (whatever publishes 5432).
@@ -56,3 +64,11 @@ compose-up:
 # Deploy an image tag to prod (CI passes sha-<commit>).
 deploy tag="latest":
     ANSIBLE_CONFIG="deploy/ansible.cfg" ansible-playbook -e ansible_user={{ssh_user}} -e lobby_tag={{tag}} --inventory deploy/ansible/inventory.linode.yml deploy/ansible/playbook.yml
+
+# Print the ids of this repo's Dev Services Postgres containers, running or stopped.
+_dev-db:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for id in $(docker ps -aq --filter label=io.quarkus.devservice.launch-mode=DEVELOPMENT); do
+      if docker inspect "$id" | grep -q '"POSTGRES_DB={{dev_db}}"'; then echo "$id"; fi
+    done

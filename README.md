@@ -154,7 +154,7 @@ a395fabccd4e   postgres:10          "docker-entrypoint.s…"   5 days ago   Up 9
 just psql
 ```
 
-### Rebuild from clean
+### Wipe local state (databases and build output)
 
 ```
 just clean
