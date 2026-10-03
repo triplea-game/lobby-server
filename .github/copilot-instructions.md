@@ -1,9 +1,9 @@
 Use `just format` then `just check` to validate the project
 
 ## Tech Stack
-- Java 21, DropWizard (HTTP server), JDBI (no ORM), Postgres, Lombok
-- Gradle build with shadow JAR as deployment artifact
-- Docker + docker-compose for local dev and integration tests
+- Java 21, Quarkus (RESTEasy Classic, WebSockets), JDBI (no ORM), Postgres, Flyway, Lombok
+- Gradle build; the Quarkus fast-jar (`build/quarkus-app/`) is the deployment artifact
+- Quarkus Dev Services (Testcontainers) start Postgres for dev mode and tests
 
 ## Common Commands
 - `just check` — run all tests without formatting (used in CI)
@@ -13,7 +13,7 @@ Use `just format` then `just check` to validate the project
 
 ## Testing
 - `src/test/` — unit tests; no database or server required
-- `src/testInteg/` — integration tests; require Docker (docker-compose spins up a live DB and server automatically via Gradle)
+- `src/testInteg/` — integration tests; require Docker (Dev Services starts a live Postgres)
 - Do not put integration tests in `src/test/` or unit tests in `src/testInteg/`
 
 ## Code Style
