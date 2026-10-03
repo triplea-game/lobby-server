@@ -39,10 +39,8 @@ these messages are not received after a cut-off period, then the game or player 
 
 ### Build Artifacts
 
-(1) Docker Container for lobby server application. This runs the lobby.
-
-(2) Docker Container with sample data (`database/sample_data`); the deploy never runs it.
-Schema migrations ship inside the lobby image and run at startup.
+Docker Container for lobby server application. This runs the lobby. Schema
+migrations ship inside the lobby image and run at startup.
 
 
 ### Build Actions
@@ -50,7 +48,6 @@ Schema migrations ship inside the lobby image and run at startup.
 When master branch is updated:
 - build push docker images to github packages
   - server image, tagged both `latest` and `sha-<commit>`
-  - sample data image, tagged `latest`
 - update prod to this commit's `sha-<commit>` image (`just deploy sha-<commit>`);
   ansible runs the host's deploy script, which:
     - pulls the lobby image for that tag
@@ -185,35 +182,14 @@ docker run   \
 ## Prod - useful commands
 
 
-```
-sudo systemctl status lobby-2.6.service
-sudo systemctl restart lobby-2.6.service
-
-tail -f /var/log/lobby-2.6.log
-
-docker container ls
-docker logs [lobby container name]
-```
-
-
-Run flyway via docker container:
+The lobby runs as a docker compose project in `/opt/lobby` (services
+`service`, `postgres18`, `postfix`), started by `lobby.service`. Containers log
+to journald, tagged `lobby`, `lobby-postgres` and `lobby-postfix`.
 
 ```
-ssh prod.triplea-game.org
-
-set +o history
-DB_PASS=...
-set -o history
-
-docker run \
-  --network=host \
-  ghcr.io/triplea-game/lobby/flyway \
-    -locations=filesystem:/flyway/sql \
-    -connectRetries=60 \
-    -user=lobby_user \
-    -password=$DB_PASS \
-    -url=jdbc:postgresql://localhost:5432/lobby_db \
-    migrate
+sudo systemctl status lobby.service
+cd /opt/lobby && sudo -u lobby docker compose ps
+sudo journalctl -t lobby -f
 ```
 
 

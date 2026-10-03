@@ -54,10 +54,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: docker for optional database migrations with example seed data
-        run: |
-          docker build database/sample_data --tag ghcr.io/triplea-game/lobby/sample_data:latest
-          docker push ghcr.io/triplea-game/lobby/sample_data:latest
       - name: docker for the java lobby server
         run: |
           docker build . \
